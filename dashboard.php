@@ -22,6 +22,9 @@ requireLogin();
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/avatar.js"></script>
+    <script>
+        window.currentUserId = <?php echo $_SESSION['user_id']; ?>;
+    </script>
 </head>
 <body class="dashboard-page">
     <nav class="navbar">

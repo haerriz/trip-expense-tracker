@@ -15,36 +15,54 @@ try {
             exit;
         }
         
-        // Check if current user is trip creator
+        // Check if current user is trip creator OR the member is removing themselves
         $stmt = $pdo->prepare("SELECT created_by FROM trips WHERE id = ?");
         $stmt->execute([$tripId]);
         $trip = $stmt->fetch();
         
-        if (!$trip || $trip['created_by'] != $userId) {
-            echo json_encode(['success' => false, 'message' => 'Only trip creator can remove members']);
+        $isCreator = ($trip && $trip['created_by'] == $userId);
+        $isSelfRemoval = ($memberId == $userId);
+        
+        if (!$isCreator && !$isSelfRemoval) {
+            echo json_encode(['success' => false, 'message' => 'Only trip creator or the member themselves can remove membership']);
             exit;
         }
         
-        // Check if member has any expenses or splits
-        $stmt = $pdo->prepare("
-            SELECT COUNT(*) as expense_count 
-            FROM expenses e 
-            LEFT JOIN expense_splits es ON e.id = es.expense_id 
-            WHERE e.trip_id = ? AND (e.paid_by = ? OR es.user_id = ?)
-        ");
-        $stmt->execute([$tripId, $memberId, $memberId]);
-        $result = $stmt->fetch();
-        
-        if ($result['expense_count'] > 0) {
-            echo json_encode(['success' => false, 'message' => 'Cannot remove member with existing expenses or splits']);
-            exit;
+        // Check if member has any expenses or splits (only if not self-removal)
+        if (!$isSelfRemoval) {
+            try {
+                $stmt = $pdo->prepare("
+                    SELECT COUNT(*) as expense_count 
+                    FROM expenses e 
+                    LEFT JOIN expense_splits es ON e.id = es.expense_id 
+                    WHERE e.trip_id = ? AND (e.paid_by = ? OR es.user_id = ?)
+                ");
+                $stmt->execute([$tripId, $memberId, $memberId]);
+                $result = $stmt->fetch();
+                
+                if ($result['expense_count'] > 0) {
+                    echo json_encode(['success' => false, 'message' => 'Cannot remove member with existing expenses or splits']);
+                    exit;
+                }
+            } catch (Exception $e) {
+                // If expense_splits table doesn't exist, just check expenses
+                $stmt = $pdo->prepare("SELECT COUNT(*) as expense_count FROM expenses WHERE trip_id = ? AND paid_by = ?");
+                $stmt->execute([$tripId, $memberId]);
+                $result = $stmt->fetch();
+                
+                if ($result['expense_count'] > 0) {
+                    echo json_encode(['success' => false, 'message' => 'Cannot remove member with existing expenses']);
+                    exit;
+                }
+            }
         }
         
         // Remove member
         $stmt = $pdo->prepare("DELETE FROM trip_members WHERE trip_id = ? AND user_id = ?");
         
         if ($stmt->execute([$tripId, $memberId])) {
-            echo json_encode(['success' => true, 'message' => 'Member removed successfully']);
+            $message = $isSelfRemoval ? 'You have left the trip' : 'Member removed successfully';
+            echo json_encode(['success' => true, 'message' => $message]);
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to remove member']);
         }

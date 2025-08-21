@@ -240,6 +240,11 @@ function loadTrips() {
             } else if (trips.length === 0) {
                 showEmptyState();
             }
+        })
+        .fail(function(xhr, status, error) {
+            console.error('Failed to load trips:', error);
+            M.toast({html: 'Failed to load trips'});
+            showEmptyState();
         });
 }
 
@@ -347,26 +352,45 @@ function loadTripMembers(tripId) {
     $.get('api/get_trip_members.php', { trip_id: tripId })
         .done(function(data) {
             const members = data.members || [];
+            const currentUserId = getCurrentUserId(); // We'll need to get this
             let html = '';
             
             members.forEach(function(member) {
+                const isCurrentUser = member.id == currentUserId;
+                const buttonText = isCurrentUser ? 'Leave Trip' : 'Remove';
+                const buttonIcon = isCurrentUser ? 'exit_to_app' : 'remove';
+                const buttonTitle = isCurrentUser ? 'Leave this trip' : 'Remove member';
+                
                 html += `
                     <div class="trip-members__member">
                         <img src="${member.picture && !member.picture.includes('placeholder') ? member.picture : generateAvatar(member.name)}" alt="${member.name}" class="trip-members__avatar circle">
-                        <span>${member.name}</span>
-                        <button class="btn-small red right" onclick="removeMember(${tripId}, ${member.id})" title="Remove member">
-                            <i class="material-icons">remove</i>
+                        <span>${member.name}${isCurrentUser ? ' (You)' : ''}</span>
+                        <button class="btn-small red right" onclick="removeMember(${tripId}, ${member.id})" title="${buttonTitle}">
+                            <i class="material-icons">${buttonIcon}</i>
                         </button>
                     </div>
                 `;
             });
             
             $('#members-list').html(html);
+        })
+        .fail(function() {
+            $('#members-list').html('<p class="red-text">Error loading members</p>');
         });
 }
 
+function getCurrentUserId() {
+    // Get current user ID from a global variable or API call
+    return window.currentUserId || null;
+}
+
 function removeMember(tripId, memberId) {
-    if (confirm('Remove this member from the trip? This is only allowed if they have no expenses.')) {
+    const isCurrentUser = memberId == window.currentUserId;
+    const confirmMessage = isCurrentUser ? 
+        'Are you sure you want to leave this trip?' : 
+        'Remove this member from the trip? This is only allowed if they have no expenses.';
+    
+    if (confirm(confirmMessage)) {
         $.post('api/remove_member.php', {
             trip_id: tripId,
             member_id: memberId
@@ -374,10 +398,21 @@ function removeMember(tripId, memberId) {
         .done(function(data) {
             if (data.success) {
                 M.toast({html: data.message});
-                loadTripMembers(tripId);
+                if (isCurrentUser) {
+                    // If user left the trip, refresh the trips list and clear dashboard
+                    loadTrips();
+                    $('#current-trip').val('');
+                    $('#current-trip').formSelect();
+                    showEmptyState();
+                } else {
+                    loadTripMembers(tripId);
+                }
             } else {
                 M.toast({html: data.message || 'Error removing member'});
             }
+        })
+        .fail(function() {
+            M.toast({html: 'Network error occurred'});
         });
     }
 }
