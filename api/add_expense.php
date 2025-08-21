@@ -4,40 +4,60 @@ requireLogin();
 
 header('Content-Type: application/json');
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $tripId = $_POST['trip_id'];
-    $category = $_POST['category'];
-    $subcategory = $_POST['subcategory'];
-    $amount = $_POST['amount'];
-    $description = $_POST['description'];
-    $date = $_POST['date'];
-    $splitType = $_POST['split_type'];
-    $userId = $_SESSION['user_id'];
-    
-    // Add expense
-    $stmt = $pdo->prepare("INSERT INTO expenses (trip_id, paid_by, category, subcategory, amount, description, date, split_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-    
-    if ($stmt->execute([$tripId, $userId, $category, $subcategory, $amount, $description, $date, $splitType])) {
-        $expenseId = $pdo->lastInsertId();
+try {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $tripId = $_POST['trip_id'] ?? '';
+        $category = $_POST['category'] ?? '';
+        $subcategory = $_POST['subcategory'] ?? '';
+        $amount = $_POST['amount'] ?? 0;
+        $description = $_POST['description'] ?? '';
+        $date = $_POST['date'] ?? '';
+        $splitType = $_POST['split_type'] ?? 'equal';
+        $userId = $_SESSION['user_id'];
         
-        // Get trip members for splitting
-        $stmt = $pdo->prepare("SELECT user_id FROM trip_members WHERE trip_id = ?");
-        $stmt->execute([$tripId]);
-        $members = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        
-        // Split expense equally among members
-        $splitAmount = $amount / count($members);
-        
-        foreach ($members as $memberId) {
-            $stmt = $pdo->prepare("INSERT INTO expense_splits (expense_id, user_id, amount) VALUES (?, ?, ?)");
-            $stmt->execute([$expenseId, $memberId, $splitAmount]);
+        if (empty($tripId) || empty($category) || empty($amount)) {
+            echo json_encode(['success' => false, 'message' => 'Required fields missing']);
+            exit;
         }
         
-        echo json_encode(['success' => true]);
+        // Insert expense
+        $stmt = $pdo->prepare("INSERT INTO expenses (trip_id, category, subcategory, amount, description, date, paid_by, split_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        
+        if ($stmt->execute([$tripId, $category, $subcategory, $amount, $description, $date, $userId, $splitType])) {
+            $expenseId = $pdo->lastInsertId();
+            
+            // Handle splits
+            if ($splitType === 'equal') {
+                // Get trip members for equal split
+                $stmt = $pdo->prepare("SELECT user_id FROM trip_members WHERE trip_id = ?");
+                $stmt->execute([$tripId]);
+                $members = $stmt->fetchAll();
+                
+                $splitAmount = $amount / count($members);
+                
+                foreach ($members as $member) {
+                    $stmt = $pdo->prepare("INSERT INTO expense_splits (expense_id, user_id, amount) VALUES (?, ?, ?)");
+                    $stmt->execute([$expenseId, $member['user_id'], $splitAmount]);
+                }
+            } else if ($splitType === 'custom') {
+                // Handle custom splits
+                foreach ($_POST as $key => $value) {
+                    if (strpos($key, 'split_') === 0 && $value > 0) {
+                        $memberId = str_replace('split_', '', $key);
+                        $stmt = $pdo->prepare("INSERT INTO expense_splits (expense_id, user_id, amount) VALUES (?, ?, ?)");
+                        $stmt->execute([$expenseId, $memberId, $value]);
+                    }
+                }
+            }
+            
+            echo json_encode(['success' => true, 'expense_id' => $expenseId]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to add expense']);
+        }
     } else {
-        echo json_encode(['success' => false]);
+        echo json_encode(['success' => false, 'message' => 'Invalid request method']);
     }
-} else {
-    echo json_encode(['success' => false]);
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
 }
 ?>

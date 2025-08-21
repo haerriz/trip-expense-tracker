@@ -537,3 +537,87 @@
     font-weight: bold;
     color: #667eea;
 }
+
+/* Custom Split Enhancement */
+.custom-split-header {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.split-info {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+}
+
+.split-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.custom-split-members {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.split-member-row {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.split-member-row:last-child {
+    border-bottom: none;
+}
+
+.member-info {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 120px;
+}
+
+.split-avatar {
+    width: 30px;
+    height: 30px;
+    margin-right: 0.5rem;
+}
+
+.member-name {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.split-input {
+    flex: 1;
+    margin: 0 1rem 0 0;
+}
+
+.split-input input {
+    margin-bottom: 0;
+}
+
+.split-percentage {
+    min-width: 50px;
+    text-align: right;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.split-validation {
+    margin-top: 1rem;
+}
+
+.split-validation .card-panel {
+    margin: 0;
+    padding: 0.5rem 1rem;
+}
+
+#split-remaining.red-text {
+    color: #e74c3c !important;
+    font-weight: bold;
+}

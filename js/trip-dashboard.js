@@ -350,8 +350,38 @@ function loadExpenseChart(tripId) {
 function addExpense() {
     const tripId = $('#current-trip').val();
     if (!tripId) {
-        alert('Please select a trip first');
+        M.toast({html: 'Please select a trip first'});
         return;
+    }
+    
+    const splitType = $('input[name="split"]:checked').val();
+    const totalAmount = parseFloat($('#amount').val()) || 0;
+    
+    // Validate custom split
+    if (splitType === 'custom') {
+        const members = window.tripMembers || [];
+        let splitTotal = 0;
+        let customSplits = {};
+        let hasCustomValues = false;
+        
+        members.forEach(function(member) {
+            const amount = parseFloat($(`#split_${member.id}`).val()) || 0;
+            if (amount > 0) {
+                splitTotal += amount;
+                customSplits[member.id] = amount;
+                hasCustomValues = true;
+            }
+        });
+        
+        if (!hasCustomValues) {
+            M.toast({html: 'Please enter custom split amounts'});
+            return;
+        }
+        
+        if (Math.abs(splitTotal - totalAmount) > 0.01) {
+            M.toast({html: 'Custom split amounts must equal the total expense amount'});
+            return;
+        }
     }
     
     const formData = {
@@ -361,19 +391,34 @@ function addExpense() {
         amount: $('#amount').val(),
         description: $('#description').val(),
         date: $('#date').val(),
-        split_type: $('input[name="split"]:checked').val()
+        split_type: splitType
     };
+    
+    // Add custom splits if applicable
+    if (splitType === 'custom') {
+        const members = window.tripMembers || [];
+        members.forEach(function(member) {
+            const amount = parseFloat($(`#split_${member.id}`).val()) || 0;
+            if (amount > 0) {
+                formData[`split_${member.id}`] = amount;
+            }
+        });
+    }
     
     $.post('api/add_expense.php', formData)
         .done(function(response) {
             if (response.success) {
                 $('#expense-form')[0].reset();
+                $('#custom-split-section').hide();
                 $('#date').val(new Date().toISOString().split('T')[0]);
                 loadTripDashboard(tripId);
                 M.toast({html: 'Expense added successfully!'});
             } else {
-                M.toast({html: 'Error adding expense'});
+                M.toast({html: response.message || 'Error adding expense'});
             }
+        })
+        .fail(function() {
+            M.toast({html: 'Network error adding expense'});
         });
 }
 
@@ -490,25 +535,140 @@ function emailReport() {
 
 function loadCustomSplitSection() {
     const tripId = $('#current-trip').val();
+    const totalAmount = parseFloat($('#amount').val()) || 0;
+    
     if (!tripId) return;
     
     $.get('api/get_trip_members.php', { trip_id: tripId })
         .done(function(data) {
             const members = data.members || [];
-            let html = '<h6>Custom Split Amounts:</h6>';
+            const equalSplit = totalAmount / members.length;
             
-            members.forEach(function(member) {
+            let html = `
+                <div class="custom-split-header">
+                    <h6>Custom Split Amounts</h6>
+                    <div class="split-info">
+                        <span>Total: <strong id="split-total">$${totalAmount.toFixed(2)}</strong></span>
+                        <span>Remaining: <strong id="split-remaining">$${totalAmount.toFixed(2)}</strong></span>
+                    </div>
+                    <div class="split-actions">
+                        <button type="button" class="btn-small" onclick="splitEqually()">Split Equally</button>
+                        <button type="button" class="btn-small" onclick="clearSplits()">Clear All</button>
+                    </div>
+                </div>
+                <div class="custom-split-members">
+            `;
+            
+            members.forEach(function(member, index) {
                 html += `
-                    <div class="input-field">
-                        <input type="number" id="split_${member.id}" class="validate" step="0.01" min="0">
-                        <label for="split_${member.id}">${member.name}</label>
+                    <div class="split-member-row">
+                        <div class="member-info">
+                            <img src="${member.picture || generateAvatar(member.name)}" class="split-avatar circle" alt="${member.name}">
+                            <span class="member-name">${member.name}</span>
+                        </div>
+                        <div class="input-field split-input">
+                            <input type="number" id="split_${member.id}" class="validate split-amount" 
+                                   step="0.01" min="0" max="${totalAmount}" 
+                                   data-member-id="${member.id}" data-member-name="${member.name}"
+                                   onchange="updateSplitCalculation()" onkeyup="updateSplitCalculation()">
+                            <label for="split_${member.id}">Amount</label>
+                        </div>
+                        <div class="split-percentage">
+                            <span id="percent_${member.id}">0%</span>
+                        </div>
                     </div>
                 `;
             });
             
+            html += `
+                </div>
+                <div class="split-validation" id="split-validation" style="display:none;">
+                    <div class="card-panel red lighten-4">
+                        <i class="material-icons left">warning</i>
+                        <span id="split-error"></span>
+                    </div>
+                </div>
+            `;
+            
             $('#member-splits').html(html);
+            
+            // Store members data for calculations
+            window.tripMembers = members;
+            window.totalExpenseAmount = totalAmount;
         });
 }
+
+function splitEqually() {
+    const totalAmount = parseFloat($('#amount').val()) || 0;
+    const members = window.tripMembers || [];
+    const equalAmount = totalAmount / members.length;
+    
+    members.forEach(function(member) {
+        $(`#split_${member.id}`).val(equalAmount.toFixed(2));
+    });
+    
+    updateSplitCalculation();
+    M.updateTextFields();
+}
+
+function clearSplits() {
+    const members = window.tripMembers || [];
+    members.forEach(function(member) {
+        $(`#split_${member.id}`).val('');
+    });
+    updateSplitCalculation();
+    M.updateTextFields();
+}
+
+function updateSplitCalculation() {
+    const totalAmount = parseFloat($('#amount').val()) || 0;
+    const members = window.tripMembers || [];
+    let splitTotal = 0;
+    let hasValues = false;
+    
+    members.forEach(function(member) {
+        const amount = parseFloat($(`#split_${member.id}`).val()) || 0;
+        splitTotal += amount;
+        
+        if (amount > 0) {
+            hasValues = true;
+            const percentage = totalAmount > 0 ? (amount / totalAmount * 100).toFixed(1) : 0;
+            $(`#percent_${member.id}`).text(percentage + '%');
+        } else {
+            $(`#percent_${member.id}`).text('0%');
+        }
+    });
+    
+    const remaining = totalAmount - splitTotal;
+    $('#split-total').text('$' + totalAmount.toFixed(2));
+    $('#split-remaining').text('$' + remaining.toFixed(2));
+    
+    // Validation
+    if (hasValues) {
+        if (Math.abs(remaining) > 0.01) {
+            $('#split-validation').show();
+            if (remaining > 0) {
+                $('#split-error').text(`$${remaining.toFixed(2)} remaining to be allocated`);
+            } else {
+                $('#split-error').text(`Over-allocated by $${Math.abs(remaining).toFixed(2)}`);
+            }
+            $('#split-remaining').addClass('red-text');
+        } else {
+            $('#split-validation').hide();
+            $('#split-remaining').removeClass('red-text');
+        }
+    } else {
+        $('#split-validation').hide();
+        $('#split-remaining').removeClass('red-text');
+    }
+}
+
+// Update total when amount changes
+$('#amount').on('input change', function() {
+    if ($('input[name="split"]:checked').val() === 'custom') {
+        loadCustomSplitSection();
+    }
+});
 
 function updateChatStatus(tripId) {
     $.get('api/chat_status.php', { trip_id: tripId })
