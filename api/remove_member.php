@@ -15,21 +15,114 @@ try {
             exit;
         }
         
-        // Check if current user is trip creator OR the member is removing themselves
-        $stmt = $pdo->prepare("SELECT created_by FROM trips WHERE id = ?");
+        // Get trip details
+        $stmt = $pdo->prepare("SELECT created_by, name FROM trips WHERE id = ?");
         $stmt->execute([$tripId]);
         $trip = $stmt->fetch();
         
-        $isCreator = ($trip && $trip['created_by'] == $userId);
-        $isSelfRemoval = ($memberId == $userId);
+        if (!$trip) {
+            echo json_encode(['success' => false, 'message' => 'Trip not found']);
+            exit;
+        }
         
+        $isCreator = ($trip['created_by'] == $userId);
+        $isSelfRemoval = ($memberId == $userId);
+        $isCreatorLeaving = ($isCreator && $isSelfRemoval);
+        
+        // Permission check
         if (!$isCreator && !$isSelfRemoval) {
             echo json_encode(['success' => false, 'message' => 'Only trip creator or the member themselves can remove membership']);
             exit;
         }
         
-        // Check if member has any expenses or splits (only if not self-removal)
+        // Special handling for trip creator leaving
+        if ($isCreatorLeaving) {
+            // Count other members
+            try {
+                $stmt = $pdo->prepare("SELECT COUNT(*) as member_count FROM trip_members WHERE trip_id = ? AND user_id != ? AND (status = 'accepted' OR status IS NULL)");
+                $stmt->execute([$tripId, $userId]);
+            } catch (Exception $e) {
+                $stmt = $pdo->prepare("SELECT COUNT(*) as member_count FROM trip_members WHERE trip_id = ? AND user_id != ?");
+                $stmt->execute([$tripId, $userId]);
+            }
+            $memberCount = $stmt->fetchColumn();
+            
+            if ($memberCount > 0) {
+                // Transfer ownership to oldest member
+                try {
+                    $stmt = $pdo->prepare("
+                        SELECT user_id FROM trip_members 
+                        WHERE trip_id = ? AND user_id != ? AND (status = 'accepted' OR status IS NULL)
+                        ORDER BY joined_at ASC, id ASC 
+                        LIMIT 1
+                    ");
+                    $stmt->execute([$tripId, $userId]);
+                } catch (Exception $e) {
+                    $stmt = $pdo->prepare("
+                        SELECT user_id FROM trip_members 
+                        WHERE trip_id = ? AND user_id != ?
+                        ORDER BY id ASC 
+                        LIMIT 1
+                    ");
+                    $stmt->execute([$tripId, $userId]);
+                }
+                $newOwner = $stmt->fetchColumn();
+                
+                if ($newOwner) {
+                    // Transfer ownership
+                    $stmt = $pdo->prepare("UPDATE trips SET created_by = ? WHERE id = ?");
+                    $stmt->execute([$newOwner, $tripId]);
+                    
+                    // Remove the creator from members
+                    $stmt = $pdo->prepare("DELETE FROM trip_members WHERE trip_id = ? AND user_id = ?");
+                    $stmt->execute([$tripId, $userId]);
+                    
+                    echo json_encode([
+                        'success' => true, 
+                        'message' => 'You have left the trip. Ownership has been transferred to another member.',
+                        'action' => 'ownership_transferred'
+                    ]);
+                    exit;
+                }
+            }
+            
+            // No other members - delete the entire trip
+            $pdo->beginTransaction();
+            try {
+                // Delete in proper order to maintain referential integrity
+                $stmt = $pdo->prepare("DELETE FROM expense_splits WHERE expense_id IN (SELECT id FROM expenses WHERE trip_id = ?)");
+                $stmt->execute([$tripId]);
+                
+                $stmt = $pdo->prepare("DELETE FROM expenses WHERE trip_id = ?");
+                $stmt->execute([$tripId]);
+                
+                $stmt = $pdo->prepare("DELETE FROM chat_messages WHERE trip_id = ?");
+                $stmt->execute([$tripId]);
+                
+                $stmt = $pdo->prepare("DELETE FROM trip_members WHERE trip_id = ?");
+                $stmt->execute([$tripId]);
+                
+                $stmt = $pdo->prepare("DELETE FROM trips WHERE id = ?");
+                $stmt->execute([$tripId]);
+                
+                $pdo->commit();
+                
+                echo json_encode([
+                    'success' => true, 
+                    'message' => 'Trip has been deleted as you were the only member.',
+                    'action' => 'trip_deleted'
+                ]);
+                exit;
+            } catch (Exception $e) {
+                $pdo->rollback();
+                echo json_encode(['success' => false, 'message' => 'Failed to delete trip: ' . $e->getMessage()]);
+                exit;
+            }
+        }
+        
+        // Regular member removal (not creator leaving)
         if (!$isSelfRemoval) {
+            // Check if member has expenses
             try {
                 $stmt = $pdo->prepare("
                     SELECT COUNT(*) as expense_count 
@@ -45,7 +138,7 @@ try {
                     exit;
                 }
             } catch (Exception $e) {
-                // If expense_splits table doesn't exist, just check expenses
+                // Fallback for old schema
                 $stmt = $pdo->prepare("SELECT COUNT(*) as expense_count FROM expenses WHERE trip_id = ? AND paid_by = ?");
                 $stmt->execute([$tripId, $memberId]);
                 $result = $stmt->fetch();
@@ -62,7 +155,7 @@ try {
         
         if ($stmt->execute([$tripId, $memberId])) {
             $message = $isSelfRemoval ? 'You have left the trip' : 'Member removed successfully';
-            echo json_encode(['success' => true, 'message' => $message]);
+            echo json_encode(['success' => true, 'message' => $message, 'action' => 'member_removed']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to remove member']);
         }

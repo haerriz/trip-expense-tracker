@@ -386,35 +386,87 @@ function getCurrentUserId() {
 
 function removeMember(tripId, memberId) {
     const isCurrentUser = memberId == window.currentUserId;
-    const confirmMessage = isCurrentUser ? 
-        'Are you sure you want to leave this trip?' : 
-        'Remove this member from the trip? This is only allowed if they have no expenses.';
     
-    if (confirm(confirmMessage)) {
-        $.post('api/remove_member.php', {
-            trip_id: tripId,
-            member_id: memberId
-        })
-        .done(function(data) {
-            if (data.success) {
-                M.toast({html: data.message});
-                if (isCurrentUser) {
-                    // If user left the trip, refresh the trips list and clear dashboard
-                    loadTrips();
-                    $('#current-trip').val('');
-                    $('#current-trip').formSelect();
-                    showEmptyState();
-                } else {
-                    loadTripMembers(tripId);
-                }
+    // Check if current user is trip creator
+    $.get('api/get_trip_summary.php', { trip_id: tripId })
+        .done(function(tripData) {
+            const isCreator = tripData.trip && tripData.trip.created_by == window.currentUserId;
+            const isCreatorLeaving = isCurrentUser && isCreator;
+            
+            let confirmMessage;
+            if (isCreatorLeaving) {
+                confirmMessage = 'WARNING: You are the trip creator. Leaving will either:\n\n' +
+                               '• Transfer ownership to another member (if others exist)\n' +
+                               '• DELETE THE ENTIRE TRIP (if you are the only member)\n\n' +
+                               'This action cannot be undone. Continue?';
+            } else if (isCurrentUser) {
+                confirmMessage = 'Are you sure you want to leave this trip?';
             } else {
-                M.toast({html: data.message || 'Error removing member'});
+                confirmMessage = 'Remove this member from the trip? This is only allowed if they have no expenses.';
+            }
+            
+            if (confirm(confirmMessage)) {
+                $.post('api/remove_member.php', {
+                    trip_id: tripId,
+                    member_id: memberId
+                })
+                .done(function(data) {
+                    if (data.success) {
+                        M.toast({html: data.message, displayLength: 6000});
+                        
+                        if (data.action === 'trip_deleted' || data.action === 'ownership_transferred') {
+                            // Trip was deleted or ownership transferred, refresh everything
+                            loadTrips();
+                            $('#current-trip').val('');
+                            $('#current-trip').formSelect();
+                            showEmptyState();
+                        } else if (isCurrentUser) {
+                            // Regular user leaving
+                            loadTrips();
+                            $('#current-trip').val('');
+                            $('#current-trip').formSelect();
+                            showEmptyState();
+                        } else {
+                            // Member removed by creator
+                            loadTripMembers(tripId);
+                        }
+                    } else {
+                        M.toast({html: data.message || 'Error removing member'});
+                    }
+                })
+                .fail(function() {
+                    M.toast({html: 'Network error occurred'});
+                });
             }
         })
         .fail(function() {
-            M.toast({html: 'Network error occurred'});
+            // Fallback if can't get trip data
+            const confirmMessage = isCurrentUser ? 
+                'Are you sure you want to leave this trip?' : 
+                'Remove this member from the trip?';
+            
+            if (confirm(confirmMessage)) {
+                $.post('api/remove_member.php', {
+                    trip_id: tripId,
+                    member_id: memberId
+                })
+                .done(function(data) {
+                    if (data.success) {
+                        M.toast({html: data.message});
+                        if (isCurrentUser) {
+                            loadTrips();
+                            $('#current-trip').val('');
+                            $('#current-trip').formSelect();
+                            showEmptyState();
+                        } else {
+                            loadTripMembers(tripId);
+                        }
+                    } else {
+                        M.toast({html: data.message || 'Error removing member'});
+                    }
+                });
+            }
         });
-    }
 }
 
 function loadExpenses(tripId) {

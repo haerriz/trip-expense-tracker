@@ -20,6 +20,31 @@ try {
             exit;
         }
         
+        // Verify user is member of the trip
+        try {
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM trip_members WHERE trip_id = ? AND user_id = ? AND (status = 'accepted' OR status IS NULL)");
+            $stmt->execute([$tripId, $userId]);
+        } catch (Exception $e) {
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM trip_members WHERE trip_id = ? AND user_id = ?");
+            $stmt->execute([$tripId, $userId]);
+        }
+        
+        if ($stmt->fetchColumn() == 0) {
+            echo json_encode(['success' => false, 'message' => 'You are not a member of this trip']);
+            exit;
+        }
+        
+        // Validate amount
+        if ($amount <= 0) {
+            echo json_encode(['success' => false, 'message' => 'Amount must be greater than zero']);
+            exit;
+        }
+        
+        // Validate date
+        if (!empty($date) && strtotime($date) > time()) {
+            echo json_encode(['success' => false, 'message' => 'Expense date cannot be in the future']);
+        }
+        
         // Insert expense
         $stmt = $pdo->prepare("INSERT INTO expenses (trip_id, category, subcategory, amount, description, date, paid_by, split_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         
