@@ -6,8 +6,10 @@ CREATE TABLE IF NOT EXISTS users (
     google_id VARCHAR(255) UNIQUE,
     email VARCHAR(255) UNIQUE,
     name VARCHAR(255),
+    phone VARCHAR(20),
     password VARCHAR(255),
     picture VARCHAR(500),
+    phone_verified BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -61,6 +63,16 @@ CREATE TABLE IF NOT EXISTS expense_splits (
 CREATE TABLE IF NOT EXISTS categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS trip_chat (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    trip_id INT,
+    user_id INT,
+    message TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (trip_id) REFERENCES trips(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 INSERT IGNORE INTO categories (name) VALUES 

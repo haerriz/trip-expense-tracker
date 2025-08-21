@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /config/
+Disallow: /includes/
+Disallow: /dashboard.php
+
+Sitemap: https://haerriz.github.io/trip-expense-tracker/sitemap.xml
