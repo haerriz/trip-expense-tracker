@@ -109,6 +109,32 @@ try {
             // Migration failed, continue anyway
         }
         
+        // Auto-migrate categories table to add subcategories column
+        try {
+            $stmt = $pdo->query("SHOW COLUMNS FROM categories LIKE 'subcategories'");
+            if ($stmt->rowCount() == 0) {
+                $pdo->exec("ALTER TABLE categories ADD COLUMN subcategories TEXT");
+                
+                // Update existing categories with default subcategories
+                $defaultSubcategories = [
+                    'Food & Drinks' => 'Restaurant, Street Food, Groceries, Drinks, Snacks',
+                    'Transportation' => 'Flight, Train, Bus, Taxi, Rental Car, Fuel, Parking',
+                    'Accommodation' => 'Hotel, Hostel, Airbnb, Camping, Guesthouse',
+                    'Activities' => 'Tours, Museums, Adventure Sports, Nightlife, Events',
+                    'Shopping' => 'Souvenirs, Clothes, Electronics, Gifts',
+                    'Emergency' => 'Medical, Insurance, Lost Items, Emergency Transport',
+                    'Other' => 'Tips, Fees, Miscellaneous'
+                ];
+                
+                foreach ($defaultSubcategories as $category => $subcategories) {
+                    $stmt = $pdo->prepare("UPDATE categories SET subcategories = ? WHERE name = ?");
+                    $stmt->execute([$subcategories, $category]);
+                }
+            }
+        } catch (Exception $e) {
+            // Migration failed, continue anyway
+        }
+        
         // Auto-cleanup orphaned trips (run occasionally)
         if (rand(1, 100) <= 5) { // 5% chance on each database connection
             try {

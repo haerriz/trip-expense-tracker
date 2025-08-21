@@ -442,10 +442,12 @@ function loadCategories() {
     // Add cache busting parameter
     $.get('api/get_categories.php?t=' + Date.now())
         .done(function(data) {
+            console.log('Categories API response:', data);
             const categories = data.categories || [];
             
             // Store categories data globally for subcategory loading
             window.categoriesData = categories;
+            console.log('Stored categories data:', window.categoriesData);
             
             let options = '<option value="">Select Category</option>';
             
@@ -475,15 +477,22 @@ function getCurrencySymbol(currency) {
 }
 
 function loadSubcategories(category) {
+    console.log('Loading subcategories for:', category);
+    console.log('Available categories data:', window.categoriesData);
+    
     // Find the category in the loaded categories data
     const categoryData = window.categoriesData?.find(cat => cat.name === category);
+    console.log('Found category data:', categoryData);
     
     let options = '<option value="">Select Subcategory</option>';
     if (categoryData && categoryData.subcategories) {
         const subcategories = categoryData.subcategories.split(',').map(s => s.trim()).filter(s => s);
+        console.log('Parsed subcategories:', subcategories);
         subcategories.forEach(function(sub) {
             options += `<option value="${sub}">${sub}</option>`;
         });
+    } else {
+        console.log('No subcategories found for category:', category);
     }
     $('#subcategory').html(options);
     $('#subcategory').formSelect();
