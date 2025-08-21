@@ -1,7 +1,7 @@
 function handleCredentialResponse(response) {
     console.log('Google OAuth response received');
     
-    fetch('google-auth.php', {
+    fetch('/google-auth.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ credential: response.credential })

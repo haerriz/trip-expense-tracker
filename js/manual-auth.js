@@ -14,7 +14,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
     
-    fetch('manual-login.php', {
+    fetch('/manual-login.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -53,7 +53,7 @@ document.getElementById('signupForm').addEventListener('submit', function(e) {
     const phone = document.getElementById('signupPhone').value;
     const password = document.getElementById('signupPassword').value;
     
-    fetch('manual-signup.php', {
+    fetch('/manual-signup.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, phone, password })

@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode([
             'success' => true, 
             'message' => 'Authentication successful',
-            'redirect' => 'dashboard.php'
+            'redirect' => '/dashboard'
         ]);
         
     } catch (Exception $e) {

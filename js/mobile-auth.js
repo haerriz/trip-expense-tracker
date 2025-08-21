@@ -2,7 +2,7 @@
 window.handleCredentialResponse = function(response) {
     console.log('Google OAuth response received');
     
-    fetch('google-auth.php', {
+    fetch('/google-auth.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ credential: response.credential })
@@ -12,7 +12,7 @@ window.handleCredentialResponse = function(response) {
         try {
             const data = JSON.parse(text);
             if (data.success) {
-                window.location.href = 'dashboard.php';
+                window.location.href = '/dashboard';
             } else {
                 alert('Google authentication failed: ' + (data.message || 'Unknown error'));
             }

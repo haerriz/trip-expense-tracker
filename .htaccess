@@ -3,22 +3,20 @@ RewriteEngine On
 # Redirect root to index.php
 DirectoryIndex index.php
 
-# Exclude authentication files from clean URL rewriting
-RewriteCond %{REQUEST_URI} !^/(manual-login|manual-signup|google-auth)\.php$ [NC]
+# Preserve API routes and authentication files - no rewriting
+RewriteCond %{REQUEST_URI} ^/(api/|manual-login\.php|manual-signup\.php|google-auth\.php) [NC]
+RewriteRule ^(.*)$ $1 [L,QSA]
 
-# Remove .php extension from URLs
+# Remove .php extension from main pages only
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} !^/(api/|manual-login\.php|manual-signup\.php|google-auth\.php) [NC]
 RewriteRule ^([^.]+)$ $1.php [NC,L]
 
-# Redirect .php URLs to clean URLs (except auth files)
-RewriteCond %{THE_REQUEST} /([^.]+)\.php[?\s] [NC]
-RewriteCond %{REQUEST_URI} !^/(manual-login|manual-signup|google-auth)\.php$ [NC]
+# Redirect .php URLs to clean URLs (except API and auth files)
+RewriteCond %{THE_REQUEST} \s/+([^\s?]*)\.php[?\s] [NC]
+RewriteCond %{REQUEST_URI} !^/(api/|manual-login\.php|manual-signup\.php|google-auth\.php) [NC]
 RewriteRule ^ /%1? [NC,L,R=301]
-
-# Handle API routes - preserve .php extensions for API calls
-RewriteCond %{REQUEST_URI} ^/api/
-RewriteRule ^(.*)$ $1 [L,QSA]
 
 # Security headers
 Header always set X-Content-Type-Options nosniff

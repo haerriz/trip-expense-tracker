@@ -81,7 +81,7 @@ try {
         }
     }
     
-    echo "<p><a href='dashboard.php'>← Back to Dashboard</a></p>";
+    echo "<p><a href='/dashboard'>← Back to Dashboard</a></p>";
     
 } catch (Exception $e) {
     echo "<p>❌ Error: " . $e->getMessage() . "</p>";
