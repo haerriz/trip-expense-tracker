@@ -4,6 +4,7 @@ $(document).ready(function() {
     
     loadTrips();
     loadCategories();
+    loadInvitations();
     
     $('#date').val(new Date().toISOString().split('T')[0]);
     
@@ -107,7 +108,70 @@ $(document).ready(function() {
     
     // Start live chat updates
     startLiveChat();
+    
+    $('#invitations-btn').on('click', function() {
+        $('#invitations-modal').modal('open');
+        loadInvitations();
+    });
 });
+
+function loadInvitations() {
+    $.get('api/get_invitations.php')
+        .done(function(data) {
+            if (data.success) {
+                const invitations = data.invitations || [];
+                $('#invitation-count').text(invitations.length);
+                
+                if (invitations.length === 0) {
+                    $('#invitation-count').hide();
+                } else {
+                    $('#invitation-count').show();
+                }
+                
+                let html = '';
+                if (invitations.length === 0) {
+                    html = '<p class="center-align grey-text">No pending invitations</p>';
+                } else {
+                    invitations.forEach(function(inv) {
+                        html += `
+                            <div class="card">
+                                <div class="card-content">
+                                    <span class="card-title">${inv.trip_name}</span>
+                                    <p>Invited by: ${inv.invited_by_name}</p>
+                                    <p>Date: ${new Date(inv.invited_at).toLocaleDateString()}</p>
+                                </div>
+                                <div class="card-action">
+                                    <button class="btn green" onclick="respondInvitation(${inv.id}, 'accept')">
+                                        <i class="material-icons left">check</i>Accept
+                                    </button>
+                                    <button class="btn red" onclick="respondInvitation(${inv.id}, 'reject')">
+                                        <i class="material-icons left">close</i>Reject
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                $('#invitations-list').html(html);
+            }
+        });
+}
+
+function respondInvitation(invitationId, response) {
+    $.post('api/respond_invitation.php', {
+        invitation_id: invitationId,
+        response: response
+    })
+    .done(function(data) {
+        if (data.success) {
+            M.toast({html: data.message});
+            loadInvitations();
+            loadTrips();
+        } else {
+            M.toast({html: data.message || 'Error responding to invitation'});
+        }
+    });
+}
 
 // Live chat variables
 let chatInterval;
@@ -276,12 +340,32 @@ function loadTripMembers(tripId) {
                     <div class="trip-members__member">
                         <img src="${member.picture && !member.picture.includes('placeholder') ? member.picture : generateAvatar(member.name)}" alt="${member.name}" class="trip-members__avatar circle">
                         <span>${member.name}</span>
+                        <button class="btn-small red right" onclick="removeMember(${tripId}, ${member.id})" title="Remove member">
+                            <i class="material-icons">remove</i>
+                        </button>
                     </div>
                 `;
             });
             
             $('#members-list').html(html);
         });
+}
+
+function removeMember(tripId, memberId) {
+    if (confirm('Remove this member from the trip? This is only allowed if they have no expenses.')) {
+        $.post('api/remove_member.php', {
+            trip_id: tripId,
+            member_id: memberId
+        })
+        .done(function(data) {
+            if (data.success) {
+                M.toast({html: data.message});
+                loadTripMembers(tripId);
+            } else {
+                M.toast({html: data.message || 'Error removing member'});
+            }
+        });
+    }
 }
 
 function loadExpenses(tripId) {

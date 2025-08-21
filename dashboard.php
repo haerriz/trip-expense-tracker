@@ -59,6 +59,9 @@ requireLogin();
                         <button id="new-trip-btn" class="btn waves-effect waves-light">
                             <i class="material-icons left">add</i>New Trip
                         </button>
+                        <button id="invitations-btn" class="btn waves-effect waves-light orange">
+                            <i class="material-icons left">mail</i>Invitations <span id="invitation-count" class="badge white-text">0</span>
+                        </button>
                         <div class="export-buttons">
                             <button id="export-pdf" class="btn-small waves-effect waves-light grey">
                                 <i class="material-icons left">picture_as_pdf</i>PDF
@@ -75,6 +78,17 @@ requireLogin();
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        
+        <!-- Invitations Modal -->
+        <div id="invitations-modal" class="modal">
+            <div class="modal-content">
+                <h4><i class="material-icons left">mail</i>Trip Invitations</h4>
+                <div id="invitations-list"></div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
             </div>
         </div>
 
