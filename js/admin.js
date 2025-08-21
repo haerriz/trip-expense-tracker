@@ -184,6 +184,64 @@ function loadStatistics() {
                 $('#total-trips').text(data.stats.total_trips || 0);
                 $('#total-expenses').text('$' + parseFloat(data.stats.total_expenses || 0).toFixed(2));
                 $('#active-trips').text(data.stats.active_trips || 0);
+                
+                // Load charts
+                loadCategoryChart();
+                loadUserChart();
+            }
+        });
+}
+
+function loadCategoryChart() {
+    $.get('api/admin/get_chart_data.php?type=categories')
+        .done(function(data) {
+            if (data.success) {
+                const ctx = document.getElementById('categoryChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.labels || [],
+                        datasets: [{
+                            data: data.values || [],
+                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+        });
+}
+
+function loadUserChart() {
+    $.get('api/admin/get_chart_data.php?type=users')
+        .done(function(data) {
+            if (data.success) {
+                const ctx = document.getElementById('userChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels || [],
+                        datasets: [{
+                            label: 'New Users',
+                            data: data.values || [],
+                            borderColor: '#36A2EB',
+                            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
             }
         });
 }

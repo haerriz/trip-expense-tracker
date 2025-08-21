@@ -14,6 +14,7 @@ requireMasterAdmin();
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav class="navbar red">
@@ -118,6 +119,24 @@ requireMasterAdmin();
                     <div class="card-panel center">
                         <h4 id="active-trips">0</h4>
                         <p>Active Trips</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s12 m6">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Expenses by Category</span>
+                            <canvas id="categoryChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s12 m6">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">User Registration Trend</span>
+                            <canvas id="userChart" height="300"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>

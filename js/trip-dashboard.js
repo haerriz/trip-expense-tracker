@@ -120,6 +120,81 @@ $(document).ready(function() {
         loadInvitations();
         $('#invitations-modal').modal('open');
     });
+    
+    $('#edit-expense-form').on('submit', function(e) {
+        e.preventDefault();
+        updateExpense();
+    });
+    
+    $('#edit-category').on('change', function() {
+        loadSubcategoriesForEdit($(this).val());
+    });
+});
+
+function editExpense(expenseId) {
+    $.get('api/edit_expense.php', { expense_id: expenseId })
+        .done(function(data) {
+            if (data.success) {
+                const expense = data.expense;
+                $('#edit-expense-id').val(expense.id);
+                $('#edit-category').val(expense.category);
+                $('#edit-category').formSelect();
+                loadSubcategoriesForEdit(expense.category, expense.subcategory);
+                $('#edit-amount').val(expense.amount);
+                $('#edit-description').val(expense.description);
+                $('#edit-date').val(expense.date);
+                
+                M.updateTextFields();
+                $('#edit-expense-modal').modal('open');
+            } else {
+                M.toast({html: data.message || 'Error loading expense'});
+            }
+        });
+}
+
+function updateExpense() {
+    const formData = {
+        expense_id: $('#edit-expense-id').val(),
+        category: $('#edit-category').val(),
+        subcategory: $('#edit-subcategory').val(),
+        amount: $('#edit-amount').val(),
+        description: $('#edit-description').val(),
+        date: $('#edit-date').val()
+    };
+    
+    $.post('api/edit_expense.php', formData)
+        .done(function(data) {
+            if (data.success) {
+                $('#edit-expense-modal').modal('close');
+                const tripId = $('#current-trip').val();
+                loadTripDashboard(tripId);
+                M.toast({html: 'Expense updated successfully'});
+            } else {
+                M.toast({html: data.message || 'Error updating expense'});
+            }
+        });
+}
+
+function loadSubcategoriesForEdit(category, selectedSub = '') {
+    const subcategories = {
+        'Food & Drinks': ['Restaurant', 'Street Food', 'Groceries', 'Drinks', 'Snacks'],
+        'Transportation': ['Flight', 'Train', 'Bus', 'Taxi', 'Rental Car', 'Fuel', 'Parking'],
+        'Accommodation': ['Hotel', 'Hostel', 'Airbnb', 'Camping', 'Guesthouse'],
+        'Activities': ['Tours', 'Museums', 'Adventure Sports', 'Nightlife', 'Events'],
+        'Shopping': ['Souvenirs', 'Clothes', 'Electronics', 'Gifts'],
+        'Emergency': ['Medical', 'Insurance', 'Lost Items', 'Emergency Transport'],
+        'Other': ['Tips', 'Fees', 'Miscellaneous']
+    };
+    
+    let options = '<option value="">Select Subcategory</option>';
+    if (subcategories[category]) {
+        subcategories[category].forEach(function(sub) {
+            const selected = sub === selectedSub ? 'selected' : '';
+            options += `<option value="${sub}" ${selected}>${sub}</option>`;
+        });
+    }
+    $('#edit-subcategory').html(options);
+    $('#edit-subcategory').formSelect();
 });
 
 function loadInvitations() {
@@ -264,6 +339,10 @@ function loadCategories() {
             
             $('#category').html(options);
             $('#category').formSelect();
+            
+            // Also populate edit modal categories
+            $('#edit-category').html(options);
+            $('#edit-category').formSelect();
         });
 }
 
@@ -480,6 +559,7 @@ function loadExpenses(tripId) {
             let html = '';
             
             expenses.forEach(function(expense) {
+                const canEdit = expense.paid_by == window.currentUserId;
                 html += `
                     <div class="expense-item">
                         <div class="expense-item__info">
@@ -488,6 +568,7 @@ function loadExpenses(tripId) {
                             <small>Paid by ${expense.paid_by_name}</small>
                         </div>
                         <div class="expense-item__amount">$${parseFloat(expense.amount).toFixed(2)}</div>
+                        ${canEdit ? `<button class="btn-small blue" onclick="editExpense(${expense.id})"><i class="material-icons">edit</i></button>` : ''}
                     </div>
                 `;
             });

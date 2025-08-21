@@ -335,6 +335,46 @@ requireLogin();
             <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
         </div>
     </div>
+    
+    <!-- Edit Expense Modal -->
+    <div id="edit-expense-modal" class="modal">
+        <div class="modal-content">
+            <h4>Edit Expense</h4>
+            <form id="edit-expense-form">
+                <input type="hidden" id="edit-expense-id">
+                <div class="input-field">
+                    <select id="edit-category" required>
+                        <option value="">Select Category</option>
+                    </select>
+                    <label>Category</label>
+                </div>
+                <div class="input-field">
+                    <select id="edit-subcategory" required>
+                        <option value="">Select Subcategory</option>
+                    </select>
+                    <label>Subcategory</label>
+                </div>
+                <div class="input-field">
+                    <input type="number" id="edit-amount" step="0.01" required>
+                    <label for="edit-amount">Amount</label>
+                </div>
+                <div class="input-field">
+                    <input type="text" id="edit-description" required>
+                    <label for="edit-description">Description</label>
+                </div>
+                <div class="input-field">
+                    <input type="date" id="edit-date" required>
+                    <label for="edit-date">Date</label>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" form="edit-expense-form" class="btn waves-effect waves-light">
+                <i class="material-icons left">save</i>Update Expense
+            </button>
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+        </div>
+    </div>
 
     <!-- Materialize JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
