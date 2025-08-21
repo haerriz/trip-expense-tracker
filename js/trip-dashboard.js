@@ -195,7 +195,7 @@ function loadSubcategoriesForEdit(category, selectedSub = '') {
     }
     $('#edit-subcategory').html(options);
     $('#edit-subcategory').formSelect();
-});
+}
 
 function loadInvitations() {
     $.get('api/get_invitations.php')
@@ -299,13 +299,16 @@ function startLiveChat() {
 function loadTrips() {
     $.get('api/get_trips.php')
         .done(function(data) {
+            console.log('Trips API response:', data);
             const trips = data.trips || [];
             let options = '<option value="">Select a Trip</option>';
             
-            trips.forEach(function(trip) {
-                const currency = getCurrencySymbol(trip.currency || 'USD');
-                options += `<option value="${trip.id}" data-currency="${trip.currency || 'USD'}">${trip.name} (${currency})</option>`;
-            });
+            if (trips.length > 0) {
+                trips.forEach(function(trip) {
+                    const currency = getCurrencySymbol(trip.currency || 'USD');
+                    options += `<option value="${trip.id}" data-currency="${trip.currency || 'USD'}">${trip.name} (${currency})</option>`;
+                });
+            }
             
             $('#current-trip').html(options);
             $('#current-trip').formSelect(); // Reinitialize Materialize select
@@ -322,6 +325,7 @@ function loadTrips() {
         })
         .fail(function(xhr, status, error) {
             console.error('Failed to load trips:', error);
+            console.error('Response:', xhr.responseText);
             M.toast({html: 'Failed to load trips'});
             showEmptyState();
         });

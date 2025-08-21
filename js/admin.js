@@ -161,6 +161,11 @@ function loadAllTrips() {
         });
 }
 
+function viewTripDetails(tripId) {
+    // Placeholder for trip details view
+    M.toast({html: 'Trip details view - coming soon'});
+}
+
 function deleteTrip(tripId) {
     if (confirm('Delete this trip and all its data? This cannot be undone.')) {
         $.post('api/admin/delete_trip.php', { trip_id: tripId })
