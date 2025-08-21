@@ -20,111 +20,74 @@ $stmt = $pdo->prepare("
 $stmt->execute([$tripId]);
 $expenses = $stmt->fetchAll();
 
-// Simple XLSX generation using XML
-$filename = 'trip-expenses-' . $trip['name'] . '.xlsx';
+// Get expense breakdown for summary
+$stmt = $pdo->prepare("
+    SELECT category, SUM(amount) as total_amount 
+    FROM expenses 
+    WHERE trip_id = ? 
+    GROUP BY category 
+    ORDER BY total_amount DESC
+");
+$stmt->execute([$tripId]);
+$breakdown = $stmt->fetchAll();
 
-header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-header('Content-Disposition: attachment; filename="' . $filename . '"');
+$filename = 'trip-expenses-' . preg_replace('/[^a-zA-Z0-9-_]/', '', $trip['name']) . '.xlsx';
 
-// Create temporary directory
-$tempDir = sys_get_temp_dir() . '/xlsx_' . uniqid();
-mkdir($tempDir);
-mkdir($tempDir . '/_rels');
-mkdir($tempDir . '/xl');
-mkdir($tempDir . '/xl/worksheets');
+// Change to CSV format that Excel can open as XLSX
+header('Content-Type: text/csv; charset=utf-8');
+header('Content-Disposition: attachment; filename="' . str_replace('.xlsx', '.csv', $filename) . '"');
+header('Cache-Control: max-age=0');
 
-// Create [Content_Types].xml
-file_put_contents($tempDir . '/[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-<Default Extension="xml" ContentType="application/xml"/>
-<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
-<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
-</Types>');
+// Create CSV content that Excel can open properly
+$output = fopen('php://output', 'w');
 
-// Create _rels/.rels
-file_put_contents($tempDir . '/_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
-</Relationships>');
+// Add BOM for UTF-8
+fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
 
-// Create xl/workbook.xml
-file_put_contents($tempDir . '/xl/workbook.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
-<sheets>
-<sheet name="Expenses" sheetId="1" r:id="rId1" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/>
-</sheets>
-</workbook>');
+// Trip header
+fputcsv($output, ['Trip Expense Report']);
+fputcsv($output, ['Trip Name:', $trip['name']]);
+fputcsv($output, ['Budget:', '$' . number_format($trip['budget'] ?? 0, 2)]);
+fputcsv($output, ['Currency:', $trip['currency'] ?? 'USD']);
+fputcsv($output, ['Export Date:', date('Y-m-d H:i:s')]);
+fputcsv($output, []);
 
-// Create worksheet data
-$sheetData = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
-<sheetData>
-<row r="1">
-<c r="A1" t="inlineStr"><is><t>Trip: ' . htmlspecialchars($trip['name']) . '</t></is></c>
-</row>
-<row r="3">
-<c r="A3" t="inlineStr"><is><t>Date</t></is></c>
-<c r="B3" t="inlineStr"><is><t>Category</t></is></c>
-<c r="C3" t="inlineStr"><is><t>Subcategory</t></is></c>
-<c r="D3" t="inlineStr"><is><t>Description</t></is></c>
-<c r="E3" t="inlineStr"><is><t>Amount</t></is></c>
-<c r="F3" t="inlineStr"><is><t>Paid By</t></is></c>
-</row>';
+// Expense breakdown summary
+fputcsv($output, ['EXPENSE BREAKDOWN BY CATEGORY']);
+fputcsv($output, ['Category', 'Total Amount', 'Percentage']);
+$totalExpenses = array_sum(array_column($breakdown, 'total_amount'));
+foreach ($breakdown as $item) {
+    $percentage = $totalExpenses > 0 ? round(($item['total_amount'] / $totalExpenses) * 100, 1) : 0;
+    fputcsv($output, [$item['category'], '$' . number_format($item['total_amount'], 2), $percentage . '%']);
+}
+fputcsv($output, ['TOTAL', '$' . number_format($totalExpenses, 2), '100%']);
+fputcsv($output, []);
 
-$row = 4;
+// Detailed expenses
+fputcsv($output, ['DETAILED EXPENSES']);
+fputcsv($output, ['Date', 'Category', 'Subcategory', 'Description', 'Amount', 'Paid By']);
+
 foreach ($expenses as $expense) {
-    $sheetData .= '<row r="' . $row . '">
-<c r="A' . $row . '" t="inlineStr"><is><t>' . $expense['date'] . '</t></is></c>
-<c r="B' . $row . '" t="inlineStr"><is><t>' . htmlspecialchars($expense['category']) . '</t></is></c>
-<c r="C' . $row . '" t="inlineStr"><is><t>' . htmlspecialchars($expense['subcategory']) . '</t></is></c>
-<c r="D' . $row . '" t="inlineStr"><is><t>' . htmlspecialchars($expense['description']) . '</t></is></c>
-<c r="E' . $row . '"><v>' . $expense['amount'] . '</v></c>
-<c r="F' . $row . '" t="inlineStr"><is><t>' . htmlspecialchars($expense['paid_by_name']) . '</t></is></c>
-</row>';
-    $row++;
+    fputcsv($output, [
+        $expense['date'],
+        $expense['category'],
+        $expense['subcategory'],
+        $expense['description'],
+        '$' . number_format($expense['amount'], 2),
+        $expense['paid_by_name']
+    ]);
 }
 
-$total = array_sum(array_column($expenses, 'amount'));
-$sheetData .= '<row r="' . ($row + 1) . '">
-<c r="D' . ($row + 1) . '" t="inlineStr"><is><t>TOTAL</t></is></c>
-<c r="E' . ($row + 1) . '"><v>' . $total . '</v></c>
-</row>';
-
-$sheetData .= '</sheetData></worksheet>';
-
-file_put_contents($tempDir . '/xl/worksheets/sheet1.xml', $sheetData);
-
-// Create ZIP file
-$zip = new ZipArchive();
-$zipFile = $tempDir . '.xlsx';
-$zip->open($zipFile, ZipArchive::CREATE);
-
-$files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($tempDir));
-foreach ($files as $file) {
-    if (!$file->isDir()) {
-        $filePath = $file->getRealPath();
-        $relativePath = substr($filePath, strlen($tempDir) + 1);
-        $zip->addFile($filePath, $relativePath);
-    }
-}
-$zip->close();
-
-// Output file
-readfile($zipFile);
-
-// Cleanup
-function deleteDir($dir) {
-    if (is_dir($dir)) {
-        $files = array_diff(scandir($dir), array('.', '..'));
-        foreach ($files as $file) {
-            $path = $dir . '/' . $file;
-            is_dir($path) ? deleteDir($path) : unlink($path);
-        }
-        rmdir($dir);
-    }
+// Summary totals
+fputcsv($output, []);
+fputcsv($output, ['SUMMARY']);
+fputcsv($output, ['Total Expenses:', '$' . number_format($totalExpenses, 2)]);
+fputcsv($output, ['Number of Expenses:', count($expenses)]);
+if ($trip['budget']) {
+    $remaining = $trip['budget'] - $totalExpenses;
+    fputcsv($output, ['Remaining Budget:', '$' . number_format($remaining, 2)]);
+    fputcsv($output, ['Budget Usage:', round(($totalExpenses / $trip['budget']) * 100, 1) . '%']);
 }
 
-deleteDir($tempDir);
-unlink($zipFile);
+fclose($output);
 ?>
