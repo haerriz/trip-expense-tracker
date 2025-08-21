@@ -12,15 +12,28 @@ try {
         exit;
     }
     
-    // Get trip members
-    $stmt = $pdo->prepare("
-        SELECT u.id, u.name, u.email, u.picture, tm.joined_at
-        FROM trip_members tm 
-        JOIN users u ON tm.user_id = u.id 
-        WHERE tm.trip_id = ?
-        ORDER BY tm.joined_at ASC
-    ");
-    $stmt->execute([$tripId]);
+    // Get trip members (handle missing status column)
+    try {
+        $stmt = $pdo->prepare("
+            SELECT u.id, u.name, u.email, u.picture, tm.joined_at
+            FROM trip_members tm 
+            JOIN users u ON tm.user_id = u.id 
+            WHERE tm.trip_id = ? AND (tm.status = 'accepted' OR tm.status IS NULL)
+            ORDER BY tm.joined_at ASC
+        ");
+        $stmt->execute([$tripId]);
+    } catch (Exception $e) {
+        // Fallback if status column doesn't exist
+        $stmt = $pdo->prepare("
+            SELECT u.id, u.name, u.email, u.picture, tm.joined_at
+            FROM trip_members tm 
+            JOIN users u ON tm.user_id = u.id 
+            WHERE tm.trip_id = ?
+            ORDER BY tm.joined_at ASC
+        ");
+        $stmt->execute([$tripId]);
+    }
+    
     $members = $stmt->fetchAll();
     
     echo json_encode([
