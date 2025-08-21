@@ -9,7 +9,27 @@ requireMasterAdmin();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Admin - Haerriz Trip Finance</title>
+    <title>Admin Panel - Manage Categories & Users | Haerriz Trip Finance</title>
+    <meta name="description" content="Master admin panel for managing expense categories, users, trips, and system statistics. Administrative control for Haerriz Trip Finance.">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#f44336">
+    <link rel="canonical" href="https://expenses.haerriz.com/admin">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Admin Panel",
+      "description": "Administrative control panel for managing categories, users, and system statistics.",
+      "url": "https://expenses.haerriz.com/admin",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Haerriz Trip Finance",
+        "url": "https://expenses.haerriz.com"
+      }
+    }
+    </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">

@@ -15,10 +15,33 @@ requireLogin();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Haerriz Trip Finance</title>
-    <meta name="description" content="Manage your trip expenses, split costs with friends, and track your travel budget with visual analytics.">
+    <title>Trip Dashboard - Manage Expenses & Budget | Haerriz Trip Finance</title>
+    <meta name="description" content="Manage your trip expenses, create budgets, split costs with friends, and track spending with real-time analytics. Add expenses, invite members, and monitor your travel budget.">
     <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#2196F3">
     <link rel="canonical" href="https://expenses.haerriz.com/dashboard">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Trip Dashboard - Haerriz Trip Finance">
+    <meta property="og:description" content="Manage your trip expenses and budgets with real-time analytics and group collaboration.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://expenses.haerriz.com/dashboard">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Trip Dashboard",
+      "description": "Manage trip expenses, budgets, and group spending with real-time analytics.",
+      "url": "https://expenses.haerriz.com/dashboard",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Haerriz Trip Finance",
+        "url": "https://expenses.haerriz.com"
+      }
+    }
+    </script>
     
     <!-- Materialize CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
@@ -28,6 +51,8 @@ requireLogin();
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
     <link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/avatar.js"></script>

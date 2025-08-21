@@ -7,8 +7,27 @@ requireLogin();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - Haerriz Trip Finance</title>
+    <title>User Profile - Edit Account Settings | Haerriz Trip Finance</title>
+    <meta name="description" content="Edit your profile, update account settings, change password, and verify phone number. Manage your Haerriz Trip Finance account preferences.">
     <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#2196F3">
+    <link rel="canonical" href="https://expenses.haerriz.com/profile">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "User Profile",
+      "description": "Edit profile settings, update account information, and manage preferences.",
+      "url": "https://expenses.haerriz.com/profile",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Haerriz Trip Finance",
+        "url": "https://expenses.haerriz.com"
+      }
+    }
+    </script>
     
     <!-- Materialize CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
