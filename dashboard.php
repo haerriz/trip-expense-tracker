@@ -3,7 +3,7 @@ session_start();
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: index.php');
+    header('Location: /');
     exit();
 }
 
@@ -18,6 +18,7 @@ requireLogin();
     <title>Dashboard - Haerriz Trip Finance</title>
     <meta name="description" content="Manage your trip expenses, split costs with friends, and track your travel budget with visual analytics.">
     <meta name="robots" content="noindex, nofollow">
+    <link rel="canonical" href="https://expenses.haerriz.com/dashboard">
     
     <!-- Materialize CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
@@ -44,15 +45,15 @@ requireLogin();
             </a>
             <ul class="navbar__menu right">
                 <li class="navbar__user">
-                    <a href="profile.php">
+                    <a href="/profile">
                         <img src="<?php echo $_SESSION['user_picture']; ?>" alt="Profile" class="navbar__avatar circle">
                     </a>
                     <span class="navbar__name hide-on-small-only"><?php echo $_SESSION['user_name']; ?></span>
                     <?php if ($_SESSION['user_email'] === 'haerriz@gmail.com'): ?>
-                        <a href="admin.php" class="btn-small red hide-on-small-only">Admin</a>
+                        <a href="/admin" class="btn-small red hide-on-small-only">Admin</a>
                     <?php endif; ?>
-                    <a href="profile.php" class="btn-small blue hide-on-small-only">Profile</a>
-                    <a href="logout.php" class="navbar__logout btn-small red">Logout</a>
+                    <a href="/profile" class="btn-small blue hide-on-small-only">Profile</a>
+                    <a href="/logout" class="navbar__logout btn-small red">Logout</a>
                 </li>
             </ul>
         </div>

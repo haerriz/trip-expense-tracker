@@ -4,7 +4,7 @@ session_start();
 // Check if user is already logged in
 if (isset($_SESSION['user_id'])) {
     // User is logged in, redirect to dashboard
-    header('Location: dashboard.php');
+    header('Location: /dashboard');
     exit();
 }
 
@@ -22,12 +22,15 @@ if (isset($_SESSION['user_id'])) {
     <meta property="og:title" content="Haerriz Trip Finance - Expense Tracker for Backpackers">
     <meta property="og:description" content="Track your backpacking and tour expenses with friends. Multi-currency support and group expense splitting.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://expenses.haerriz.com">
+    <meta property="og:url" content="https://expenses.haerriz.com/">
     <meta property="og:image" content="https://expenses.haerriz.com/assets/og-image.jpg">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Haerriz Trip Finance - Expense Tracker">
     <meta name="twitter:description" content="Track backpacking expenses with friends. Multi-currency support and group splitting.">
-    <link rel="canonical" href="https://expenses.haerriz.com">
+    <link rel="canonical" href="https://expenses.haerriz.com/">
+    <link rel="alternate" hreflang="en" href="https://expenses.haerriz.com/">
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     
     <!-- Materialize CSS -->

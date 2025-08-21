@@ -13,7 +13,7 @@ function requireLogin() {
             echo json_encode(['success' => false, 'message' => 'Authentication required']);
             exit();
         } else {
-            header('Location: index.html');
+            header('Location: /');
             exit();
         }
     }
@@ -62,7 +62,7 @@ function loginUser($googleData) {
 
 function logout() {
     session_destroy();
-    header('Location: index.html');
+    header('Location: /');
     exit();
 }
 
