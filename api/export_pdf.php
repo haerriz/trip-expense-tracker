@@ -168,13 +168,98 @@ ob_start();
 <?php
 $html = ob_get_clean();
 
-// Simple HTML to PDF conversion
+// Generate proper PDF
 header('Content-Type: application/pdf');
 header('Content-Disposition: attachment; filename="trip-expenses-' . preg_replace('/[^a-zA-Z0-9]/', '-', $trip['name']) . '.pdf"');
+header('Cache-Control: no-cache, must-revalidate');
+header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
 
-// For now, output as HTML since proper PDF generation requires additional libraries
-// In production, you would use libraries like TCPDF, FPDF, or wkhtmltopdf
-header('Content-Type: text/html');
-header('Content-Disposition: inline; filename="trip-expenses-' . preg_replace('/[^a-zA-Z0-9]/', '-', $trip['name']) . '.html"');
-echo $html;
+// Simple PDF generation
+$pdf_content = generateSimplePDF($trip, $expenses, $breakdown, $members, $total, $currencySymbol);
+echo $pdf_content;
+
+function generateSimplePDF($trip, $expenses, $breakdown, $members, $total, $currencySymbol) {
+    $content = "%PDF-1.4\n";
+    $content .= "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n";
+    $content .= "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n";
+    $content .= "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> >>\nendobj\n";
+    
+    // Build content stream
+    $text = "BT\n";
+    $text .= "/F2 20 Tf\n";
+    $text .= "50 750 Td\n";
+    $text .= "(" . substr($trip['name'], 0, 40) . ") Tj\n";
+    $text .= "0 -25 Td\n";
+    $text .= "/F1 12 Tf\n";
+    $text .= "(Trip Expense Report - " . date('M j, Y') . ") Tj\n";
+    
+    // Summary section
+    $text .= "0 -30 Td\n";
+    $text .= "/F2 14 Tf\n";
+    $text .= "(SUMMARY) Tj\n";
+    $text .= "0 -20 Td\n";
+    $text .= "/F1 11 Tf\n";
+    $text .= "(Total Expenses: " . $currencySymbol . number_format($total, 2) . ") Tj\n";
+    $text .= "0 -15 Td\n";
+    $text .= "(Number of Expenses: " . count($expenses) . ") Tj\n";
+    
+    if ($trip['budget']) {
+        $text .= "0 -15 Td\n";
+        $text .= "(Budget: " . $currencySymbol . number_format($trip['budget'], 2) . ") Tj\n";
+        $text .= "0 -15 Td\n";
+        $remaining = $trip['budget'] - $total;
+        $text .= "(Remaining: " . $currencySymbol . number_format($remaining, 2) . ") Tj\n";
+    }
+    
+    // Category breakdown
+    $text .= "0 -30 Td\n";
+    $text .= "/F2 14 Tf\n";
+    $text .= "(EXPENSE BREAKDOWN) Tj\n";
+    $text .= "0 -20 Td\n";
+    $text .= "/F1 10 Tf\n";
+    
+    foreach ($breakdown as $item) {
+        $percentage = $total > 0 ? round(($item['total_amount'] / $total) * 100, 1) : 0;
+        $text .= "0 -15 Td\n";
+        $text .= "(" . substr($item['category'], 0, 20) . ": " . $currencySymbol . number_format($item['total_amount'], 2) . " (" . $percentage . "%)) Tj\n";
+    }
+    
+    // Recent expenses
+    $text .= "0 -30 Td\n";
+    $text .= "/F2 14 Tf\n";
+    $text .= "(RECENT EXPENSES) Tj\n";
+    $text .= "0 -20 Td\n";
+    $text .= "/F1 9 Tf\n";
+    
+    $count = 0;
+    foreach (array_slice($expenses, 0, 15) as $expense) {
+        $text .= "0 -12 Td\n";
+        $text .= "(" . $expense['date'] . " - " . substr($expense['category'], 0, 15) . ") Tj\n";
+        $text .= "0 -10 Td\n";
+        $text .= "(" . substr($expense['description'], 0, 40) . ") Tj\n";
+        $text .= "0 -10 Td\n";
+        $text .= "(" . $currencySymbol . number_format($expense['amount'], 2) . " by " . substr($expense['paid_by_name'], 0, 15) . ") Tj\n";
+        $count++;
+        if ($count >= 10) break;
+    }
+    
+    if (count($expenses) > 15) {
+        $text .= "0 -15 Td\n";
+        $text .= "(... and " . (count($expenses) - 15) . " more expenses) Tj\n";
+    }
+    
+    $text .= "ET\n";
+    
+    $content .= "4 0 obj\n<< /Length " . strlen($text) . " >>\nstream\n" . $text . "\nendstream\nendobj\n";
+    $content .= "5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n";
+    $content .= "6 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>\nendobj\n";
+    
+    $xrefPos = strlen($content);
+    $content .= "xref\n0 7\n0000000000 65535 f \n0000000010 00000 n \n0000000053 00000 n \n0000000125 00000 n \n0000000348 00000 n \n";
+    $content .= sprintf("%010d 00000 n \n", strpos($content, "5 0 obj"));
+    $content .= sprintf("%010d 00000 n \n", strpos($content, "6 0 obj"));
+    $content .= "trailer\n<< /Size 7 /Root 1 0 R >>\nstartxref\n" . $xrefPos . "\n%%EOF\n";
+    
+    return $content;
+}
 ?>
