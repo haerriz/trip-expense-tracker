@@ -1,25 +1,28 @@
 function handleCredentialResponse(response) {
-    const responsePayload = decodeJwtResponse(response.credential);
+    console.log('Google OAuth response received');
     
-    fetch('login.php', {
+    fetch('google-auth.php', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            id: responsePayload.sub,
-            email: responsePayload.email,
-            name: responsePayload.name,
-            picture: responsePayload.picture
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential: response.credential })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.href = 'dashboard.php';
-        } else {
-            alert('Login failed');
+    .then(response => response.text())
+    .then(text => {
+        try {
+            const data = JSON.parse(text);
+            if (data.success) {
+                window.location.href = 'dashboard.php';
+            } else {
+                alert('Google authentication failed: ' + (data.message || 'Unknown error'));
+            }
+        } catch (e) {
+            console.error('JSON parse error:', e, 'Response:', text);
+            alert('Authentication error occurred');
         }
+    })
+    .catch(error => {
+        console.error('Google auth error:', error);
+        alert('Network error during authentication');
     });
 }
 
