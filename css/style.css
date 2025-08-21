@@ -687,3 +687,29 @@
 .budget-options p {
     margin: 0.5rem 0;
 }
+
+/* Expense Action Buttons */
+.expense-item__actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.expense-item__actions .btn-small {
+    margin: 0;
+    padding: 0 8px;
+    height: 28px;
+    line-height: 28px;
+}
+
+.expense-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.expense-item:last-child {
+    border-bottom: none;
+}

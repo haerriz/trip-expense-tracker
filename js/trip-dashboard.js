@@ -270,6 +270,24 @@ function updateExpense() {
         });
 }
 
+function deleteExpense(expenseId) {
+    if (confirm('Are you sure you want to delete this expense? This action cannot be undone.')) {
+        $.post('api/delete_expense.php', { expense_id: expenseId })
+            .done(function(data) {
+                if (data.success) {
+                    const tripId = $('#current-trip').val();
+                    loadTripDashboard(tripId);
+                    M.toast({html: data.message});
+                } else {
+                    M.toast({html: data.message || 'Error deleting expense'});
+                }
+            })
+            .fail(function() {
+                M.toast({html: 'Network error deleting expense'});
+            });
+    }
+}
+
 function loadSubcategoriesForEdit(category, selectedSub = '') {
     const subcategories = {
         'Food & Drinks': ['Restaurant', 'Street Food', 'Groceries', 'Drinks', 'Snacks'],
@@ -675,7 +693,9 @@ function loadExpenses(tripId) {
             let html = '';
             
             expenses.forEach(function(expense) {
-                const canEdit = expense.paid_by == window.currentUserId;
+                const isMasterAdmin = window.userEmail === 'haerriz@gmail.com';
+                const canModify = expense.paid_by == window.currentUserId || isMasterAdmin;
+                
                 html += `
                     <div class="expense-item">
                         <div class="expense-item__info">
@@ -684,7 +704,10 @@ function loadExpenses(tripId) {
                             <small>Paid by ${expense.paid_by_name}</small>
                         </div>
                         <div class="expense-item__amount">$${parseFloat(expense.amount).toFixed(2)}</div>
-                        ${canEdit ? `<button class="btn-small blue" onclick="editExpense(${expense.id})"><i class="material-icons">edit</i></button>` : ''}
+                        <div class="expense-item__actions">
+                            ${canModify ? `<button class="btn-small blue" onclick="editExpense(${expense.id})" title="Edit expense"><i class="material-icons">edit</i></button>` : ''}
+                            ${canModify ? `<button class="btn-small red" onclick="deleteExpense(${expense.id})" title="Delete expense"><i class="material-icons">delete</i></button>` : ''}
+                        </div>
                     </div>
                 `;
             });
