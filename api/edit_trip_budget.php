@@ -16,7 +16,7 @@ try {
             exit;
         }
         
-        // Verify user is trip creator
+        // Verify user is trip creator or master admin
         $stmt = $pdo->prepare("SELECT created_by, name FROM trips WHERE id = ?");
         $stmt->execute([$tripId]);
         $trip = $stmt->fetch();
@@ -26,8 +26,11 @@ try {
             exit;
         }
         
-        if ($trip['created_by'] != $userId) {
-            echo json_encode(['success' => false, 'message' => 'Only trip creator can edit budget']);
+        $isMasterAdmin = ($_SESSION['user_email'] === 'haerriz@gmail.com');
+        $isCreator = ($trip['created_by'] == $userId);
+        
+        if (!$isCreator && !$isMasterAdmin) {
+            echo json_encode(['success' => false, 'message' => 'Only trip creator or master admin can edit budget']);
             exit;
         }
         

@@ -24,6 +24,7 @@ requireLogin();
     <script src="js/avatar.js"></script>
     <script>
         window.currentUserId = <?php echo $_SESSION['user_id']; ?>;
+        window.userEmail = '<?php echo $_SESSION['user_email']; ?>';
     </script>
 </head>
 <body class="dashboard-page">

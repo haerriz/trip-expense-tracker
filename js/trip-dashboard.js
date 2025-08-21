@@ -161,10 +161,21 @@ function editBudget() {
         return;
     }
     
+    // Check if user can edit budget (creator or master admin)
+    const isMasterAdmin = window.userEmail === 'haerriz@gmail.com';
+    
     // Get current trip data
     $.get('api/get_trip_summary.php', { trip_id: tripId })
         .done(function(data) {
             if (data.success && data.trip) {
+                const isCreator = data.trip.created_by == window.currentUserId;
+                
+                // Check permission
+                if (!isCreator && !isMasterAdmin) {
+                    M.toast({html: 'Only trip creator can edit budget'});
+                    return;
+                }
+                
                 const currentBudget = data.trip.budget;
                 
                 if (currentBudget === null || currentBudget === undefined) {
