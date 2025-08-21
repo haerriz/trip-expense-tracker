@@ -3,13 +3,17 @@ RewriteEngine On
 # Redirect root to index.php
 DirectoryIndex index.php
 
+# Exclude authentication files from clean URL rewriting
+RewriteCond %{REQUEST_URI} !^/(manual-login|manual-signup|google-auth)\.php$ [NC]
+
 # Remove .php extension from URLs
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^([^.]+)$ $1.php [NC,L]
 
-# Redirect .php URLs to clean URLs
+# Redirect .php URLs to clean URLs (except auth files)
 RewriteCond %{THE_REQUEST} /([^.]+)\.php[?\s] [NC]
+RewriteCond %{REQUEST_URI} !^/(manual-login|manual-signup|google-auth)\.php$ [NC]
 RewriteRule ^ /%1? [NC,L,R=301]
 
 # Handle API routes

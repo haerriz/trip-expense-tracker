@@ -4,14 +4,24 @@ require_once 'config/database.php';
 
 header('Content-Type: application/json');
 
+// Debug logging
+error_log('Login attempt - Method: ' . $_SERVER['REQUEST_METHOD']);
+error_log('Login attempt - Content Type: ' . ($_SERVER['CONTENT_TYPE'] ?? 'not set'));
+
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $input = json_decode(file_get_contents('php://input'), true);
+        $rawInput = file_get_contents('php://input');
+        error_log('Raw input: ' . $rawInput);
+        
+        $input = json_decode($rawInput, true);
         
         if (!$input) {
+            error_log('JSON decode failed for: ' . $rawInput);
             echo json_encode(['success' => false, 'message' => 'Invalid JSON input']);
             exit;
         }
+        
+        error_log('Parsed input: ' . print_r($input, true));
         
         $email = $input['email'] ?? '';
         $password = $input['password'] ?? '';
