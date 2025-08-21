@@ -4,8 +4,11 @@ requireLogin();
 
 header('Content-Type: application/json');
 
-$stmt = $pdo->query("SELECT * FROM categories ORDER BY name");
-$categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-echo json_encode(['categories' => $categories]);
+try {
+    $stmt = $pdo->query("SELECT * FROM categories ORDER BY name");
+    $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    echo json_encode(['categories' => $categories]);
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+}
 ?>
