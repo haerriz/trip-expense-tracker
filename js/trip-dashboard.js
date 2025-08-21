@@ -106,6 +106,10 @@ $(document).ready(function() {
         }
     });
     
+    $(document).on('change', 'input[name="split-mode"]', function() {
+        loadCustomSplitSection();
+    });
+    
     // Start live chat updates
     startLiveChat();
     
@@ -545,15 +549,22 @@ function addExpense() {
     // Validate custom split
     if (splitType === 'custom') {
         const members = window.tripMembers || [];
+        const splitMode = $('input[name="split-mode"]:checked').val() || 'currency';
+        const isPercentage = splitMode === 'percentage';
         let splitTotal = 0;
         let customSplits = {};
         let hasCustomValues = false;
         
         members.forEach(function(member) {
-            const amount = parseFloat($(`#split_${member.id}`).val()) || 0;
-            if (amount > 0) {
-                splitTotal += amount;
-                customSplits[member.id] = amount;
+            const inputValue = parseFloat($(`#split_${member.id}`).val()) || 0;
+            if (inputValue > 0) {
+                if (isPercentage) {
+                    splitTotal += inputValue;
+                    customSplits[member.id] = (inputValue / 100) * totalAmount;
+                } else {
+                    splitTotal += inputValue;
+                    customSplits[member.id] = inputValue;
+                }
                 hasCustomValues = true;
             }
         });
@@ -563,8 +574,12 @@ function addExpense() {
             return;
         }
         
-        if (Math.abs(splitTotal - totalAmount) > 0.01) {
-            M.toast({html: 'Custom split amounts must equal the total expense amount'});
+        const tolerance = isPercentage ? 0.1 : 0.01;
+        const expectedTotal = isPercentage ? 100 : totalAmount;
+        
+        if (Math.abs(splitTotal - expectedTotal) > tolerance) {
+            const unit = isPercentage ? '%' : '$';
+            M.toast({html: `Custom split must equal ${expectedTotal}${unit}`});
             return;
         }
     }
@@ -582,9 +597,13 @@ function addExpense() {
     // Add custom splits if applicable
     if (splitType === 'custom') {
         const members = window.tripMembers || [];
+        const splitMode = $('input[name="split-mode"]:checked').val() || 'currency';
+        const isPercentage = splitMode === 'percentage';
+        
         members.forEach(function(member) {
-            const amount = parseFloat($(`#split_${member.id}`).val()) || 0;
-            if (amount > 0) {
+            const inputValue = parseFloat($(`#split_${member.id}`).val()) || 0;
+            if (inputValue > 0) {
+                const amount = isPercentage ? (inputValue / 100) * totalAmount : inputValue;
                 formData[`split_${member.id}`] = amount;
             }
         });
@@ -727,39 +746,46 @@ function loadCustomSplitSection() {
     $.get('api/get_trip_members.php', { trip_id: tripId })
         .done(function(data) {
             const members = data.members || [];
-            const equalSplit = totalAmount / members.length;
+            const splitMode = $('input[name="split-mode"]:checked').val() || 'currency';
+            const isPercentage = splitMode === 'percentage';
             
             let html = `
                 <div class="custom-split-header">
-                    <h6>Custom Split Amounts</h6>
+                    <h6>Custom Split ${isPercentage ? 'Percentages' : 'Amounts'}</h6>
                     <div class="split-info">
-                        <span>Total: <strong id="split-total">$${totalAmount.toFixed(2)}</strong></span>
-                        <span>Remaining: <strong id="split-remaining">$${totalAmount.toFixed(2)}</strong></span>
+                        <span>Total: <strong id="split-total">${isPercentage ? '100%' : '$' + totalAmount.toFixed(2)}</strong></span>
+                        <span>Remaining: <strong id="split-remaining">${isPercentage ? '100%' : '$' + totalAmount.toFixed(2)}</strong></span>
                     </div>
                     <div class="split-actions">
                         <button type="button" class="btn-small" onclick="splitEqually()">Split Equally</button>
                         <button type="button" class="btn-small" onclick="clearSplits()">Clear All</button>
+                        <button type="button" class="btn-small" onclick="payForAll()">I'll Pay All</button>
                     </div>
                 </div>
                 <div class="custom-split-members">
             `;
             
             members.forEach(function(member, index) {
+                const inputMax = isPercentage ? '100' : totalAmount;
+                const inputStep = isPercentage ? '0.1' : '0.01';
+                const labelText = isPercentage ? 'Percentage' : 'Amount';
+                const isCurrentUser = member.id == window.currentUserId;
+                
                 html += `
                     <div class="split-member-row">
                         <div class="member-info">
                             <img src="${member.picture || generateAvatar(member.name)}" class="split-avatar circle" alt="${member.name}">
-                            <span class="member-name">${member.name}</span>
+                            <span class="member-name">${member.name}${isCurrentUser ? ' (You)' : ''}</span>
                         </div>
                         <div class="input-field split-input">
                             <input type="number" id="split_${member.id}" class="validate split-amount" 
-                                   step="0.01" min="0" max="${totalAmount}" 
+                                   step="${inputStep}" min="0" max="${inputMax}" 
                                    data-member-id="${member.id}" data-member-name="${member.name}"
                                    onchange="updateSplitCalculation()" onkeyup="updateSplitCalculation()">
-                            <label for="split_${member.id}">Amount</label>
+                            <label for="split_${member.id}">${labelText}</label>
                         </div>
-                        <div class="split-percentage">
-                            <span id="percent_${member.id}">0%</span>
+                        <div class="split-display">
+                            <span id="display_${member.id}">-</span>
                         </div>
                     </div>
                 `;
@@ -786,11 +812,19 @@ function loadCustomSplitSection() {
 function splitEqually() {
     const totalAmount = parseFloat($('#amount').val()) || 0;
     const members = window.tripMembers || [];
-    const equalAmount = totalAmount / members.length;
+    const splitMode = $('input[name="split-mode"]:checked').val() || 'currency';
     
-    members.forEach(function(member) {
-        $(`#split_${member.id}`).val(equalAmount.toFixed(2));
-    });
+    if (splitMode === 'percentage') {
+        const equalPercentage = 100 / members.length;
+        members.forEach(function(member) {
+            $(`#split_${member.id}`).val(equalPercentage.toFixed(1));
+        });
+    } else {
+        const equalAmount = totalAmount / members.length;
+        members.forEach(function(member) {
+            $(`#split_${member.id}`).val(equalAmount.toFixed(2));
+        });
+    }
     
     updateSplitCalculation();
     M.updateTextFields();
@@ -805,46 +839,103 @@ function clearSplits() {
     M.updateTextFields();
 }
 
+function payForAll() {
+    const members = window.tripMembers || [];
+    const splitMode = $('input[name="split-mode"]:checked').val() || 'currency';
+    const currentUserId = window.currentUserId;
+    
+    members.forEach(function(member) {
+        if (member.id == currentUserId) {
+            $(`#split_${member.id}`).val(splitMode === 'percentage' ? '100' : $('#amount').val());
+        } else {
+            $(`#split_${member.id}`).val('0');
+        }
+    });
+    
+    updateSplitCalculation();
+    M.updateTextFields();
+}
+
 function updateSplitCalculation() {
     const totalAmount = parseFloat($('#amount').val()) || 0;
     const members = window.tripMembers || [];
+    const splitMode = $('input[name="split-mode"]:checked').val() || 'currency';
+    const isPercentage = splitMode === 'percentage';
+    
     let splitTotal = 0;
     let hasValues = false;
     
     members.forEach(function(member) {
-        const amount = parseFloat($(`#split_${member.id}`).val()) || 0;
-        splitTotal += amount;
+        const inputValue = parseFloat($(`#split_${member.id}`).val()) || 0;
         
-        if (amount > 0) {
-            hasValues = true;
-            const percentage = totalAmount > 0 ? (amount / totalAmount * 100).toFixed(1) : 0;
-            $(`#percent_${member.id}`).text(percentage + '%');
+        if (isPercentage) {
+            splitTotal += inputValue;
+            if (inputValue > 0) {
+                hasValues = true;
+                const amount = (inputValue / 100) * totalAmount;
+                $(`#display_${member.id}`).text('$' + amount.toFixed(2));
+            } else {
+                $(`#display_${member.id}`).text('-');
+            }
         } else {
-            $(`#percent_${member.id}`).text('0%');
+            splitTotal += inputValue;
+            if (inputValue > 0) {
+                hasValues = true;
+                const percentage = totalAmount > 0 ? (inputValue / totalAmount * 100).toFixed(1) : 0;
+                $(`#display_${member.id}`).text(percentage + '%');
+            } else {
+                $(`#display_${member.id}`).text('-');
+            }
         }
     });
     
-    const remaining = totalAmount - splitTotal;
-    $('#split-total').text('$' + totalAmount.toFixed(2));
-    $('#split-remaining').text('$' + remaining.toFixed(2));
-    
-    // Validation
-    if (hasValues) {
-        if (Math.abs(remaining) > 0.01) {
-            $('#split-validation').show();
-            if (remaining > 0) {
-                $('#split-error').text(`$${remaining.toFixed(2)} remaining to be allocated`);
+    // Update totals and remaining
+    if (isPercentage) {
+        const remaining = 100 - splitTotal;
+        $('#split-total').text('100%');
+        $('#split-remaining').text(remaining.toFixed(1) + '%');
+        
+        // Validation for percentage
+        if (hasValues) {
+            if (Math.abs(remaining) > 0.1) {
+                $('#split-validation').show();
+                if (remaining > 0) {
+                    $('#split-error').text(`${remaining.toFixed(1)}% remaining to be allocated`);
+                } else {
+                    $('#split-error').text(`Over-allocated by ${Math.abs(remaining).toFixed(1)}%`);
+                }
+                $('#split-remaining').addClass('red-text');
             } else {
-                $('#split-error').text(`Over-allocated by $${Math.abs(remaining).toFixed(2)}`);
+                $('#split-validation').hide();
+                $('#split-remaining').removeClass('red-text');
             }
-            $('#split-remaining').addClass('red-text');
         } else {
             $('#split-validation').hide();
             $('#split-remaining').removeClass('red-text');
         }
     } else {
-        $('#split-validation').hide();
-        $('#split-remaining').removeClass('red-text');
+        const remaining = totalAmount - splitTotal;
+        $('#split-total').text('$' + totalAmount.toFixed(2));
+        $('#split-remaining').text('$' + remaining.toFixed(2));
+        
+        // Validation for currency
+        if (hasValues) {
+            if (Math.abs(remaining) > 0.01) {
+                $('#split-validation').show();
+                if (remaining > 0) {
+                    $('#split-error').text(`$${remaining.toFixed(2)} remaining to be allocated`);
+                } else {
+                    $('#split-error').text(`Over-allocated by $${Math.abs(remaining).toFixed(2)}`);
+                }
+                $('#split-remaining').addClass('red-text');
+            } else {
+                $('#split-validation').hide();
+                $('#split-remaining').removeClass('red-text');
+            }
+        } else {
+            $('#split-validation').hide();
+            $('#split-remaining').removeClass('red-text');
+        }
     }
 }
 

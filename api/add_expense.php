@@ -54,8 +54,13 @@ try {
             // Handle splits
             if ($splitType === 'equal') {
                 // Get trip members for equal split
-                $stmt = $pdo->prepare("SELECT user_id FROM trip_members WHERE trip_id = ?");
-                $stmt->execute([$tripId]);
+                try {
+                    $stmt = $pdo->prepare("SELECT user_id FROM trip_members WHERE trip_id = ? AND (status = 'accepted' OR status IS NULL)");
+                    $stmt->execute([$tripId]);
+                } catch (Exception $e) {
+                    $stmt = $pdo->prepare("SELECT user_id FROM trip_members WHERE trip_id = ?");
+                    $stmt->execute([$tripId]);
+                }
                 $members = $stmt->fetchAll();
                 
                 $splitAmount = $amount / count($members);
@@ -64,6 +69,10 @@ try {
                     $stmt = $pdo->prepare("INSERT INTO expense_splits (expense_id, user_id, amount) VALUES (?, ?, ?)");
                     $stmt->execute([$expenseId, $member['user_id'], $splitAmount]);
                 }
+            } else if ($splitType === 'full') {
+                // Full expense on the person who paid
+                $stmt = $pdo->prepare("INSERT INTO expense_splits (expense_id, user_id, amount) VALUES (?, ?, ?)");
+                $stmt->execute([$expenseId, $userId, $amount]);
             } else if ($splitType === 'custom') {
                 // Handle custom splits
                 foreach ($_POST as $key => $value) {

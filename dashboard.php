@@ -178,12 +178,32 @@ requireLogin();
                                     </p>
                                     <p>
                                         <label>
+                                            <input name="split" type="radio" value="full" />
+                                            <span>Full Expense on Me</span>
+                                        </label>
+                                    </p>
+                                    <p>
+                                        <label>
                                             <input name="split" type="radio" value="custom" />
                                             <span>Custom Split</span>
                                         </label>
                                     </p>
                                 </div>
                                 <div id="custom-split-section" style="display:none;">
+                                    <div class="split-mode-toggle">
+                                        <p>
+                                            <label>
+                                                <input name="split-mode" type="radio" value="currency" checked />
+                                                <span>Currency Amount</span>
+                                            </label>
+                                        </p>
+                                        <p>
+                                            <label>
+                                                <input name="split-mode" type="radio" value="percentage" />
+                                                <span>Percentage</span>
+                                            </label>
+                                        </p>
+                                    </div>
                                     <div id="member-splits"></div>
                                 </div>
                                 <button type="submit" class="btn waves-effect waves-light">
