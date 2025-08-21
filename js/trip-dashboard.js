@@ -252,11 +252,16 @@ function showEmptyState() {
 function loadTripSummary(tripId) {
     $.get('api/get_trip_summary.php', { trip_id: tripId })
         .done(function(data) {
-            const currency = getCurrencySymbol(data.currency || 'USD');
-            $('#trip-budget').text(currency + parseFloat(data.budget || 0).toFixed(2));
-            $('#total-spent').text(currency + parseFloat(data.total_spent || 0).toFixed(2));
-            $('#remaining-budget').text(currency + parseFloat((data.budget || 0) - (data.total_spent || 0)).toFixed(2));
-            $('#my-share').text(currency + parseFloat(data.my_share || 0).toFixed(2));
+            if (data.success && data.trip) {
+                const currency = getCurrencySymbol(data.trip.currency || 'USD');
+                $('#trip-budget').text(currency + parseFloat(data.trip.budget || 0).toFixed(2));
+                $('#total-spent').text(currency + parseFloat(data.total_expenses || 0).toFixed(2));
+                $('#remaining-budget').text(currency + parseFloat(data.remaining_budget || 0).toFixed(2));
+                $('#my-share').text(currency + parseFloat(data.per_person_share || 0).toFixed(2));
+            }
+        })
+        .fail(function() {
+            console.log('Failed to load trip summary');
         });
 }
 
@@ -280,7 +285,7 @@ function loadTripMembers(tripId) {
 }
 
 function loadExpenses(tripId) {
-    $.get('api/get_trip_expenses.php', { trip_id: tripId })
+    $.get('api/get_expenses.php', { trip_id: tripId })
         .done(function(data) {
             const expenses = data.expenses || [];
             let html = '';
@@ -299,6 +304,9 @@ function loadExpenses(tripId) {
             });
             
             $('#expenses-list').html(html || '<p>No expenses yet</p>');
+        })
+        .fail(function() {
+            console.log('Failed to load expenses');
         });
 }
 
