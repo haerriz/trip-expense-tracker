@@ -58,7 +58,10 @@ try {
             id INT AUTO_INCREMENT PRIMARY KEY,
             trip_id INT,
             user_id INT,
-            joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            status ENUM('pending', 'accepted', 'rejected') DEFAULT 'accepted',
+            invited_by INT,
+            invited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            joined_at TIMESTAMP NULL
         )");
         
         // Expenses table
