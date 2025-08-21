@@ -59,7 +59,7 @@ function updateCategory() {
     .fail(function() {
         M.toast({html: 'Network error updating category'});
     });
-});
+}
 
 function addCategory() {
     const name = $('#category-name').val();
