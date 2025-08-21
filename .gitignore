@@ -1,0 +1,5 @@
+test-db.php
+debug.php
+*.log
+.DS_Store
+Thumbs.db
