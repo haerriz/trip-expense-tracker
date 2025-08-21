@@ -1,38 +1,11 @@
-// Mobile detection and OAuth handling
+// Simple mobile OAuth fix
 function isMobile() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
 
-// Initialize mobile/desktop specific OAuth
-document.addEventListener('DOMContentLoaded', function() {
-    if (isMobile()) {
-        console.log('Mobile device detected');
-        
-        // Hide desktop OAuth, show mobile OAuth
-        document.getElementById('g_id_onload_desktop').style.display = 'none';
-        document.getElementById('g_id_onload_mobile').style.display = 'block';
-        
-        // Add mobile CSS
-        const style = document.createElement('style');
-        style.textContent = `
-            .mobile-only { display: block !important; }
-            .desktop-only { display: none !important; }
-            .g_id_signin { width: 100% !important; }
-        `;
-        document.head.appendChild(style);
-        
-    } else {
-        console.log('Desktop device detected');
-        
-        // Show desktop OAuth, hide mobile OAuth
-        document.getElementById('g_id_onload_desktop').style.display = 'block';
-        document.getElementById('g_id_onload_mobile').style.display = 'none';
-    }
-});
-
-// Desktop popup callback
+// Global credential response handler
 window.handleCredentialResponse = function(response) {
-    console.log('Desktop Google OAuth response received');
+    console.log('Google OAuth response received');
     
     fetch('google-auth.php', {
         method: 'POST',
@@ -44,7 +17,12 @@ window.handleCredentialResponse = function(response) {
         try {
             const data = JSON.parse(text);
             if (data.success) {
-                window.location.href = 'dashboard.php';
+                // For mobile, use location.replace to prevent back button issues
+                if (isMobile()) {
+                    window.location.replace('dashboard.php');
+                } else {
+                    window.location.href = 'dashboard.php';
+                }
             } else {
                 alert('Google authentication failed: ' + (data.message || 'Unknown error'));
             }
@@ -58,3 +36,20 @@ window.handleCredentialResponse = function(response) {
         alert('Network error during authentication');
     });
 };
+
+// Mobile-specific enhancements
+if (isMobile()) {
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add mobile CSS for better button display
+        const style = document.createElement('style');
+        style.textContent = `
+            .g_id_signin {
+                width: 100% !important;
+            }
+            .g_id_signin > div {
+                width: 100% !important;
+            }
+        `;
+        document.head.appendChild(style);
+    });
+}
