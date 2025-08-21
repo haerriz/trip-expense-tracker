@@ -713,3 +713,27 @@
 .expense-item:last-child {
     border-bottom: none;
 }
+
+/* Admin Category Actions */
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.category-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.category-actions .btn-small {
+    margin: 0;
+    padding: 0 8px;
+    height: 28px;
+    line-height: 28px;
+}
+
+.card-panel h6 {
+    margin: 0;
+}

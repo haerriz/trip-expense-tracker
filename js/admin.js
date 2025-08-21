@@ -10,6 +10,55 @@ $(document).ready(function() {
         e.preventDefault();
         addCategory();
     });
+    
+    $('#edit-category-form').on('submit', function(e) {
+        e.preventDefault();
+        updateCategory();
+    });
+});
+
+function editCategory(categoryId) {
+    $.get('api/admin/edit_category.php', { category_id: categoryId })
+        .done(function(data) {
+            if (data.success) {
+                const category = data.category;
+                $('#edit-category-id').val(category.id);
+                $('#edit-category-name').val(category.name);
+                $('#edit-subcategories').val(category.subcategories || '');
+                
+                M.updateTextFields();
+                $('#edit-category-modal').modal('open');
+            } else {
+                M.toast({html: data.message || 'Error loading category'});
+            }
+        })
+        .fail(function() {
+            M.toast({html: 'Network error loading category'});
+        });
+}
+
+function updateCategory() {
+    const categoryId = $('#edit-category-id').val();
+    const name = $('#edit-category-name').val();
+    const subcategories = $('#edit-subcategories').val();
+    
+    $.post('api/admin/edit_category.php', {
+        category_id: categoryId,
+        name: name,
+        subcategories: subcategories
+    })
+    .done(function(data) {
+        if (data.success) {
+            M.toast({html: data.message});
+            $('#edit-category-modal').modal('close');
+            loadCategories();
+        } else {
+            M.toast({html: data.message || 'Error updating category'});
+        }
+    })
+    .fail(function() {
+        M.toast({html: 'Network error updating category'});
+    });
 });
 
 function addCategory() {
@@ -40,11 +89,18 @@ function loadCategories() {
             categories.forEach(function(category) {
                 html += `
                     <div class="card-panel">
-                        <h6>${category.name}</h6>
-                        <p><strong>Subcategories:</strong> ${category.subcategories}</p>
-                        <button class="btn-small red" onclick="deleteCategory(${category.id})">
-                            <i class="material-icons">delete</i>
-                        </button>
+                        <div class="category-header">
+                            <h6>${category.name}</h6>
+                            <div class="category-actions">
+                                <button class="btn-small blue" onclick="editCategory(${category.id})" title="Edit category">
+                                    <i class="material-icons">edit</i>
+                                </button>
+                                <button class="btn-small red" onclick="deleteCategory(${category.id})" title="Delete category">
+                                    <i class="material-icons">delete</i>
+                                </button>
+                            </div>
+                        </div>
+                        <p><strong>Subcategories:</strong> ${category.subcategories || 'None'}</p>
                     </div>
                 `;
             });

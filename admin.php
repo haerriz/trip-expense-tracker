@@ -143,6 +143,30 @@ requireMasterAdmin();
         </div>
     </div>
 
+    <!-- Edit Category Modal -->
+    <div id="edit-category-modal" class="modal">
+        <div class="modal-content">
+            <h4>Edit Category</h4>
+            <form id="edit-category-form">
+                <input type="hidden" id="edit-category-id">
+                <div class="input-field">
+                    <input type="text" id="edit-category-name" required>
+                    <label for="edit-category-name">Category Name</label>
+                </div>
+                <div class="input-field">
+                    <textarea id="edit-subcategories" class="materialize-textarea" placeholder="Enter subcategories separated by commas"></textarea>
+                    <label for="edit-subcategories">Subcategories</label>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" form="edit-category-form" class="btn waves-effect waves-light">
+                <i class="material-icons left">save</i>Update Category
+            </button>
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="js/admin.js"></script>
 </body>
