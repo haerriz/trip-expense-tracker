@@ -53,7 +53,7 @@ document.getElementById('signupForm').addEventListener('submit', function(e) {
     const phone = document.getElementById('signupPhone').value;
     const password = document.getElementById('signupPassword').value;
     
-    fetch('manual-signup.php', {
+    fetch('manual-signup-simple.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, phone, password })
