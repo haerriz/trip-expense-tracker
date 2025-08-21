@@ -1,5 +1,33 @@
-test-db.php
-debug.php
+# Environment files
+.env
+config/database.php
+
+# Upload directories
+uploads/
+temp/
+
+# Log files
 *.log
+logs/
+
+# Cache files
+cache/
+tmp/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
 .DS_Store
 Thumbs.db
+
+# Backup files
+*.bak
+*.backup
+
+# Development files
+test.php
+debug.php

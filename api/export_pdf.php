@@ -63,17 +63,40 @@ $html .= '
 </body>
 </html>';
 
-// Convert HTML to PDF using wkhtmltopdf if available, otherwise output HTML
-if (shell_exec('which wkhtmltopdf')) {
-    $tempFile = tempnam(sys_get_temp_dir(), 'trip_report');
-    file_put_contents($tempFile . '.html', $html);
-    shell_exec("wkhtmltopdf {$tempFile}.html {$tempFile}.pdf");
-    readfile($tempFile . '.pdf');
-    unlink($tempFile . '.html');
-    unlink($tempFile . '.pdf');
-} else {
-    // Fallback: output as HTML with print styles
+// Simple PDF generation using TCPDF-like approach
+require_once '../config/simple-pdf.php';
+
+try {
+    $pdf = new SimplePDF();
+    $pdf->addPage();
+    $pdf->setFont('Arial', 'B', 16);
+    $pdf->cell(0, 10, $trip['name'], 0, 1, 'C');
+    $pdf->ln(5);
+    
+    $pdf->setFont('Arial', '', 12);
+    $pdf->cell(0, 10, 'Trip Report - Generated on ' . date('Y-m-d'), 0, 1, 'C');
+    $pdf->ln(10);
+    
+    $pdf->setFont('Arial', 'B', 14);
+    $pdf->cell(0, 10, 'Expenses', 0, 1);
+    $pdf->ln(5);
+    
+    $pdf->setFont('Arial', '', 10);
+    foreach ($expenses as $expense) {
+        $pdf->cell(0, 8, $expense['category'] . ' - ' . $expense['subcategory'], 0, 1);
+        $pdf->cell(0, 6, $expense['description'], 0, 1);
+        $pdf->cell(0, 6, 'Amount: $' . number_format($expense['amount'], 2) . ' | Paid by: ' . $expense['paid_by_name'] . ' | Date: ' . $expense['date'], 0, 1);
+        $pdf->ln(3);
+    }
+    
+    $pdf->setFont('Arial', 'B', 12);
+    $pdf->cell(0, 10, 'Total Expenses: $' . number_format($total, 2), 0, 1);
+    
+    $pdf->output('D', 'trip-expenses-' . $trip['name'] . '.pdf');
+} catch (Exception $e) {
+    // Fallback: output as formatted HTML
     header('Content-Type: text/html');
+    echo '<style>body{font-family:Arial;margin:40px;} .expense{border-bottom:1px solid #ddd;padding:10px 0;} .total{font-weight:bold;margin-top:20px;}</style>';
     echo $html;
 }
 ?>

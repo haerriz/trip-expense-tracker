@@ -58,6 +58,10 @@ $(document).ready(function() {
         exportToExcel();
     });
     
+    $('#export-xlsx').on('click', function() {
+        exportToXLSX();
+    });
+    
     $('#email-report').on('click', function() {
         emailReport();
     });
@@ -71,7 +75,69 @@ $(document).ready(function() {
             sendChatMessage();
         }
     });
+    
+    // Typing indicator
+    let typingTimer;
+    $('#chat-message').on('input', function() {
+        const tripId = $('#current-trip').val();
+        if (!tripId) return;
+        
+        // Send typing status
+        $.post('api/chat_status.php', { trip_id: tripId, action: 'typing' })
+            .fail(function() { console.log('Typing status failed'); });
+        
+        // Clear previous timer
+        clearTimeout(typingTimer);
+        
+        // Stop typing after 2 seconds of inactivity
+        typingTimer = setTimeout(function() {
+            $.post('api/chat_status.php', { trip_id: tripId, action: 'stop_typing' })
+                .fail(function() { console.log('Stop typing failed'); });
+        }, 2000);
+    });
+    
+    $('input[name="split"]').on('change', function() {
+        if ($(this).val() === 'custom') {
+            loadCustomSplitSection();
+            $('#custom-split-section').show();
+        } else {
+            $('#custom-split-section').hide();
+        }
+    });
+    
+    // Start live chat updates
+    startLiveChat();
 });
+
+// Live chat variables
+let chatInterval;
+let statusInterval;
+let heartbeatInterval;
+
+function startLiveChat() {
+    const tripId = $('#current-trip').val();
+    if (!tripId) return;
+    
+    // Clear existing intervals
+    clearInterval(chatInterval);
+    clearInterval(statusInterval);
+    clearInterval(heartbeatInterval);
+    
+    // Auto-refresh chat every 3 seconds
+    chatInterval = setInterval(function() {
+        loadTripChat(tripId);
+    }, 3000);
+    
+    // Update status every 2 seconds
+    statusInterval = setInterval(function() {
+        updateChatStatus(tripId);
+    }, 2000);
+    
+    // Send heartbeat every 15 seconds
+    heartbeatInterval = setInterval(function() {
+        $.post('api/chat_status.php', { trip_id: tripId, action: 'heartbeat' });
+    }, 15000);
+}
 
 function loadTrips() {
     $.get('api/get_trips.php')
@@ -175,6 +241,7 @@ function loadTripDashboard(tripId) {
     loadExpenses(tripId);
     loadExpenseChart(tripId);
     loadTripChat(tripId);
+    startLiveChat();
 }
 
 function showEmptyState() {
@@ -235,12 +302,19 @@ function loadExpenses(tripId) {
         });
 }
 
+let expenseChart = null;
+
 function loadExpenseChart(tripId) {
     $.get('api/get_expense_breakdown.php', { trip_id: tripId })
         .done(function(data) {
             const ctx = document.getElementById('expenseChart').getContext('2d');
             
-            new Chart(ctx, {
+            // Destroy existing chart if it exists
+            if (expenseChart) {
+                expenseChart.destroy();
+            }
+            
+            expenseChart = new Chart(ctx, {
                 type: 'pie',
                 data: {
                     labels: data.categories || [],
@@ -344,6 +418,9 @@ function sendChatMessage() {
     
     if (!tripId || !message) return;
     
+    // Stop typing indicator
+    $.post('api/chat_status.php', { trip_id: tripId, action: 'stop_typing' });
+    
     $.post('api/send_chat.php', { trip_id: tripId, message: message })
         .done(function(response) {
             if (response.success) {
@@ -371,6 +448,15 @@ function exportToExcel() {
     window.open('api/export_excel.php?trip_id=' + tripId, '_blank');
 }
 
+function exportToXLSX() {
+    const tripId = $('#current-trip').val();
+    if (!tripId) {
+        M.toast({html: 'Please select a trip first'});
+        return;
+    }
+    window.open('api/export_xlsx.php?trip_id=' + tripId, '_blank');
+}
+
 function emailReport() {
     const tripId = $('#current-trip').val();
     if (!tripId) {
@@ -391,5 +477,67 @@ function emailReport() {
         })
         .fail(function() {
             M.toast({html: 'Failed to send report'});
+        });
+}
+
+function loadCustomSplitSection() {
+    const tripId = $('#current-trip').val();
+    if (!tripId) return;
+    
+    $.get('api/get_trip_members.php', { trip_id: tripId })
+        .done(function(data) {
+            const members = data.members || [];
+            let html = '<h6>Custom Split Amounts:</h6>';
+            
+            members.forEach(function(member) {
+                html += `
+                    <div class="input-field">
+                        <input type="number" id="split_${member.id}" class="validate" step="0.01" min="0">
+                        <label for="split_${member.id}">${member.name}</label>
+                    </div>
+                `;
+            });
+            
+            $('#member-splits').html(html);
+        });
+}
+
+function updateChatStatus(tripId) {
+    $.get('api/chat_status.php', { trip_id: tripId })
+        .done(function(data) {
+            if (data.success === false) {
+                console.log('Chat status error:', data.error);
+                return;
+            }
+            
+            // Update typing indicator
+            if (data.typing && data.typing.length > 0) {
+                const typingNames = data.typing.map(t => t.name).join(', ');
+                $('#typing-user').text(typingNames);
+                $('#typing-indicator').show();
+            } else {
+                $('#typing-indicator').hide();
+            }
+            
+            // Update online members
+            let onlineHtml = '';
+            if (data.online && data.online.length > 0) {
+                data.online.forEach(function(member) {
+                    onlineHtml += `
+                        <span class="chip">
+                            <span class="online-indicator"></span>
+                            ${member.name}
+                        </span>
+                    `;
+                });
+                $('#online-status').text(`${data.online.length} online`);
+            } else {
+                $('#online-status').text('Offline');
+            }
+            $('#online-members').html(onlineHtml);
+        })
+        .fail(function(xhr, status, error) {
+            console.log('Chat status request failed:', error);
+            $('#online-status').text('Connection error');
         });
 }

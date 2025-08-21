@@ -32,8 +32,11 @@ requireLogin();
             </a>
             <ul class="navbar__menu right">
                 <li class="navbar__user">
-                    <img src="<?php echo $_SESSION['user_picture']; ?>" alt="Profile" class="navbar__avatar circle">
+                    <a href="profile.php">
+                        <img src="<?php echo $_SESSION['user_picture']; ?>" alt="Profile" class="navbar__avatar circle">
+                    </a>
                     <span class="navbar__name hide-on-small-only"><?php echo $_SESSION['user_name']; ?></span>
+                    <a href="profile.php" class="btn-small blue hide-on-small-only">Profile</a>
                     <a href="logout.php" class="navbar__logout btn-small red">Logout</a>
                 </li>
             </ul>
@@ -61,7 +64,10 @@ requireLogin();
                                 <i class="material-icons left">picture_as_pdf</i>PDF
                             </button>
                             <button id="export-excel" class="btn-small waves-effect waves-light grey">
-                                <i class="material-icons left">table_chart</i>Excel
+                                <i class="material-icons left">table_chart</i>CSV
+                            </button>
+                            <button id="export-xlsx" class="btn-small waves-effect waves-light grey">
+                                <i class="material-icons left">description</i>XLSX
                             </button>
                             <button id="email-report" class="btn-small waves-effect waves-light grey">
                                 <i class="material-icons left">email</i>Email
@@ -160,6 +166,9 @@ requireLogin();
                                         </label>
                                     </p>
                                 </div>
+                                <div id="custom-split-section" style="display:none;">
+                                    <div id="member-splits"></div>
+                                </div>
                                 <button type="submit" class="btn waves-effect waves-light">
                                     <i class="material-icons left">add</i>Add Expense
                                 </button>
@@ -209,8 +218,19 @@ requireLogin();
                         <div class="card-content">
                             <span class="card-title">
                                 <i class="material-icons left">chat</i>Group Chat
+                                <span class="online-indicator"></span>
                             </span>
+                            <div class="trip-chat__online" id="online-members"></div>
                             <div id="chat-messages" class="trip-chat__messages"></div>
+                            <div class="trip-chat__status">
+                                <div id="typing-indicator" class="trip-chat__typing">
+                                    <span id="typing-user"></span> is typing
+                                    <span class="typing-dots">
+                                        <span></span><span></span><span></span>
+                                    </span>
+                                </div>
+                                <div id="online-status">Connected</div>
+                            </div>
                             <div class="trip-chat__input">
                                 <div class="input-field">
                                     <input type="text" id="chat-message" maxlength="500">

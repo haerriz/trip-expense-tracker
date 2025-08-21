@@ -336,6 +336,77 @@
     margin-bottom: 0;
 }
 
+.trip-chat__status {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    color: #666;
+    border-top: 1px solid #eee;
+    background: #f8f9fa;
+    border-radius: 0 0 8px 8px;
+}
+
+.trip-chat__typing {
+    font-style: italic;
+    color: #667eea;
+    display: none;
+}
+
+.trip-chat__online {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.online-indicator {
+    width: 8px;
+    height: 8px;
+    background: #27ae60;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 2s infinite;
+}
+
+.offline-indicator {
+    width: 8px;
+    height: 8px;
+    background: #95a5a6;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.typing-dots {
+    display: inline-flex;
+    gap: 2px;
+}
+
+.typing-dots span {
+    width: 4px;
+    height: 4px;
+    background: #667eea;
+    border-radius: 50%;
+    animation: typing 1.4s infinite;
+}
+
+.typing-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-10px); }
+}
+
 /* Responsive Design */
 @media only screen and (max-width: 600px) {
     .auth-page__container {
@@ -423,4 +494,46 @@
 /* Custom Material Icons */
 .material-icons.large {
     font-size: 4rem !important;
+}
+
+/* Profile Page */
+.profile-card {
+    margin-top: 2rem;
+}
+
+.profile-avatar {
+    margin-bottom: 2rem;
+}
+
+.profile-avatar__image {
+    width: 100px;
+    height: 100px;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.profile-avatar__image:hover {
+    opacity: 0.8;
+}
+
+.profile-avatar__text {
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.profile-form__submit {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.otp-timer {
+    text-align: center;
+    margin-top: 1rem;
+    color: #666;
+}
+
+#timer {
+    font-weight: bold;
+    color: #667eea;
 }
