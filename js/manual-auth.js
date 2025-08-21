@@ -19,25 +19,35 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.href = 'dashboard.php';
-        } else {
-            alert(data.message || 'Login failed');
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        return response.text();
+    })
+    .then(text => {
+        try {
+            const data = JSON.parse(text);
+            if (data.success) {
+                window.location.href = 'dashboard.php';
+            } else {
+                alert(data.message || 'Login failed');
+            }
+        } catch (e) {
+            console.error('JSON parse error:', e, 'Response:', text);
+            alert('Server error occurred. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Login error:', error);
+        alert('Network error. Please check your connection.');
     });
 });
 
 document.getElementById('signupForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
-    const recaptchaResponse = grecaptcha.getResponse();
-    if (!recaptchaResponse) {
-        alert('Please complete the reCAPTCHA');
-        return;
-    }
-    
+    // Skip reCAPTCHA for now
     const name = document.getElementById('signupName').value;
     const email = document.getElementById('signupEmail').value;
     const phone = document.getElementById('signupPhone').value;
@@ -46,17 +56,30 @@ document.getElementById('signupForm').addEventListener('submit', function(e) {
     fetch('manual-signup.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone, password, recaptcha: recaptchaResponse })
+        body: JSON.stringify({ name, email, phone, password })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Account created successfully! Please login.');
-            showLogin();
-            grecaptcha.reset();
-        } else {
-            alert(data.message || 'Signup failed');
-            grecaptcha.reset();
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        return response.text();
+    })
+    .then(text => {
+        try {
+            const data = JSON.parse(text);
+            if (data.success) {
+                alert('Account created successfully! Please login.');
+                showLogin();
+            } else {
+                alert(data.message || 'Signup failed');
+            }
+        } catch (e) {
+            console.error('JSON parse error:', e, 'Response:', text);
+            alert('Server error occurred. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Signup error:', error);
+        alert('Network error. Please check your connection.');
     });
 });
