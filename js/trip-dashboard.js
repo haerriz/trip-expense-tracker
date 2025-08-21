@@ -213,7 +213,7 @@ function updateBudget() {
         .fail(function() {
             M.toast({html: 'Network error updating budget'});
         });
-});
+}
 
 function editExpense(expenseId) {
     $.get('api/edit_expense.php', { expense_id: expenseId })
