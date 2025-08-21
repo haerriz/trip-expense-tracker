@@ -12,29 +12,20 @@ try {
         exit;
     }
     
-    // Get expense breakdown by category
+    // Get expenses
     $stmt = $pdo->prepare("
-        SELECT category, SUM(amount) as total 
-        FROM expenses 
-        WHERE trip_id = ? 
-        GROUP BY category 
-        ORDER BY total DESC
+        SELECT e.*, u.name as paid_by_name 
+        FROM expenses e 
+        JOIN users u ON e.paid_by = u.id 
+        WHERE e.trip_id = ? 
+        ORDER BY e.date DESC, e.created_at DESC
     ");
     $stmt->execute([$tripId]);
-    $breakdown = $stmt->fetchAll();
-    
-    $categories = [];
-    $amounts = [];
-    
-    foreach ($breakdown as $item) {
-        $categories[] = $item['category'];
-        $amounts[] = floatval($item['total']);
-    }
+    $expenses = $stmt->fetchAll();
     
     echo json_encode([
         'success' => true,
-        'categories' => $categories,
-        'amounts' => $amounts
+        'expenses' => $expenses
     ]);
     
 } catch (Exception $e) {

@@ -75,6 +75,23 @@ try {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )");
         
+        // Chat messages table
+        $pdo->exec("CREATE TABLE IF NOT EXISTS chat_messages (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            trip_id INT,
+            user_id INT,
+            message TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )");
+        
+        // Expense splits table
+        $pdo->exec("CREATE TABLE IF NOT EXISTS expense_splits (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            expense_id INT,
+            user_id INT,
+            amount DECIMAL(10,2)
+        )");
+        
         // Insert default categories if empty
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM categories");
         $stmt->execute();

@@ -4,30 +4,48 @@ requireLogin();
 
 header('Content-Type: application/json');
 
-$tripId = $_GET['trip_id'];
-$userId = $_SESSION['user_id'];
-
-// Get trip budget and currency
-$stmt = $pdo->prepare("SELECT budget, currency FROM trips WHERE id = ?");
-$stmt->execute([$tripId]);
-$trip = $stmt->fetch();
-$budget = $trip['budget'] ?: 0;
-$currency = $trip['currency'] ?: 'USD';
-
-// Get total spent
-$stmt = $pdo->prepare("SELECT SUM(amount) FROM expenses WHERE trip_id = ?");
-$stmt->execute([$tripId]);
-$totalSpent = $stmt->fetchColumn() ?: 0;
-
-// Get user's share
-$stmt = $pdo->prepare("SELECT SUM(amount) FROM expense_splits WHERE user_id = ? AND expense_id IN (SELECT id FROM expenses WHERE trip_id = ?)");
-$stmt->execute([$userId, $tripId]);
-$myShare = $stmt->fetchColumn() ?: 0;
-
-echo json_encode([
-    'budget' => $budget,
-    'total_spent' => $totalSpent,
-    'my_share' => $myShare,
-    'currency' => $currency
-]);
+try {
+    $tripId = $_GET['trip_id'];
+    
+    if (!$tripId) {
+        echo json_encode(['success' => false, 'error' => 'Trip ID required']);
+        exit;
+    }
+    
+    // Get trip details
+    $stmt = $pdo->prepare("SELECT * FROM trips WHERE id = ?");
+    $stmt->execute([$tripId]);
+    $trip = $stmt->fetch();
+    
+    if (!$trip) {
+        echo json_encode(['success' => false, 'error' => 'Trip not found']);
+        exit;
+    }
+    
+    // Get total expenses
+    $stmt = $pdo->prepare("SELECT COALESCE(SUM(amount), 0) as total FROM expenses WHERE trip_id = ?");
+    $stmt->execute([$tripId]);
+    $totalExpenses = $stmt->fetchColumn();
+    
+    // Get member count
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM trip_members WHERE trip_id = ?");
+    $stmt->execute([$tripId]);
+    $memberCount = $stmt->fetchColumn();
+    
+    // Calculate remaining budget
+    $remaining = $trip['budget'] - $totalExpenses;
+    $perPersonShare = $memberCount > 0 ? $totalExpenses / $memberCount : 0;
+    
+    echo json_encode([
+        'success' => true,
+        'trip' => $trip,
+        'total_expenses' => $totalExpenses,
+        'remaining_budget' => $remaining,
+        'member_count' => $memberCount,
+        'per_person_share' => $perPersonShare
+    ]);
+    
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+}
 ?>
