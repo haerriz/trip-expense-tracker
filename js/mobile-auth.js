@@ -1,11 +1,38 @@
-// Mobile Google OAuth fix
+// Mobile detection and OAuth handling
 function isMobile() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
 
-// Global credential response handler with mobile fix
+// Initialize mobile/desktop specific OAuth
+document.addEventListener('DOMContentLoaded', function() {
+    if (isMobile()) {
+        console.log('Mobile device detected');
+        
+        // Hide desktop OAuth, show mobile OAuth
+        document.getElementById('g_id_onload_desktop').style.display = 'none';
+        document.getElementById('g_id_onload_mobile').style.display = 'block';
+        
+        // Add mobile CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            .mobile-only { display: block !important; }
+            .desktop-only { display: none !important; }
+            .g_id_signin { width: 100% !important; }
+        `;
+        document.head.appendChild(style);
+        
+    } else {
+        console.log('Desktop device detected');
+        
+        // Show desktop OAuth, hide mobile OAuth
+        document.getElementById('g_id_onload_desktop').style.display = 'block';
+        document.getElementById('g_id_onload_mobile').style.display = 'none';
+    }
+});
+
+// Desktop popup callback
 window.handleCredentialResponse = function(response) {
-    console.log('Google OAuth response received');
+    console.log('Desktop Google OAuth response received');
     
     fetch('google-auth.php', {
         method: 'POST',
@@ -14,21 +41,10 @@ window.handleCredentialResponse = function(response) {
     })
     .then(response => response.text())
     .then(text => {
-        console.log('Auth response:', text);
         try {
             const data = JSON.parse(text);
             if (data.success) {
-                // Mobile-specific redirect handling
-                if (isMobile()) {
-                    // Force immediate redirect on mobile
-                    window.location.href = 'dashboard.php';
-                    // Backup redirect after short delay
-                    setTimeout(() => {
-                        window.location.replace('dashboard.php');
-                    }, 100);
-                } else {
-                    window.location.href = 'dashboard.php';
-                }
+                window.location.href = 'dashboard.php';
             } else {
                 alert('Google authentication failed: ' + (data.message || 'Unknown error'));
             }
@@ -42,43 +58,3 @@ window.handleCredentialResponse = function(response) {
         alert('Network error during authentication');
     });
 };
-
-// Mobile-specific initialization
-if (isMobile()) {
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Mobile device detected, applying mobile OAuth fixes');
-        
-        // Override Google Sign-In button behavior for mobile
-        setTimeout(() => {
-            const googleButton = document.querySelector('.g_id_signin');
-            if (googleButton) {
-                googleButton.addEventListener('click', function(e) {
-                    console.log('Google button clicked on mobile');
-                    // Ensure popup isn't blocked
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // Trigger Google sign-in manually
-                    if (window.google && window.google.accounts) {
-                        window.google.accounts.id.prompt();
-                    }
-                });
-            }
-        }, 2000);
-        
-        // Add mobile-specific CSS
-        const style = document.createElement('style');
-        style.textContent = `
-            @media (max-width: 768px) {
-                .g_id_signin {
-                    width: 100% !important;
-                    min-height: 44px !important;
-                }
-                .g_id_signin > div {
-                    width: 100% !important;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-    });
-}
