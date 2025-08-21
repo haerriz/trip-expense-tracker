@@ -289,19 +289,13 @@ function deleteExpense(expenseId) {
 }
 
 function loadSubcategoriesForEdit(category, selectedSub = '') {
-    const subcategories = {
-        'Food & Drinks': ['Restaurant', 'Street Food', 'Groceries', 'Drinks', 'Snacks'],
-        'Transportation': ['Flight', 'Train', 'Bus', 'Taxi', 'Rental Car', 'Fuel', 'Parking'],
-        'Accommodation': ['Hotel', 'Hostel', 'Airbnb', 'Camping', 'Guesthouse'],
-        'Activities': ['Tours', 'Museums', 'Adventure Sports', 'Nightlife', 'Events'],
-        'Shopping': ['Souvenirs', 'Clothes', 'Electronics', 'Gifts'],
-        'Emergency': ['Medical', 'Insurance', 'Lost Items', 'Emergency Transport'],
-        'Other': ['Tips', 'Fees', 'Miscellaneous']
-    };
+    // Find the category in the loaded categories data
+    const categoryData = window.categoriesData?.find(cat => cat.name === category);
     
     let options = '<option value="">Select Subcategory</option>';
-    if (subcategories[category]) {
-        subcategories[category].forEach(function(sub) {
+    if (categoryData && categoryData.subcategories) {
+        const subcategories = categoryData.subcategories.split(',').map(s => s.trim()).filter(s => s);
+        subcategories.forEach(function(sub) {
             const selected = sub === selectedSub ? 'selected' : '';
             options += `<option value="${sub}" ${selected}>${sub}</option>`;
         });
@@ -445,9 +439,14 @@ function loadTrips() {
 }
 
 function loadCategories() {
-    $.get('api/get_categories.php')
+    // Add cache busting parameter
+    $.get('api/get_categories.php?t=' + Date.now())
         .done(function(data) {
             const categories = data.categories || [];
+            
+            // Store categories data globally for subcategory loading
+            window.categoriesData = categories;
+            
             let options = '<option value="">Select Category</option>';
             
             categories.forEach(function(category) {
@@ -460,6 +459,10 @@ function loadCategories() {
             // Also populate edit modal categories
             $('#edit-category').html(options);
             $('#edit-category').formSelect();
+        })
+        .fail(function() {
+            console.error('Failed to load categories');
+            M.toast({html: 'Failed to load categories'});
         });
 }
 
@@ -472,19 +475,13 @@ function getCurrencySymbol(currency) {
 }
 
 function loadSubcategories(category) {
-    const subcategories = {
-        'Food & Drinks': ['Restaurant', 'Street Food', 'Groceries', 'Drinks', 'Snacks'],
-        'Transportation': ['Flight', 'Train', 'Bus', 'Taxi', 'Rental Car', 'Fuel', 'Parking'],
-        'Accommodation': ['Hotel', 'Hostel', 'Airbnb', 'Camping', 'Guesthouse'],
-        'Activities': ['Tours', 'Museums', 'Adventure Sports', 'Nightlife', 'Events'],
-        'Shopping': ['Souvenirs', 'Clothes', 'Electronics', 'Gifts'],
-        'Emergency': ['Medical', 'Insurance', 'Lost Items', 'Emergency Transport'],
-        'Other': ['Tips', 'Fees', 'Miscellaneous']
-    };
+    // Find the category in the loaded categories data
+    const categoryData = window.categoriesData?.find(cat => cat.name === category);
     
     let options = '<option value="">Select Subcategory</option>';
-    if (subcategories[category]) {
-        subcategories[category].forEach(function(sub) {
+    if (categoryData && categoryData.subcategories) {
+        const subcategories = categoryData.subcategories.split(',').map(s => s.trim()).filter(s => s);
+        subcategories.forEach(function(sub) {
             options += `<option value="${sub}">${sub}</option>`;
         });
     }
