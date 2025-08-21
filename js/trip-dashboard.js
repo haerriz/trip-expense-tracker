@@ -109,42 +109,49 @@ $(document).ready(function() {
     // Start live chat updates
     startLiveChat();
     
+    // Initialize invitation modal
+    $('#invitations-modal').modal();
+    
     $('#invitations-btn').on('click', function() {
-        $('#invitations-modal').modal('open');
         loadInvitations();
+        $('#invitations-modal').modal('open');
     });
 });
 
 function loadInvitations() {
     $.get('api/get_invitations.php')
         .done(function(data) {
+            console.log('Invitations loaded:', data);
             if (data.success) {
                 const invitations = data.invitations || [];
                 $('#invitation-count').text(invitations.length);
                 
                 if (invitations.length === 0) {
                     $('#invitation-count').hide();
+                    $('#invitations-btn').removeClass('pulse');
                 } else {
                     $('#invitation-count').show();
+                    $('#invitations-btn').addClass('pulse');
                 }
                 
                 let html = '';
                 if (invitations.length === 0) {
-                    html = '<p class="center-align grey-text">No pending invitations</p>';
+                    html = '<div class="center-align"><i class="material-icons large grey-text">inbox</i><p class="grey-text">No pending invitations</p></div>';
                 } else {
                     invitations.forEach(function(inv) {
+                        const inviteDate = inv.invited_at ? new Date(inv.invited_at).toLocaleDateString() : 'Recently';
                         html += `
-                            <div class="card">
+                            <div class="card hoverable">
                                 <div class="card-content">
-                                    <span class="card-title">${inv.trip_name}</span>
-                                    <p>Invited by: ${inv.invited_by_name}</p>
-                                    <p>Date: ${new Date(inv.invited_at).toLocaleDateString()}</p>
+                                    <span class="card-title blue-text">${inv.trip_name}</span>
+                                    <p><i class="material-icons tiny">person</i> Invited by: <strong>${inv.invited_by_name}</strong></p>
+                                    <p><i class="material-icons tiny">schedule</i> Date: ${inviteDate}</p>
                                 </div>
                                 <div class="card-action">
-                                    <button class="btn green" onclick="respondInvitation(${inv.id}, 'accept')">
+                                    <button class="btn green waves-effect" onclick="respondInvitation(${inv.id}, 'accept')">
                                         <i class="material-icons left">check</i>Accept
                                     </button>
-                                    <button class="btn red" onclick="respondInvitation(${inv.id}, 'reject')">
+                                    <button class="btn red waves-effect" onclick="respondInvitation(${inv.id}, 'reject')">
                                         <i class="material-icons left">close</i>Reject
                                     </button>
                                 </div>
@@ -153,7 +160,14 @@ function loadInvitations() {
                     });
                 }
                 $('#invitations-list').html(html);
+            } else {
+                console.error('Failed to load invitations:', data.error);
+                $('#invitations-list').html('<p class="red-text center-align">Error loading invitations</p>');
             }
+        })
+        .fail(function(xhr, status, error) {
+            console.error('Invitation request failed:', error);
+            $('#invitations-list').html('<p class="red-text center-align">Failed to load invitations</p>');
         });
 }
 

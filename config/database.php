@@ -95,6 +95,20 @@ try {
             amount DECIMAL(10,2)
         )");
         
+        // Auto-migrate trip_members table
+        try {
+            $stmt = $pdo->query("SHOW COLUMNS FROM trip_members LIKE 'status'");
+            if ($stmt->rowCount() == 0) {
+                $pdo->exec("ALTER TABLE trip_members ADD COLUMN status ENUM('pending', 'accepted', 'rejected') DEFAULT 'accepted'");
+                $pdo->exec("ALTER TABLE trip_members ADD COLUMN invited_by INT");
+                $pdo->exec("ALTER TABLE trip_members ADD COLUMN invited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
+                $pdo->exec("ALTER TABLE trip_members MODIFY COLUMN joined_at TIMESTAMP NULL");
+                $pdo->exec("UPDATE trip_members SET status = 'accepted' WHERE status IS NULL");
+            }
+        } catch (Exception $e) {
+            // Migration failed, continue anyway
+        }
+        
         // Insert default categories if empty
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM categories");
         $stmt->execute();
