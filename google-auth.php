@@ -54,13 +54,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $userId = $pdo->lastInsertId();
         }
         
-        // Set session
+        // Set session variables
         $_SESSION['user_id'] = $userId;
         $_SESSION['user_name'] = $name;
         $_SESSION['user_email'] = $email;
         $_SESSION['user_picture'] = $picture;
         
-        echo json_encode(['success' => true]);
+        // Force session write
+        session_write_close();
+        
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Authentication successful',
+            'redirect' => 'dashboard.php'
+        ]);
         
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);

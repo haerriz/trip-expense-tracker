@@ -1,17 +1,11 @@
-// Enhanced mobile Google OAuth handling
+// Mobile Google OAuth fix
 function isMobile() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
 
-// Global credential response handler
+// Global credential response handler with mobile fix
 window.handleCredentialResponse = function(response) {
     console.log('Google OAuth response received');
-    
-    // Show loading indicator
-    if (isMobile()) {
-        document.body.style.opacity = '0.7';
-        document.body.style.pointerEvents = 'none';
-    }
     
     fetch('google-auth.php', {
         method: 'POST',
@@ -20,64 +14,71 @@ window.handleCredentialResponse = function(response) {
     })
     .then(response => response.text())
     .then(text => {
+        console.log('Auth response:', text);
         try {
             const data = JSON.parse(text);
             if (data.success) {
-                // Force page reload on mobile to ensure proper redirect
+                // Mobile-specific redirect handling
                 if (isMobile()) {
-                    window.location.replace('dashboard.php');
+                    // Force immediate redirect on mobile
+                    window.location.href = 'dashboard.php';
+                    // Backup redirect after short delay
+                    setTimeout(() => {
+                        window.location.replace('dashboard.php');
+                    }, 100);
                 } else {
                     window.location.href = 'dashboard.php';
                 }
             } else {
-                if (isMobile()) {
-                    document.body.style.opacity = '1';
-                    document.body.style.pointerEvents = 'auto';
-                }
                 alert('Google authentication failed: ' + (data.message || 'Unknown error'));
             }
         } catch (e) {
             console.error('JSON parse error:', e, 'Response:', text);
-            if (isMobile()) {
-                document.body.style.opacity = '1';
-                document.body.style.pointerEvents = 'auto';
-            }
             alert('Authentication error occurred');
         }
     })
     .catch(error => {
         console.error('Google auth error:', error);
-        if (isMobile()) {
-            document.body.style.opacity = '1';
-            document.body.style.pointerEvents = 'auto';
-        }
         alert('Network error during authentication');
     });
 };
 
-// Mobile-specific enhancements
+// Mobile-specific initialization
 if (isMobile()) {
     document.addEventListener('DOMContentLoaded', function() {
-        // Add mobile-specific styling for Google button
+        console.log('Mobile device detected, applying mobile OAuth fixes');
+        
+        // Override Google Sign-In button behavior for mobile
+        setTimeout(() => {
+            const googleButton = document.querySelector('.g_id_signin');
+            if (googleButton) {
+                googleButton.addEventListener('click', function(e) {
+                    console.log('Google button clicked on mobile');
+                    // Ensure popup isn't blocked
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Trigger Google sign-in manually
+                    if (window.google && window.google.accounts) {
+                        window.google.accounts.id.prompt();
+                    }
+                });
+            }
+        }, 2000);
+        
+        // Add mobile-specific CSS
         const style = document.createElement('style');
         style.textContent = `
-            .g_id_signin {
-                width: 100% !important;
-            }
-            .g_id_signin > div {
-                width: 100% !important;
+            @media (max-width: 768px) {
+                .g_id_signin {
+                    width: 100% !important;
+                    min-height: 44px !important;
+                }
+                .g_id_signin > div {
+                    width: 100% !important;
+                }
             }
         `;
         document.head.appendChild(style);
-        
-        // Prevent popup blocking by ensuring user gesture
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('.g_id_signin')) {
-                // This ensures the popup is opened in response to user gesture
-                setTimeout(() => {
-                    console.log('Google sign-in clicked on mobile');
-                }, 0);
-            }
-        });
     });
 }
