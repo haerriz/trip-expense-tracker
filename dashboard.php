@@ -39,6 +39,9 @@ requireLogin();
                         <img src="<?php echo $_SESSION['user_picture']; ?>" alt="Profile" class="navbar__avatar circle">
                     </a>
                     <span class="navbar__name hide-on-small-only"><?php echo $_SESSION['user_name']; ?></span>
+                    <?php if ($_SESSION['user_email'] === 'haerriz@gmail.com'): ?>
+                        <a href="admin.php" class="btn-small red hide-on-small-only">Admin</a>
+                    <?php endif; ?>
                     <a href="profile.php" class="btn-small blue hide-on-small-only">Profile</a>
                     <a href="logout.php" class="navbar__logout btn-small red">Logout</a>
                 </li>
