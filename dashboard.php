@@ -107,10 +107,11 @@ requireLogin();
         <div id="trip-dashboard" style="display:none;">
             <div class="summary-cards row">
                 <div class="col s6 m3">
-                    <div class="card summary-card summary-card--budget">
+                    <div class="card summary-card summary-card--budget clickable" onclick="editBudget()">
                         <div class="card-content">
-                            <span class="summary-card__title">Trip Budget</span>
+                            <span class="summary-card__title">Trip Budget <i class="material-icons tiny">edit</i></span>
                             <div class="summary-card__amount" id="trip-budget">$0.00</div>
+                            <small class="grey-text">Click to edit</small>
                         </div>
                     </div>
                 </div>
@@ -322,9 +323,23 @@ requireLogin();
                     </select>
                     <label>Currency</label>
                 </div>
-                <div class="input-field">
-                    <input type="number" id="budget" class="validate" step="0.01" required>
-                    <label for="budget">Budget</label>
+                <div class="budget-creation-options">
+                    <p>
+                        <label>
+                            <input name="create-budget-type" type="radio" value="with-budget" checked />
+                            <span>Set Budget</span>
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            <input name="create-budget-type" type="radio" value="no-budget" />
+                            <span>No Budget</span>
+                        </label>
+                    </p>
+                </div>
+                <div class="input-field" id="create-budget-field">
+                    <input type="number" id="budget" class="validate" step="0.01" min="0">
+                    <label for="budget">Budget Amount</label>
                 </div>
             </form>
         </div>
@@ -371,6 +386,45 @@ requireLogin();
         <div class="modal-footer">
             <button type="submit" form="edit-expense-form" class="btn waves-effect waves-light">
                 <i class="material-icons left">save</i>Update Expense
+            </button>
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+        </div>
+    </div>
+    
+    <!-- Edit Budget Modal -->
+    <div id="edit-budget-modal" class="modal">
+        <div class="modal-content">
+            <h4>Edit Trip Budget</h4>
+            <form id="edit-budget-form">
+                <div class="budget-options">
+                    <p>
+                        <label>
+                            <input name="budget-type" type="radio" value="with-budget" checked />
+                            <span>Set Budget Amount</span>
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            <input name="budget-type" type="radio" value="no-budget" />
+                            <span>No Budget (Unlimited)</span>
+                        </label>
+                    </p>
+                </div>
+                <div class="input-field" id="budget-amount-field">
+                    <input type="number" id="edit-budget-amount" step="0.01" min="0">
+                    <label for="edit-budget-amount">Budget Amount</label>
+                </div>
+                <div id="no-budget-info" style="display:none;">
+                    <div class="card-panel orange lighten-4">
+                        <i class="material-icons left">info</i>
+                        <span>No budget mode allows unlimited expenses without budget tracking.</span>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" form="edit-budget-form" class="btn waves-effect waves-light">
+                <i class="material-icons left">save</i>Update Budget
             </button>
             <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
         </div>

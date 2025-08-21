@@ -10,7 +10,8 @@ try {
         $description = trim($_POST['description'] ?? '');
         $startDate = $_POST['start_date'] ?? '';
         $endDate = $_POST['end_date'] ?? '';
-        $budget = floatval($_POST['budget'] ?? 0);
+        $noBudget = $_POST['no_budget'] ?? false;
+        $budget = ($noBudget === 'true' || $noBudget === true) ? null : floatval($_POST['budget'] ?? 0);
         $currency = $_POST['currency'] ?? 'USD';
         $userId = $_SESSION['user_id'];
         
@@ -20,7 +21,7 @@ try {
             exit;
         }
         
-        if ($budget < 0) {
+        if ($budget !== null && $budget < 0) {
             echo json_encode(['success' => false, 'message' => 'Budget cannot be negative']);
             exit;
         }

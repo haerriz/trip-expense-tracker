@@ -129,6 +129,90 @@ $(document).ready(function() {
     $('#edit-category').on('change', function() {
         loadSubcategoriesForEdit($(this).val());
     });
+    
+    $('#edit-budget-form').on('submit', function(e) {
+        e.preventDefault();
+        updateBudget();
+    });
+    
+    $('input[name="budget-type"]').on('change', function() {
+        if ($(this).val() === 'no-budget') {
+            $('#budget-amount-field').hide();
+            $('#no-budget-info').show();
+        } else {
+            $('#budget-amount-field').show();
+            $('#no-budget-info').hide();
+        }
+    });
+    
+    $('input[name="create-budget-type"]').on('change', function() {
+        if ($(this).val() === 'no-budget') {
+            $('#create-budget-field').hide();
+        } else {
+            $('#create-budget-field').show();
+        }
+    });
+});
+
+function editBudget() {
+    const tripId = $('#current-trip').val();
+    if (!tripId) {
+        M.toast({html: 'Please select a trip first'});
+        return;
+    }
+    
+    // Get current trip data
+    $.get('api/get_trip_summary.php', { trip_id: tripId })
+        .done(function(data) {
+            if (data.success && data.trip) {
+                const currentBudget = data.trip.budget;
+                
+                if (currentBudget === null || currentBudget === undefined) {
+                    // No budget currently set
+                    $('input[name="budget-type"][value="no-budget"]').prop('checked', true);
+                    $('#budget-amount-field').hide();
+                    $('#no-budget-info').show();
+                    $('#edit-budget-amount').val('');
+                } else {
+                    // Budget is set
+                    $('input[name="budget-type"][value="with-budget"]').prop('checked', true);
+                    $('#budget-amount-field').show();
+                    $('#no-budget-info').hide();
+                    $('#edit-budget-amount').val(parseFloat(currentBudget));
+                }
+                
+                M.updateTextFields();
+                $('#edit-budget-modal').modal('open');
+            } else {
+                M.toast({html: 'Error loading trip data'});
+            }
+        });
+}
+
+function updateBudget() {
+    const tripId = $('#current-trip').val();
+    const budgetType = $('input[name="budget-type"]:checked').val();
+    const budgetAmount = $('#edit-budget-amount').val();
+    
+    const formData = {
+        trip_id: tripId,
+        no_budget: budgetType === 'no-budget',
+        budget: budgetAmount
+    };
+    
+    $.post('api/edit_trip_budget.php', formData)
+        .done(function(data) {
+            if (data.success) {
+                $('#edit-budget-modal').modal('close');
+                loadTripSummary(tripId); // Refresh the summary
+                M.toast({html: data.message});
+            } else {
+                M.toast({html: data.message || 'Error updating budget'});
+            }
+        })
+        .fail(function() {
+            M.toast({html: 'Network error updating budget'});
+        });
 });
 
 function editExpense(expenseId) {
@@ -380,24 +464,32 @@ function loadSubcategories(category) {
 }
 
 function createTrip() {
+    const budgetType = $('input[name="create-budget-type"]:checked').val();
     const formData = {
         name: $('#trip-name').val(),
         description: $('#trip-description').val(),
         start_date: $('#start-date').val(),
         end_date: $('#end-date').val(),
-        budget: $('#budget').val(),
-        currency: $('#currency').val()
+        currency: $('#currency').val(),
+        no_budget: budgetType === 'no-budget'
     };
+    
+    if (budgetType === 'with-budget') {
+        formData.budget = $('#budget').val();
+    }
     
     $.post('api/create_trip.php', formData)
         .done(function(response) {
             if (response.success) {
                 $('#trip-modal').modal('close');
                 $('#trip-form')[0].reset();
+                // Reset budget type to default
+                $('input[name="create-budget-type"][value="with-budget"]').prop('checked', true);
+                $('#create-budget-field').show();
                 loadTrips();
-                M.toast({html: 'Trip created successfully!'});
+                M.toast({html: response.message || 'Trip created successfully!'});
             } else {
-                M.toast({html: 'Error creating trip'});
+                M.toast({html: response.message || 'Error creating trip'});
             }
         });
 }
@@ -424,9 +516,18 @@ function loadTripSummary(tripId) {
         .done(function(data) {
             if (data.success && data.trip) {
                 const currency = getCurrencySymbol(data.trip.currency || 'USD');
-                $('#trip-budget').text(currency + parseFloat(data.trip.budget || 0).toFixed(2));
+                const budget = data.trip.budget;
+                
+                // Handle budget display
+                if (budget === null || budget === undefined) {
+                    $('#trip-budget').text('No Budget');
+                    $('#remaining-budget').text('Unlimited');
+                } else {
+                    $('#trip-budget').text(currency + parseFloat(budget).toFixed(2));
+                    $('#remaining-budget').text(currency + parseFloat(data.remaining_budget || 0).toFixed(2));
+                }
+                
                 $('#total-spent').text(currency + parseFloat(data.total_expenses || 0).toFixed(2));
-                $('#remaining-budget').text(currency + parseFloat(data.remaining_budget || 0).toFixed(2));
                 $('#my-share').text(currency + parseFloat(data.per_person_share || 0).toFixed(2));
             }
         })
