@@ -6,10 +6,17 @@ requireMasterAdmin();
 
 header('Content-Type: application/json');
 
+// Debug logging
+error_log('Add category - Method: ' . $_SERVER['REQUEST_METHOD']);
+error_log('Add category - POST data: ' . print_r($_POST, true));
+error_log('Add category - Session: ' . print_r($_SESSION, true));
+
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $name = trim($_POST['name'] ?? '');
         $subcategories = trim($_POST['subcategories'] ?? '');
+        
+        error_log('Add category - Name: ' . $name . ', Subcategories: ' . $subcategories);
         
         if (empty($name)) {
             echo json_encode(['success' => false, 'message' => 'Category name is required']);

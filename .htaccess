@@ -16,8 +16,9 @@ RewriteCond %{THE_REQUEST} /([^.]+)\.php[?\s] [NC]
 RewriteCond %{REQUEST_URI} !^/(manual-login|manual-signup|google-auth)\.php$ [NC]
 RewriteRule ^ /%1? [NC,L,R=301]
 
-# Handle API routes
-RewriteRule ^api/(.*)$ api/$1 [L,QSA]
+# Handle API routes - preserve .php extensions for API calls
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteRule ^(.*)$ $1 [L,QSA]
 
 # Security headers
 Header always set X-Content-Type-Options nosniff

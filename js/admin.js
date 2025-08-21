@@ -78,11 +78,14 @@ function addCategory() {
     const name = $('#category-name').val();
     const subcategories = $('#subcategories').val();
     
+    console.log('Adding category:', { name, subcategories });
+    
     $.post('api/admin/add_category.php', {
         name: name,
         subcategories: subcategories
     })
     .done(function(data) {
+        console.log('Add category response:', data);
         if (data.success) {
             M.toast({html: 'Category added successfully'});
             $('#category-form')[0].reset();
@@ -90,6 +93,10 @@ function addCategory() {
         } else {
             M.toast({html: data.message || 'Error adding category'});
         }
+    })
+    .fail(function(xhr, status, error) {
+        console.error('Add category failed:', error, xhr.responseText);
+        M.toast({html: 'Network error adding category'});
     });
 }
 
@@ -128,15 +135,21 @@ function loadCategories() {
 }
 
 function deleteCategory(categoryId) {
+    console.log('Deleting category with ID:', categoryId);
     if (confirm('Delete this category? This cannot be undone.')) {
         $.post('api/admin/delete_category.php', { category_id: categoryId })
             .done(function(data) {
+                console.log('Delete category response:', data);
                 if (data.success) {
                     M.toast({html: 'Category deleted'});
                     loadCategories();
                 } else {
                     M.toast({html: data.message || 'Error deleting category'});
                 }
+            })
+            .fail(function(xhr, status, error) {
+                console.error('Delete category failed:', error, xhr.responseText);
+                M.toast({html: 'Network error deleting category'});
             });
     }
 }
