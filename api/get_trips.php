@@ -29,7 +29,28 @@ try {
     
     $trips = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    echo json_encode(['success' => true, 'trips' => $trips]);
+    // Filter out trips where user is no longer a member (edge case cleanup)
+    $validTrips = [];
+    foreach ($trips as $trip) {
+        // Double-check membership for non-creator trips
+        if ($trip['created_by'] == $userId) {
+            $validTrips[] = $trip;
+        } else {
+            try {
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM trip_members WHERE trip_id = ? AND user_id = ? AND (status = 'accepted' OR status IS NULL)");
+                $stmt->execute([$trip['id'], $userId]);
+            } catch (Exception $e) {
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM trip_members WHERE trip_id = ? AND user_id = ?");
+                $stmt->execute([$trip['id'], $userId]);
+            }
+            
+            if ($stmt->fetchColumn() > 0) {
+                $validTrips[] = $trip;
+            }
+        }
+    }
+    
+    echo json_encode(['success' => true, 'trips' => $validTrips]);
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }

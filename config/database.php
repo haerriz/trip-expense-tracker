@@ -109,6 +109,21 @@ try {
             // Migration failed, continue anyway
         }
         
+        // Auto-cleanup orphaned trips (run occasionally)
+        if (rand(1, 100) <= 5) { // 5% chance on each database connection
+            try {
+                // Find and delete trips with no members
+                $stmt = $pdo->prepare("
+                    DELETE t FROM trips t 
+                    LEFT JOIN trip_members tm ON t.id = tm.trip_id AND (tm.status = 'accepted' OR tm.status IS NULL)
+                    WHERE tm.user_id IS NULL
+                ");
+                $stmt->execute();
+            } catch (Exception $e) {
+                // Cleanup failed, continue anyway
+            }
+        }
+        
         // Insert default categories if empty
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM categories");
         $stmt->execute();
