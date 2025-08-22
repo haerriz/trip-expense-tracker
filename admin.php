@@ -116,27 +116,27 @@ requireMasterAdmin();
 
         <!-- Statistics Tab -->
         <div id="stats" class="col s12">
-            <div class="row">
-                <div class="col s12 m3">
-                    <div class="card-panel center">
+            <div class="admin-stats-row">
+                <div class="admin-stats-col">
+                    <div class="admin-stats-panel">
                         <h4 id="total-users">0</h4>
                         <p>Total Users</p>
                     </div>
                 </div>
-                <div class="col s12 m3">
-                    <div class="card-panel center">
+                <div class="admin-stats-col">
+                    <div class="admin-stats-panel">
                         <h4 id="total-trips">0</h4>
                         <p>Total Trips</p>
                     </div>
                 </div>
-                <div class="col s12 m3">
-                    <div class="card-panel center">
+                <div class="admin-stats-col">
+                    <div class="admin-stats-panel">
                         <h4 id="total-expenses">$0</h4>
                         <p>Total Expenses</p>
                     </div>
                 </div>
-                <div class="col s12 m3">
-                    <div class="card-panel center">
+                <div class="admin-stats-col">
+                    <div class="admin-stats-panel">
                         <h4 id="active-trips">0</h4>
                         <p>Active Trips</p>
                     </div>
@@ -147,7 +147,9 @@ requireMasterAdmin();
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Expenses by Category</span>
-                            <canvas id="categoryChart" height="300"></canvas>
+                            <div class="admin-chart-container">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -155,7 +157,9 @@ requireMasterAdmin();
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">User Registration Trend</span>
-                            <canvas id="userChart" height="300"></canvas>
+                            <div class="admin-chart-container">
+                                <canvas id="userChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>

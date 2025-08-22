@@ -1014,6 +1014,72 @@
     margin: 0;
 }
 
+/* Admin Statistics Fixes */
+.admin-stats-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -0.75rem;
+}
+
+.admin-stats-col {
+    flex: 0 0 25%;
+    max-width: 25%;
+    padding: 0 0.75rem;
+    margin-bottom: 1rem;
+}
+
+@media only screen and (max-width: 992px) {
+    .admin-stats-col {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .admin-stats-col {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+.admin-stats-panel {
+    padding: 1.5rem;
+    text-align: center;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    background: white;
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.admin-stats-panel h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.admin-stats-panel p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Chart containers */
+.admin-chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+.admin-chart-container canvas {
+    max-height: 300px !important;
+}
+
 /* Accessibility */
 .visually-hidden {
     position: absolute !important;
