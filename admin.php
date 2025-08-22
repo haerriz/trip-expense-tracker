@@ -44,8 +44,8 @@ requireMasterAdmin();
                 Master Admin
             </a>
             <ul class="right">
-                <li><a href="/dashboard.php">Dashboard</a></li>
-                <li><a href="/logout.php">Logout</a></li>
+                <li><a href="https://expenses.haerriz.com/dashboard.php">Dashboard</a></li>
+                <li><a href="https://expenses.haerriz.com/logout.php">Logout</a></li>
             </ul>
         </div>
     </nav>
