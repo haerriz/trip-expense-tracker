@@ -549,6 +549,9 @@ function loadTripDashboard(tripId) {
     window.loadTripData = function(id) {
         loadTripDashboard(id);
     };
+    
+    // Store current trip ID globally
+    window.currentTripId = tripId;
 }
 
 function showEmptyState() {
@@ -884,6 +887,14 @@ function inviteMember() {
 }
 
 function loadTripChat(tripId) {
+    // Use enhanced chat if available, otherwise fall back to old system
+    if (window.enhancedChat) {
+        console.log('Using enhanced chat system');
+        window.enhancedChat.setTripId(tripId);
+        return;
+    }
+    
+    console.log('Using legacy chat system');
     $.get('api/get_chat.php', { trip_id: tripId })
         .done(function(data) {
             const messages = data.messages || [];
@@ -906,6 +917,13 @@ function loadTripChat(tripId) {
 }
 
 function sendChatMessage() {
+    // Use enhanced chat if available
+    if (window.enhancedChat && window.enhancedChat.currentTripId) {
+        window.enhancedChat.sendMessage();
+        return;
+    }
+    
+    // Fallback to legacy system
     const tripId = $('#current-trip').val();
     const message = $('#chat-message').val().trim();
     

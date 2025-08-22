@@ -49,22 +49,35 @@ class EnhancedChat {
     }
     
     setTripId(tripId) {
+        console.log('Enhanced Chat: Setting trip ID to', tripId);
         this.currentTripId = tripId;
-        this.loadMessages();
+        if (tripId) {
+            this.loadMessages();
+        }
     }
     
     loadMessages() {
-        if (!this.currentTripId) return;
+        if (!this.currentTripId) {
+            console.log('Enhanced Chat: No trip ID set');
+            return;
+        }
+        
+        console.log('Enhanced Chat: Loading messages for trip', this.currentTripId);
         
         $.get('/api/get_chat.php', { trip_id: this.currentTripId })
             .done((response) => {
+                console.log('Enhanced Chat: API response', response);
                 if (response.success) {
                     this.messages = response.messages;
+                    console.log('Enhanced Chat: Messages loaded', this.messages.length);
                     this.renderMessages();
                     this.scrollToBottom();
+                } else {
+                    console.error('Enhanced Chat: API error', response.error);
                 }
             })
-            .fail(() => {
+            .fail((xhr, status, error) => {
+                console.error('Enhanced Chat: Request failed', error);
                 this.showError('Failed to load messages');
             });
     }
@@ -467,11 +480,23 @@ $(document).ready(() => {
     window.enhancedChat = new EnhancedChat();
     
     // Hook into existing trip selection
+    $('#current-trip').on('change', function() {
+        const tripId = $(this).val();
+        if (tripId && window.enhancedChat) {
+            setTimeout(() => {
+                window.enhancedChat.setTripId(tripId);
+            }, 500); // Small delay to ensure dashboard is loaded
+        }
+    });
+    
+    // Also hook into the global loadTripData function
     const originalLoadTripData = window.loadTripData;
     if (originalLoadTripData) {
         window.loadTripData = function(tripId) {
             originalLoadTripData(tripId);
-            window.enhancedChat.setTripId(tripId);
+            if (window.enhancedChat) {
+                window.enhancedChat.setTripId(tripId);
+            }
         };
     }
 });
