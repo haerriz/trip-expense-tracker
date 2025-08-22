@@ -59,6 +59,27 @@ requireLogin();
     <script>
         window.currentUserId = <?php echo $_SESSION['user_id']; ?>;
         window.userEmail = '<?php echo $_SESSION['user_email']; ?>';
+        
+        // DEBUG: Show actual href values
+        window.addEventListener('load', function() {
+            console.log('=== LINK DEBUG INFO ===');
+            const links = document.querySelectorAll('a[href*="admin"], a[href*="profile"], a[href*="logout"], a[href*="dashboard"]');
+            links.forEach((link, index) => {
+                console.log(`Link ${index + 1}: "${link.textContent.trim()}" → href="${link.href}"`);
+            });
+            
+            // Also show in page for 10 seconds
+            const debugDiv = document.createElement('div');
+            debugDiv.style.cssText = 'position:fixed;top:10px;right:10px;background:red;color:white;padding:10px;z-index:9999;max-width:300px;font-size:12px;';
+            let debugText = 'LINK DEBUG:<br>';
+            links.forEach((link, index) => {
+                debugText += `${link.textContent.trim()}: ${link.href}<br>`;
+            });
+            debugDiv.innerHTML = debugText;
+            document.body.appendChild(debugDiv);
+            
+            setTimeout(() => debugDiv.remove(), 10000);
+        });
     </script>
 </head>
 <body class="dashboard-page">
