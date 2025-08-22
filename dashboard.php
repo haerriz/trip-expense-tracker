@@ -295,9 +295,16 @@ requireLogin();
                             <span class="card-title">
                                 <i class="material-icons left">chat</i>Group Chat
                                 <span class="online-indicator"></span>
+                                <div class="chat-features">
+                                    <button class="chat-feature-btn" id="emoji-btn">
+                                        <i class="material-icons tiny">sentiment_satisfied</i> Emoji
+                                    </button>
+                                    <button class="chat-feature-btn" id="clear-chat-btn">
+                                        <i class="material-icons tiny">clear_all</i> Clear
+                                    </button>
+                                </div>
                             </span>
                             <div class="trip-chat__online" id="online-members"></div>
-                            <div id="chat-messages" class="trip-chat__messages"></div>
                             <div class="trip-chat__status">
                                 <div id="typing-indicator" class="trip-chat__typing">
                                     <span id="typing-user"></span> is typing
@@ -307,12 +314,20 @@ requireLogin();
                                 </div>
                                 <div id="online-status">Connected</div>
                             </div>
+                            <div id="chat-messages" class="trip-chat__messages" style="position: relative;">
+                                <button id="scroll-to-bottom" class="btn chat-scroll-to-bottom">
+                                    <i class="material-icons">keyboard_arrow_down</i>
+                                </button>
+                            </div>
                             <div class="trip-chat__input">
+                                <button class="btn-flat chat-attachment-btn" id="attachment-btn" title="Attach file">
+                                    <i class="material-icons">attach_file</i>
+                                </button>
                                 <div class="input-field">
-                                    <input type="text" id="chat-message" maxlength="500">
-                                    <label for="chat-message">Type a message...</label>
+                                    <input type="text" id="chat-message" maxlength="500" placeholder="Type a message...">
+                                    <label for="chat-message"></label>
                                 </div>
-                                <button id="send-message" class="btn-small waves-effect waves-light">
+                                <button id="send-message" class="btn chat-send-btn" disabled>
                                     <i class="material-icons">send</i>
                                 </button>
                             </div>
@@ -468,5 +483,6 @@ requireLogin();
     <!-- Materialize JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="js/trip-dashboard.js"></script>
+    <script src="js/enhanced-chat.js"></script>
 </body>
 </html>
