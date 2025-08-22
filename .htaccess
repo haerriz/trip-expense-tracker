@@ -1,0 +1,26 @@
+# Disable ALL URL rewriting - Force classic PHP behavior
+RewriteEngine Off
+
+# Ensure index.php is the default
+DirectoryIndex index.php
+
+# Prevent any clean URL redirects
+Options -MultiViews
+
+# Security headers only
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Prevent access to sensitive files
+<Files ~ "^\.">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files ~ "\.sql$">
+    Order allow,deny
+    Deny from all
+</Files>
