@@ -15,11 +15,11 @@ try {
         }
         
         // Check if user is trip owner or admin
-        $stmt = $pdo->prepare("SELECT owner_id FROM trips WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT created_by FROM trips WHERE id = ?");
         $stmt->execute([$tripId]);
         $trip = $stmt->fetch();
         
-        if (!$trip || ($trip['owner_id'] != $userId && $_SESSION['user_email'] !== 'haerriz@gmail.com')) {
+        if (!$trip || ($trip['created_by'] != $userId && $_SESSION['user_email'] !== 'haerriz@gmail.com')) {
             echo json_encode(['success' => false, 'error' => 'Permission denied']);
             exit;
         }
