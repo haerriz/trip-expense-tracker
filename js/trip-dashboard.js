@@ -379,6 +379,11 @@ let statusInterval;
 let heartbeatInterval;
 
 function startLiveChat() {
+    // Don't start old chat if enhanced chat is available
+    if (window.enhancedChat) {
+        return;
+    }
+    
     const tripId = $('#current-trip').val();
     if (!tripId) return;
     
@@ -537,8 +542,12 @@ function loadTripDashboard(tripId) {
     loadTripMembers(tripId);
     loadExpenses(tripId);
     loadExpenseChart(tripId);
-    loadTripChat(tripId);
-    startLiveChat();
+    
+    // Only load old chat if enhanced chat is not available
+    if (!window.enhancedChat) {
+        loadTripChat(tripId);
+        startLiveChat();
+    }
     
     // Initialize enhanced chat if available
     if (window.enhancedChat) {

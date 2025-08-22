@@ -8,6 +8,7 @@ class EnhancedChat {
         this.isTyping = false;
         this.lastMessageDate = null;
         this.autoScrollEnabled = true;
+        this.isRendering = false;
         
         this.init();
     }
@@ -114,6 +115,12 @@ class EnhancedChat {
         const container = $('#chat-messages');
         const scrollButton = $('#scroll-to-bottom');
         
+        // Prevent rendering if already in progress
+        if (this.isRendering) {
+            return;
+        }
+        this.isRendering = true;
+        
         // Clear existing messages but keep scroll button
         container.empty().append(scrollButton);
         
@@ -134,6 +141,8 @@ class EnhancedChat {
         
         // Show scroll button if needed
         this.updateScrollButton();
+        
+        this.isRendering = false;
     }
     
     createDateDivider(dateString) {
@@ -454,20 +463,19 @@ class EnhancedChat {
     }
     
     startHeartbeat() {
+        // Load messages less frequently to reduce flickering
         setInterval(() => {
-            if (this.currentTripId) {
-                if (this.autoScrollEnabled) {
-                    this.loadMessages();
-                }
-                this.checkTypingStatus();
+            if (this.currentTripId && this.autoScrollEnabled && !this.isRendering) {
+                this.loadMessages();
             }
-        }, 3000);
+        }, 5000);
         
+        // Check typing status more frequently
         setInterval(() => {
             if (this.currentTripId) {
                 this.checkTypingStatus();
             }
-        }, 1000);
+        }, 2000);
     }
     
     showError(message) {
