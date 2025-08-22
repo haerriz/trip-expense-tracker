@@ -1,4 +1,20 @@
-# Basic security headers only - no URL rewriting
+# Override Hostinger's URL rewriting - Force .php extensions
+RewriteEngine On
+
+# CRITICAL: Stop Hostinger from redirecting .php files
+RewriteRule ^(.+)\.php$ - [L]
+
+# Force clean URLs to redirect to .php files
+RewriteRule ^dashboard/?$ dashboard.php [L]
+RewriteRule ^admin/?$ admin.php [L]
+RewriteRule ^profile/?$ profile.php [L]
+RewriteRule ^logout/?$ logout.php [L]
+
+# Preserve API and auth files
+RewriteCond %{REQUEST_URI} ^/(api/|manual-login\.php|manual-signup\.php|google-auth\.php) [NC]
+RewriteRule ^(.*)$ $1 [L,QSA]
+
+# Security headers
 Header always set X-Content-Type-Options nosniff
 Header always set X-Frame-Options DENY
 Header always set X-XSS-Protection "1; mode=block"
