@@ -3,8 +3,8 @@ session_start();
 
 // Check if user is already logged in
 if (isset($_SESSION['user_id'])) {
-    // User is logged in, redirect to dashboard
-    header('Location: https://expenses.haerriz.com/dashboard.php');
+    // User is logged in, show message instead of redirect
+    echo '<script>alert("You are already logged in!"); window.location.href="dashboard.php";</script>';
     exit();
 }
 

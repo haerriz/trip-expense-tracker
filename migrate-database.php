@@ -47,7 +47,7 @@ try {
     echo "<p>✅ Existing members updated</p>";
     
     echo "<h3>🎉 Database migration completed successfully!</h3>";
-    echo "<p><a href='/dashboard.php'>Go to Dashboard</a></p>";
+    echo "<p><a href='dashboard.php'>Go to Dashboard</a></p>";
     
 } catch (Exception $e) {
     echo "<h3>❌ Migration Error: " . $e->getMessage() . "</h3>";

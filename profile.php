@@ -42,13 +42,13 @@ requireLogin();
 <body class="dashboard-page">
     <nav class="navbar">
         <div class="nav-wrapper">
-            <a href="https://expenses.haerriz.com/dashboard.php" class="navbar__brand brand-logo">
+            <a href="dashboard.php" class="navbar__brand brand-logo">
                 <i class="material-icons">flight_takeoff</i>
                 Trip Finance
             </a>
             <ul class="navbar__menu right">
-                <li><a href="https://expenses.haerriz.com/dashboard.php">Dashboard</a></li>
-                <li><a href="https://expenses.haerriz.com/logout.php" class="btn-small red">Logout</a></li>
+                <li><a href="dashboard.php">Dashboard</a></li>
+                <li><a href="logout.php" class="btn-small red">Logout</a></li>
             </ul>
         </div>
     </nav>

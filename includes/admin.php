@@ -10,7 +10,7 @@ function requireMasterAdmin() {
             echo json_encode(['success' => false, 'message' => 'Master admin access required']);
             exit();
         } else {
-            header('Location: https://expenses.haerriz.com/dashboard.php');
+            header('Location: dashboard.php');
             exit();
         }
     }
