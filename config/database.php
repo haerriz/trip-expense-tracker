@@ -20,7 +20,7 @@ try {
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     
     // Create all tables if they don't exist (for production)
-    if ($_SERVER['HTTP_HOST'] === 'expenses.haerriz.com') {
+    if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] === 'expenses.haerriz.com') {
         // Users table
         $pdo->exec("CREATE TABLE IF NOT EXISTS users (
             id INT AUTO_INCREMENT PRIMARY KEY,

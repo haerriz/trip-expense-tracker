@@ -19,13 +19,13 @@ requireLogin();
     <meta name="description" content="Manage your trip expenses, create budgets, split costs with friends, and track spending with real-time analytics. Add expenses, invite members, and monitor your travel budget.">
     <meta name="robots" content="noindex, nofollow">
     <meta name="theme-color" content="#2196F3">
-    <link rel="canonical" href="https://expenses.haerriz.com/dashboard">
+    <link rel="canonical" href="https://expenses.haerriz.com/dashboard.php">
     
     <!-- Open Graph -->
     <meta property="og:title" content="Trip Dashboard - Haerriz Trip Finance">
     <meta property="og:description" content="Manage your trip expenses and budgets with real-time analytics and group collaboration.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://expenses.haerriz.com/dashboard">
+    <meta property="og:url" content="https://expenses.haerriz.com/dashboard.php">
     
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -34,7 +34,7 @@ requireLogin();
       "@type": "WebPage",
       "name": "Trip Dashboard",
       "description": "Manage trip expenses, budgets, and group spending with real-time analytics.",
-      "url": "https://expenses.haerriz.com/dashboard",
+      "url": "https://expenses.haerriz.com/dashboard.php",
       "isPartOf": {
         "@type": "WebSite",
         "name": "Haerriz Trip Finance",
@@ -70,15 +70,15 @@ requireLogin();
             </a>
             <ul class="navbar__menu right">
                 <li class="navbar__user">
-                    <a href="/profile">
+                    <a href="/profile.php">
                         <img src="<?php echo $_SESSION['user_picture']; ?>" alt="Profile" class="navbar__avatar circle">
                     </a>
                     <span class="navbar__name hide-on-small-only"><?php echo $_SESSION['user_name']; ?></span>
                     <?php if ($_SESSION['user_email'] === 'haerriz@gmail.com'): ?>
-                        <a href="/admin" class="btn-small red hide-on-small-only">Admin</a>
+                        <a href="/admin.php" class="btn-small red hide-on-small-only">Admin</a>
                     <?php endif; ?>
-                    <a href="/profile" class="btn-small blue hide-on-small-only">Profile</a>
-                    <a href="/logout" class="navbar__logout btn-small red">Logout</a>
+                    <a href="/profile.php" class="btn-small blue hide-on-small-only">Profile</a>
+                    <a href="/logout.php" class="navbar__logout btn-small red">Logout</a>
                 </li>
             </ul>
         </div>

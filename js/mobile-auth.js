@@ -12,7 +12,7 @@ window.handleCredentialResponse = function(response) {
         try {
             const data = JSON.parse(text);
             if (data.success) {
-                window.location.href = '/dashboard';
+                window.location.href = '/dashboard.php';
             } else {
                 alert('Google authentication failed: ' + (data.message || 'Unknown error'));
             }
