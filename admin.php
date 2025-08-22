@@ -13,7 +13,7 @@ requireMasterAdmin();
     <meta name="description" content="Master admin panel for managing expense categories, users, trips, and system statistics. Administrative control for Haerriz Trip Finance.">
     <meta name="robots" content="noindex, nofollow">
     <meta name="theme-color" content="#f44336">
-    <link rel="canonical" href="https://expenses.haerriz.com/admin">
+    <link rel="canonical" href="https://expenses.haerriz.com/admin.php">
     
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -22,7 +22,7 @@ requireMasterAdmin();
       "@type": "WebPage",
       "name": "Admin Panel",
       "description": "Administrative control panel for managing categories, users, and system statistics.",
-      "url": "https://expenses.haerriz.com/admin",
+      "url": "https://expenses.haerriz.com/admin.php",
       "isPartOf": {
         "@type": "WebSite",
         "name": "Haerriz Trip Finance",
@@ -44,8 +44,8 @@ requireMasterAdmin();
                 Master Admin
             </a>
             <ul class="right">
-                <li><a href="/dashboard">Dashboard</a></li>
-                <li><a href="/logout">Logout</a></li>
+                <li><a href="/dashboard.php">Dashboard</a></li>
+                <li><a href="/logout.php">Logout</a></li>
             </ul>
         </div>
     </nav>

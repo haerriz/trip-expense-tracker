@@ -1,24 +1,4 @@
-RewriteEngine On
-
-# Redirect root to index.php
-DirectoryIndex index.php
-
-# Preserve API routes and authentication files - no rewriting
-RewriteCond %{REQUEST_URI} ^/(api/|manual-login\.php|manual-signup\.php|google-auth\.php) [NC]
-RewriteRule ^(.*)$ $1 [L,QSA]
-
-# Remove .php extension from main pages only
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_URI} !^/(api/|manual-login\.php|manual-signup\.php|google-auth\.php) [NC]
-RewriteRule ^([^.]+)$ $1.php [NC,L]
-
-# Redirect .php URLs to clean URLs (except API and auth files)
-RewriteCond %{THE_REQUEST} \s/+([^\s?]*)\.php[?\s] [NC]
-RewriteCond %{REQUEST_URI} !^/(api/|manual-login\.php|manual-signup\.php|google-auth\.php) [NC]
-RewriteRule ^ /%1? [NC,L,R=301]
-
-# Security headers
+# Basic security headers only - no URL rewriting
 Header always set X-Content-Type-Options nosniff
 Header always set X-Frame-Options DENY
 Header always set X-XSS-Protection "1; mode=block"
