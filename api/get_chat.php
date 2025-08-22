@@ -15,8 +15,7 @@ try {
     // Get chat messages with user details and file attachments
     $stmt = $pdo->prepare("
         SELECT cm.*, u.name as sender_name, u.picture as sender_avatar,
-               DATE_FORMAT(cm.created_at, '%Y-%m-%d %H:%i:%s') as formatted_time,
-               cm.file_url, cm.file_name, cm.file_size
+               DATE_FORMAT(cm.created_at, '%Y-%m-%d %H:%i:%s') as formatted_time
         FROM chat_messages cm 
         JOIN users u ON cm.user_id = u.id 
         WHERE cm.trip_id = ? 
