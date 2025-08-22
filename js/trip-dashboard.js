@@ -379,8 +379,8 @@ let statusInterval;
 let heartbeatInterval;
 
 function startLiveChat() {
-    // Don't start old chat if enhanced chat is available
-    if (window.enhancedChat) {
+    // Don't start old chat if enhanced chat is active
+    if (window.chatDisabled || window.enhancedChat) {
         return;
     }
     
@@ -896,10 +896,11 @@ function inviteMember() {
 }
 
 function loadTripChat(tripId) {
-    // Use enhanced chat if available, otherwise fall back to old system
-    if (window.enhancedChat) {
-        console.log('Using enhanced chat system');
-        window.enhancedChat.setTripId(tripId);
+    // Skip if chat is disabled (enhanced chat is active)
+    if (window.chatDisabled || window.enhancedChat) {
+        if (window.enhancedChat) {
+            window.enhancedChat.setTripId(tripId);
+        }
         return;
     }
     
@@ -926,10 +927,9 @@ function loadTripChat(tripId) {
 }
 
 function sendChatMessage() {
-    // Use enhanced chat if available
-    if (window.enhancedChat && window.enhancedChat.currentTripId) {
-        window.enhancedChat.sendMessage();
-        return;
+    // Skip if enhanced chat is handling this
+    if (window.chatDisabled || (window.enhancedChat && window.enhancedChat.currentTripId)) {
+        return; // Enhanced chat handles this
     }
     
     // Fallback to legacy system

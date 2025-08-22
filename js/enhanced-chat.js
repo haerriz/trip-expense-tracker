@@ -20,9 +20,18 @@ class EnhancedChat {
     }
     
     bindEvents() {
-        // Send message events
-        $('#send-message').on('click', () => this.sendMessage());
-        $('#chat-message').on('keypress', (e) => {
+        // Unbind existing events first to prevent duplicates
+        $('#send-message').off('click.enhancedchat');
+        $('#chat-message').off('keypress.enhancedchat input.enhancedchat');
+        $('#scroll-to-bottom').off('click.enhancedchat');
+        $('#emoji-btn').off('click.enhancedchat');
+        $('#clear-chat-btn').off('click.enhancedchat');
+        $('#attachment-btn').off('click.enhancedchat');
+        $('#chat-messages').off('scroll.enhancedchat');
+        
+        // Bind events with namespace
+        $('#send-message').on('click.enhancedchat', () => this.sendMessage());
+        $('#chat-message').on('keypress.enhancedchat', (e) => {
             if (e.which === 13) {
                 e.preventDefault();
                 this.sendMessage();
@@ -32,21 +41,21 @@ class EnhancedChat {
         });
         
         // Input validation
-        $('#chat-message').on('input', () => {
+        $('#chat-message').on('input.enhancedchat', () => {
             const message = $('#chat-message').val().trim();
             $('#send-message').prop('disabled', message.length === 0);
         });
         
         // Scroll to bottom
-        $('#scroll-to-bottom').on('click', () => this.scrollToBottom());
+        $('#scroll-to-bottom').on('click.enhancedchat', () => this.scrollToBottom());
         
         // Chat features
-        $('#emoji-btn').on('click', () => this.toggleEmojiPicker());
-        $('#clear-chat-btn').on('click', () => this.clearChat());
-        $('#attachment-btn').on('click', () => this.handleAttachment());
+        $('#emoji-btn').on('click.enhancedchat', () => this.toggleEmojiPicker());
+        $('#clear-chat-btn').on('click.enhancedchat', () => this.clearChat());
+        $('#attachment-btn').on('click.enhancedchat', () => this.handleAttachment());
         
         // Auto-scroll detection
-        $('#chat-messages').on('scroll', () => this.handleScroll());
+        $('#chat-messages').on('scroll.enhancedchat', () => this.handleScroll());
     }
     
     setTripId(tripId) {
@@ -474,19 +483,23 @@ class EnhancedChat {
     }
     
     startHeartbeat() {
+        // Clear existing intervals first
+        if (this.messageInterval) clearInterval(this.messageInterval);
+        if (this.typingInterval) clearInterval(this.typingInterval);
+        
         // Load messages less frequently to reduce duplicates
-        setInterval(() => {
+        this.messageInterval = setInterval(() => {
             if (this.currentTripId && !this.isRendering) {
                 this.loadMessages();
             }
-        }, 8000); // Increased to 8 seconds
+        }, 10000); // Increased to 10 seconds
         
         // Check typing status
-        setInterval(() => {
+        this.typingInterval = setInterval(() => {
             if (this.currentTripId) {
                 this.checkTypingStatus();
             }
-        }, 3000);
+        }, 5000); // Reduced frequency
     }
     
     showError(message) {
@@ -496,27 +509,12 @@ class EnhancedChat {
 
 // Initialize enhanced chat when document is ready
 $(document).ready(() => {
-    window.enhancedChat = new EnhancedChat();
-    
-    // Hook into existing trip selection
-    $('#current-trip').on('change', function() {
-        const tripId = $(this).val();
-        if (tripId && window.enhancedChat) {
-            setTimeout(() => {
-                window.enhancedChat.setTripId(tripId);
-            }, 500); // Small delay to ensure dashboard is loaded
-        }
-    });
-    
-    // Also hook into the global loadTripData function
-    const originalLoadTripData = window.loadTripData;
-    if (originalLoadTripData) {
-        window.loadTripData = function(tripId) {
-            originalLoadTripData(tripId);
-            if (window.enhancedChat) {
-                window.enhancedChat.setTripId(tripId);
-            }
-        };
+    // Only initialize if not already done
+    if (!window.enhancedChat) {
+        window.enhancedChat = new EnhancedChat();
+        
+        // Disable old chat system completely
+        window.chatDisabled = true;
     }
 });
 
