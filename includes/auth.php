@@ -13,7 +13,7 @@ function requireLogin() {
             echo json_encode(['success' => false, 'message' => 'Authentication required']);
             exit();
         } else {
-            header('Location: /');
+            header('Location: https://expenses.haerriz.com/');
             exit();
         }
     }
@@ -62,7 +62,7 @@ function loginUser($googleData) {
 
 function logout() {
     session_destroy();
-    header('Location: /');
+    header('Location: https://expenses.haerriz.com/');
     exit();
 }
 

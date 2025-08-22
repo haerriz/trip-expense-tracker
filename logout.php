@@ -1,6 +1,6 @@
 <?php
 require_once 'includes/auth.php';
 logout();
-header('Location: /');
+header('Location: https://expenses.haerriz.com/');
 exit();
 ?>

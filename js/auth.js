@@ -11,7 +11,7 @@ function handleCredentialResponse(response) {
         try {
             const data = JSON.parse(text);
             if (data.success) {
-                window.location.href = '/dashboard.php';
+                window.location.href = 'https://expenses.haerriz.com/dashboard.php';
             } else {
                 alert('Google authentication failed: ' + (data.message || 'Unknown error'));
             }
