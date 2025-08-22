@@ -1,6 +1,12 @@
 <?php
 require_once '../config/database.php';
 
+// Simple authentication check
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    die('Authentication required');
+}
+
 try {
     // Add file columns to chat_messages table if they don't exist
     $alterQueries = [

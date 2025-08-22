@@ -455,4 +455,39 @@ class EnhancedChat {
                 this.checkTypingStatus();
             }
         }, 1000);
-    }\n    \n    showError(message) {\n        M.toast({html: message, classes: 'red'});\n    }\n}\n\n// Initialize enhanced chat when document is ready\n$(document).ready(() => {\n    window.enhancedChat = new EnhancedChat();\n    \n    // Hook into existing trip selection\n    const originalLoadTripData = window.loadTripData;\n    if (originalLoadTripData) {\n        window.loadTripData = function(tripId) {\n            originalLoadTripData(tripId);\n            window.enhancedChat.setTripId(tripId);\n        };\n    }\n});\n\n// CSS for emoji picker hover effects\n$('<style>').text(`\n    .emoji-btn:hover {\n        background-color: #f0f0f0 !important;\n    }\n    \n    .chat-message__text a {\n        color: inherit;\n        text-decoration: underline;\n    }\n    \n    .chat-message--own .chat-message__text a {\n        color: rgba(255, 255, 255, 0.9);\n    }\n`).appendTo('head');\n
+    }
+    
+    showError(message) {
+        M.toast({html: message, classes: 'red'});
+    }
+}
+
+// Initialize enhanced chat when document is ready
+$(document).ready(() => {
+    window.enhancedChat = new EnhancedChat();
+    
+    // Hook into existing trip selection
+    const originalLoadTripData = window.loadTripData;
+    if (originalLoadTripData) {
+        window.loadTripData = function(tripId) {
+            originalLoadTripData(tripId);
+            window.enhancedChat.setTripId(tripId);
+        };
+    }
+});
+
+// CSS for emoji picker hover effects
+$('<style>').text(`
+    .emoji-btn:hover {
+        background-color: #f0f0f0 !important;
+    }
+    
+    .chat-message__text a {
+        color: inherit;
+        text-decoration: underline;
+    }
+    
+    .chat-message--own .chat-message__text a {
+        color: rgba(255, 255, 255, 0.9);
+    }
+`).appendTo('head');
