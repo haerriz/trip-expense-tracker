@@ -60,10 +60,28 @@ class EnhancedChat {
     
     setTripId(tripId) {
         console.log('Enhanced Chat: Setting trip ID to', tripId);
+        console.log('Enhanced Chat: Current user ID', this.currentUserId);
         this.currentTripId = tripId;
         if (tripId) {
+            // Test API connectivity first
+            this.testApiConnectivity();
             this.loadMessages();
         }
+    }
+    
+    testApiConnectivity() {
+        console.log('Enhanced Chat: Testing API connectivity...');
+        $.get('api/get_chat.php', { trip_id: this.currentTripId })
+            .done(() => {
+                console.log('Enhanced Chat: API connectivity OK');
+            })
+            .fail((xhr) => {
+                console.error('Enhanced Chat: API connectivity failed', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText
+                });
+            });
     }
     
     loadMessages() {
@@ -74,7 +92,7 @@ class EnhancedChat {
         
         console.log('Enhanced Chat: Loading messages for trip', this.currentTripId);
         
-        $.get('/api/get_chat.php', { trip_id: this.currentTripId })
+        $.get('api/get_chat.php', { trip_id: this.currentTripId })
             .done((response) => {
                 console.log('Enhanced Chat: API response', response);
                 if (response.success) {
@@ -95,8 +113,17 @@ class EnhancedChat {
                 }
             })
             .fail((xhr, status, error) => {
-                console.error('Enhanced Chat: Request failed', error);
-                this.showError('Failed to load messages');
+                console.error('Enhanced Chat: Request failed', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    error: error,
+                    url: 'api/get_chat.php'
+                });
+                if (xhr.status === 404) {
+                    this.showError('Chat API not found - please check server configuration');
+                } else {
+                    this.showError('Failed to load messages');
+                }
             });
     }
     
@@ -107,7 +134,7 @@ class EnhancedChat {
         // Disable send button temporarily
         $('#send-message').prop('disabled', true);
         
-        $.post('/api/send_chat.php', {
+        $.post('api/send_chat.php', {
             trip_id: this.currentTripId,
             message: messageText
         })
@@ -123,8 +150,9 @@ class EnhancedChat {
                 $('#send-message').prop('disabled', false);
             }
         })
-        .fail(() => {
-            this.showError('Failed to send message');
+        .fail((xhr, status, error) => {
+            console.error('Send message failed:', xhr.status, error);
+            this.showError('Failed to send message: ' + (xhr.status === 404 ? 'API not found' : 'Network error'));
             $('#send-message').prop('disabled', false);
         });
     }
@@ -187,8 +215,18 @@ class EnhancedChat {
     createMessageElement(message) {
         const isOwn = message.user_id == this.currentUserId;
         const messageClass = isOwn ? 'chat-message--own' : 'chat-message--other';
-        // Fix timezone issue by creating proper date object
-        const messageDate = new Date(message.created_at + (message.created_at.includes('Z') ? '' : 'Z'));
+        // Fix timezone issue - handle both UTC and local timestamps
+        let messageDate;
+        try {
+            // Try parsing as-is first
+            messageDate = new Date(message.created_at);
+            // If invalid, try adding UTC indicator
+            if (isNaN(messageDate.getTime())) {
+                messageDate = new Date(message.created_at + 'Z');
+            }
+        } catch (e) {
+            messageDate = new Date(); // Fallback to current time
+        }
         const time = messageDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         
         const avatar = this.getUserAvatar(message);
@@ -394,7 +432,7 @@ class EnhancedChat {
     
     clearChat() {
         if (confirm('Are you sure you want to clear the chat? This action cannot be undone.')) {
-            $.post('/api/clear_chat.php', { trip_id: this.currentTripId })
+            $.post('api/clear_chat.php', { trip_id: this.currentTripId })
                 .done((response) => {
                     if (response.success) {
                         this.messages = [];
@@ -404,8 +442,9 @@ class EnhancedChat {
                         M.toast({html: response.error || 'Failed to clear chat', classes: 'red'});
                     }
                 })
-                .fail(() => {
-                    M.toast({html: 'Failed to clear chat', classes: 'red'});
+                .fail((xhr) => {
+                    console.error('Clear chat failed:', xhr.status);
+                    M.toast({html: 'Failed to clear chat: ' + (xhr.status === 404 ? 'API not found' : 'Network error'), classes: 'red'});
                 });
         }
     }
@@ -436,7 +475,7 @@ class EnhancedChat {
         M.toast({html: 'Uploading file...', classes: 'blue'});
         
         $.ajax({
-            url: '/api/upload_chat_file.php',
+            url: 'api/upload_chat_file.php',
             type: 'POST',
             data: formData,
             processData: false,
@@ -449,8 +488,9 @@ class EnhancedChat {
                     M.toast({html: response.error || 'Upload failed', classes: 'red'});
                 }
             },
-            error: () => {
-                M.toast({html: 'Upload failed', classes: 'red'});
+            error: (xhr) => {
+                console.error('File upload failed:', xhr.status);
+                M.toast({html: 'Upload failed: ' + (xhr.status === 404 ? 'API not found' : 'Network error'), classes: 'red'});
             }
         });
     }
@@ -458,7 +498,7 @@ class EnhancedChat {
     sendTypingIndicator(isTyping) {
         if (!this.currentTripId) return;
         
-        $.post('/api/typing_status.php', {
+        $.post('api/typing_status.php', {
             trip_id: this.currentTripId,
             is_typing: isTyping
         });
@@ -467,7 +507,7 @@ class EnhancedChat {
     checkTypingStatus() {
         if (!this.currentTripId) return;
         
-        $.get('/api/typing_status.php', { trip_id: this.currentTripId })
+        $.get('api/typing_status.php', { trip_id: this.currentTripId })
             .done((response) => {
                 if (response.success && response.typing_users.length > 0) {
                     const typingText = response.typing_users.length === 1 
@@ -486,13 +526,13 @@ class EnhancedChat {
         if (!this.currentTripId) return;
         
         // Send heartbeat to mark as online
-        $.post('/api/online_status.php', {
+        $.post('api/online_status.php', {
             trip_id: this.currentTripId,
             action: 'heartbeat'
         });
         
         // Get online users
-        $.get('/api/online_status.php', { trip_id: this.currentTripId })
+        $.get('api/online_status.php', { trip_id: this.currentTripId })
             .done((response) => {
                 if (response.success) {
                     this.displayOnlineUsers(response.online_users, response.count);

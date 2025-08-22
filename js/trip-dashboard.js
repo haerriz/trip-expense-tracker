@@ -535,6 +535,7 @@ function createTrip() {
 }
 
 function loadTripDashboard(tripId) {
+    console.log('Loading trip dashboard for trip:', tripId);
     $('#no-trip').hide();
     $('#trip-dashboard').show();
     
@@ -543,21 +544,17 @@ function loadTripDashboard(tripId) {
     loadExpenses(tripId);
     loadExpenseChart(tripId);
     
-    // Only load old chat if enhanced chat is not available
-    if (!window.enhancedChat) {
+    // Initialize enhanced chat if available
+    if (window.enhancedChat) {
+        console.log('Initializing enhanced chat for trip:', tripId);
+        setTimeout(() => {
+            window.enhancedChat.setTripId(tripId);
+        }, 1000); // Small delay to ensure everything is loaded
+    } else {
+        console.log('Enhanced chat not available, using legacy chat');
         loadTripChat(tripId);
         startLiveChat();
     }
-    
-    // Initialize enhanced chat if available
-    if (window.enhancedChat) {
-        window.enhancedChat.setTripId(tripId);
-    }
-    
-    // Make loadTripData available globally for enhanced chat
-    window.loadTripData = function(id) {
-        loadTripDashboard(id);
-    };
     
     // Store current trip ID globally
     window.currentTripId = tripId;
