@@ -69,10 +69,18 @@ class EnhancedChat {
             .done((response) => {
                 console.log('Enhanced Chat: API response', response);
                 if (response.success) {
-                    this.messages = response.messages;
-                    console.log('Enhanced Chat: Messages loaded', this.messages.length);
-                    this.renderMessages();
-                    this.scrollToBottom();
+                    // Check if messages actually changed to prevent unnecessary re-renders
+                    const newMessagesJson = JSON.stringify(response.messages);
+                    const currentMessagesJson = JSON.stringify(this.messages);
+                    
+                    if (newMessagesJson !== currentMessagesJson) {
+                        this.messages = response.messages;
+                        console.log('Enhanced Chat: Messages updated', this.messages.length);
+                        this.renderMessages();
+                        if (this.autoScrollEnabled) {
+                            this.scrollToBottom();
+                        }
+                    }
                 } else {
                     console.error('Enhanced Chat: API error', response.error);
                 }
@@ -97,16 +105,17 @@ class EnhancedChat {
         .done((response) => {
             if (response.success) {
                 $('#chat-message').val('');
-                this.loadMessages(); // Reload to get the new message
+                // Don't reload immediately - let heartbeat handle it to prevent duplicates
                 this.stopTyping();
+                // Enable send button faster
+                $('#send-message').prop('disabled', false);
             } else {
                 this.showError('Failed to send message');
+                $('#send-message').prop('disabled', false);
             }
         })
         .fail(() => {
             this.showError('Failed to send message');
-        })
-        .always(() => {
             $('#send-message').prop('disabled', false);
         });
     }
@@ -169,7 +178,9 @@ class EnhancedChat {
     createMessageElement(message) {
         const isOwn = message.user_id == this.currentUserId;
         const messageClass = isOwn ? 'chat-message--own' : 'chat-message--other';
-        const time = new Date(message.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        // Fix timezone issue by creating proper date object
+        const messageDate = new Date(message.created_at + (message.created_at.includes('Z') ? '' : 'Z'));
+        const time = messageDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         
         const avatar = this.getUserAvatar(message);
         
@@ -463,19 +474,19 @@ class EnhancedChat {
     }
     
     startHeartbeat() {
-        // Load messages less frequently to reduce flickering
+        // Load messages less frequently to reduce duplicates
         setInterval(() => {
-            if (this.currentTripId && this.autoScrollEnabled && !this.isRendering) {
+            if (this.currentTripId && !this.isRendering) {
                 this.loadMessages();
             }
-        }, 5000);
+        }, 8000); // Increased to 8 seconds
         
-        // Check typing status more frequently
+        // Check typing status
         setInterval(() => {
             if (this.currentTripId) {
                 this.checkTypingStatus();
             }
-        }, 2000);
+        }, 3000);
     }
     
     showError(message) {
