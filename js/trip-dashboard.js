@@ -84,7 +84,7 @@ $(document).ready(function() {
         if (!tripId) return;
         
         // Send typing status
-        $.post('api/chat_status.php', { trip_id: tripId, action: 'typing' })
+        $.post('api/typing_status.php', { trip_id: tripId, is_typing: true })
             .fail(function() { console.log('Typing status failed'); });
         
         // Clear previous timer
@@ -92,7 +92,7 @@ $(document).ready(function() {
         
         // Stop typing after 2 seconds of inactivity
         typingTimer = setTimeout(function() {
-            $.post('api/chat_status.php', { trip_id: tripId, action: 'stop_typing' })
+            $.post('api/typing_status.php', { trip_id: tripId, is_typing: false })
                 .fail(function() { console.log('Stop typing failed'); });
         }, 2000);
     });
@@ -397,9 +397,9 @@ function startLiveChat() {
         updateChatStatus(tripId);
     }, 2000);
     
-    // Send heartbeat every 15 seconds
+    // Send heartbeat every 15 seconds (using typing status as heartbeat)
     heartbeatInterval = setInterval(function() {
-        $.post('api/chat_status.php', { trip_id: tripId, action: 'heartbeat' });
+        $.post('api/typing_status.php', { trip_id: tripId, is_typing: false });
     }, 15000);
 }
 
@@ -539,6 +539,16 @@ function loadTripDashboard(tripId) {
     loadExpenseChart(tripId);
     loadTripChat(tripId);
     startLiveChat();
+    
+    // Initialize enhanced chat if available
+    if (window.enhancedChat) {
+        window.enhancedChat.setTripId(tripId);
+    }
+    
+    // Make loadTripData available globally for enhanced chat
+    window.loadTripData = function(id) {
+        loadTripDashboard(id);
+    };
 }
 
 function showEmptyState() {
@@ -902,7 +912,7 @@ function sendChatMessage() {
     if (!tripId || !message) return;
     
     // Stop typing indicator
-    $.post('api/chat_status.php', { trip_id: tripId, action: 'stop_typing' });
+    $.post('api/typing_status.php', { trip_id: tripId, is_typing: false });
     
     $.post('api/send_chat.php', { trip_id: tripId, message: message })
         .done(function(response) {
@@ -1173,7 +1183,7 @@ $('#amount').on('input change', function() {
 });
 
 function updateChatStatus(tripId) {
-    $.get('api/chat_status.php', { trip_id: tripId })
+    $.get('api/typing_status.php', { trip_id: tripId })
         .done(function(data) {
             if (data.success === false) {
                 console.log('Chat status error:', data.error);
@@ -1181,30 +1191,16 @@ function updateChatStatus(tripId) {
             }
             
             // Update typing indicator
-            if (data.typing && data.typing.length > 0) {
-                const typingNames = data.typing.map(t => t.name).join(', ');
+            if (data.typing_users && data.typing_users.length > 0) {
+                const typingNames = data.typing_users.join(', ');
                 $('#typing-user').text(typingNames);
                 $('#typing-indicator').show();
             } else {
                 $('#typing-indicator').hide();
             }
             
-            // Update online members
-            let onlineHtml = '';
-            if (data.online && data.online.length > 0) {
-                data.online.forEach(function(member) {
-                    onlineHtml += `
-                        <span class="chip">
-                            <span class="online-indicator"></span>
-                            ${member.name}
-                        </span>
-                    `;
-                });
-                $('#online-status').text(`${data.online.length} online`);
-            } else {
-                $('#online-status').text('Offline');
-            }
-            $('#online-members').html(onlineHtml);
+            // Update online status
+            $('#online-status').text('Connected');
         })
         .fail(function(xhr, status, error) {
             console.log('Chat status request failed:', error);
