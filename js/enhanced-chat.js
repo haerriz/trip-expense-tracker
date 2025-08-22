@@ -482,6 +482,48 @@ class EnhancedChat {
             });
     }
     
+    updateOnlineStatus() {
+        if (!this.currentTripId) return;
+        
+        // Send heartbeat to mark as online
+        $.post('/api/online_status.php', {
+            trip_id: this.currentTripId,
+            action: 'heartbeat'
+        });
+        
+        // Get online users
+        $.get('/api/online_status.php', { trip_id: this.currentTripId })
+            .done((response) => {
+                if (response.success) {
+                    this.displayOnlineUsers(response.online_users, response.count);
+                }
+            });
+    }
+    
+    displayOnlineUsers(users, count) {
+        let onlineHtml = '';
+        
+        if (count > 0) {
+            // Show online count
+            $('#online-status').text(`${count} online`);
+            
+            // Show online users
+            users.forEach(user => {
+                const indicator = user.is_current ? 'online-indicator' : 'online-indicator';
+                onlineHtml += `
+                    <span class="chip" title="${user.name}${user.is_current ? ' (You)' : ''}">
+                        <span class="${indicator}"></span>
+                        ${user.name}${user.is_current ? ' (You)' : ''}
+                    </span>
+                `;
+            });
+        } else {
+            $('#online-status').text('No one online');
+        }
+        
+        $('#online-members').html(onlineHtml);
+    }
+    
     startHeartbeat() {
         // Clear existing intervals first
         if (this.messageInterval) clearInterval(this.messageInterval);
@@ -494,12 +536,13 @@ class EnhancedChat {
             }
         }, 10000); // Increased to 10 seconds
         
-        // Check typing status
+        // Check typing status and online users
         this.typingInterval = setInterval(() => {
             if (this.currentTripId) {
                 this.checkTypingStatus();
+                this.updateOnlineStatus();
             }
-        }, 5000); // Reduced frequency
+        }, 5000); // Check every 5 seconds
     }
     
     showError(message) {
