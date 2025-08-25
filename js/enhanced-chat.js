@@ -59,8 +59,6 @@ class EnhancedChat {
     }
     
     setTripId(tripId) {
-        console.log('Enhanced Chat: Setting trip ID to', tripId);
-        console.log('Enhanced Chat: Current user ID', this.currentUserId);
         this.currentTripId = tripId;
         if (tripId) {
             // Test API connectivity first
@@ -70,13 +68,10 @@ class EnhancedChat {
     }
     
     testApiConnectivity() {
-        console.log('Enhanced Chat: Testing API connectivity...');
         $.get('api/get_chat.php', { trip_id: this.currentTripId })
             .done(() => {
-                console.log('Enhanced Chat: API connectivity OK');
             })
             .fail((xhr) => {
-                console.error('Enhanced Chat: API connectivity failed', {
                     status: xhr.status,
                     statusText: xhr.statusText,
                     responseText: xhr.responseText
@@ -86,15 +81,12 @@ class EnhancedChat {
     
     loadMessages() {
         if (!this.currentTripId) {
-            console.log('Enhanced Chat: No trip ID set');
             return;
         }
         
-        console.log('Enhanced Chat: Loading messages for trip', this.currentTripId);
         
         $.get('api/get_chat.php', { trip_id: this.currentTripId })
             .done((response) => {
-                console.log('Enhanced Chat: API response', response);
                 if (response.success) {
                     // Check if messages actually changed to prevent unnecessary re-renders
                     const newMessagesJson = JSON.stringify(response.messages);
@@ -102,18 +94,15 @@ class EnhancedChat {
                     
                     if (newMessagesJson !== currentMessagesJson) {
                         this.messages = response.messages;
-                        console.log('Enhanced Chat: Messages updated', this.messages.length);
                         this.renderMessages();
                         if (this.autoScrollEnabled) {
                             this.scrollToBottom();
                         }
                     }
                 } else {
-                    console.error('Enhanced Chat: API error', response.error);
                 }
             })
             .fail((xhr, status, error) => {
-                console.error('Enhanced Chat: Request failed', {
                     status: xhr.status,
                     statusText: xhr.statusText,
                     error: error,
@@ -151,7 +140,6 @@ class EnhancedChat {
             }
         })
         .fail((xhr, status, error) => {
-            console.error('Send message failed:', xhr.status, error);
             this.showError('Failed to send message: ' + (xhr.status === 404 ? 'API not found' : 'Network error'));
             $('#send-message').prop('disabled', false);
         });
@@ -443,7 +431,6 @@ class EnhancedChat {
                     }
                 })
                 .fail((xhr) => {
-                    console.error('Clear chat failed:', xhr.status);
                     M.toast({html: 'Failed to clear chat: ' + (xhr.status === 404 ? 'API not found' : 'Network error'), classes: 'red'});
                 });
         }
@@ -489,7 +476,6 @@ class EnhancedChat {
                 }
             },
             error: (xhr) => {
-                console.error('File upload failed:', xhr.status);
                 M.toast({html: 'Upload failed: ' + (xhr.status === 404 ? 'API not found' : 'Network error'), classes: 'red'});
             }
         });

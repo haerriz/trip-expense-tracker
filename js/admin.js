@@ -18,17 +18,14 @@ $(document).ready(function() {
 });
 
 function editCategory(categoryId) {
-    console.log('Editing category with ID:', categoryId);
     $.get('api/admin/edit_category.php', { category_id: categoryId })
         .done(function(data) {
-            console.log('Edit category response:', data);
             if (data.success) {
                 const category = data.category;
                 $('#edit-category-id').val(category.id);
                 $('#edit-category-name').val(category.name);
                 $('#edit-subcategories').val(category.subcategories || '');
                 
-                console.log('Set category ID to:', category.id);
                 M.updateTextFields();
                 $('#edit-category-modal').modal('open');
             } else {
@@ -36,7 +33,6 @@ function editCategory(categoryId) {
             }
         })
         .fail(function(xhr, status, error) {
-            console.error('Edit category failed:', error, xhr.responseText);
             M.toast({html: 'Network error loading category'});
         });
 }
@@ -46,7 +42,6 @@ function updateCategory() {
     const name = $('#edit-category-name').val();
     const subcategories = $('#edit-subcategories').val();
     
-    console.log('Updating category:', { categoryId, name, subcategories });
     
     if (!categoryId) {
         M.toast({html: 'Category ID is missing'});
@@ -59,7 +54,6 @@ function updateCategory() {
         subcategories: subcategories
     })
     .done(function(data) {
-        console.log('Update category response:', data);
         if (data.success) {
             M.toast({html: data.message});
             $('#edit-category-modal').modal('close');
@@ -69,7 +63,6 @@ function updateCategory() {
         }
     })
     .fail(function(xhr, status, error) {
-        console.error('Update category failed:', error, xhr.responseText);
         M.toast({html: 'Network error updating category'});
     });
 }
@@ -78,14 +71,12 @@ function addCategory() {
     const name = $('#category-name').val();
     const subcategories = $('#subcategories').val();
     
-    console.log('Adding category:', { name, subcategories });
     
     $.post('api/admin/add_category.php', {
         name: name,
         subcategories: subcategories
     })
     .done(function(data) {
-        console.log('Add category response:', data);
         if (data.success) {
             M.toast({html: 'Category added successfully'});
             $('#category-form')[0].reset();
@@ -95,7 +86,6 @@ function addCategory() {
         }
     })
     .fail(function(xhr, status, error) {
-        console.error('Add category failed:', error, xhr.responseText);
         M.toast({html: 'Network error adding category'});
     });
 }
@@ -103,12 +93,10 @@ function addCategory() {
 function loadCategories() {
     $.get('api/get_categories.php')
         .done(function(data) {
-            console.log('Categories loaded:', data);
             const categories = data.categories || [];
             let html = '';
             
             categories.forEach(function(category) {
-                console.log('Category:', category);
                 html += `
                     <div class="card-panel">
                         <div class="category-header">
@@ -130,16 +118,13 @@ function loadCategories() {
             $('#categories-list').html(html);
         })
         .fail(function(xhr, status, error) {
-            console.error('Load categories failed:', error, xhr.responseText);
         });
 }
 
 function deleteCategory(categoryId) {
-    console.log('Deleting category with ID:', categoryId);
     if (confirm('Delete this category? This cannot be undone.')) {
         $.post('api/admin/delete_category.php', { category_id: categoryId })
             .done(function(data) {
-                console.log('Delete category response:', data);
                 if (data.success) {
                     M.toast({html: 'Category deleted'});
                     loadCategories();
@@ -148,7 +133,6 @@ function deleteCategory(categoryId) {
                 }
             })
             .fail(function(xhr, status, error) {
-                console.error('Delete category failed:', error, xhr.responseText);
                 M.toast({html: 'Network error deleting category'});
             });
     }

@@ -34,12 +34,10 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
                 alert(data.message || 'Login failed');
             }
         } catch (e) {
-            console.error('JSON parse error:', e, 'Response:', text);
             alert('Server error occurred. Please try again.');
         }
     })
     .catch(error => {
-        console.error('Login error:', error);
         alert('Network error. Please check your connection.');
     });
 });
@@ -74,12 +72,10 @@ document.getElementById('signupForm').addEventListener('submit', function(e) {
                 alert(data.message || 'Signup failed');
             }
         } catch (e) {
-            console.error('JSON parse error:', e, 'Response:', text);
             alert('Server error occurred. Please try again.');
         }
     })
     .catch(error => {
-        console.error('Signup error:', error);
         alert('Network error. Please check your connection.');
     });
 });

@@ -1,5 +1,4 @@
 function handleCredentialResponse(response) {
-    console.log('Google OAuth response received');
     
     fetch('/google-auth.php', {
         method: 'POST',
@@ -16,12 +15,10 @@ function handleCredentialResponse(response) {
                 alert('Google authentication failed: ' + (data.message || 'Unknown error'));
             }
         } catch (e) {
-            console.error('JSON parse error:', e, 'Response:', text);
             alert('Authentication error occurred');
         }
     })
     .catch(error => {
-        console.error('Google auth error:', error);
         alert('Network error during authentication');
     });
 }

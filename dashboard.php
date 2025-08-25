@@ -59,8 +59,6 @@ requireLogin();
     <script>
         window.currentUserId = <?php echo $_SESSION['user_id']; ?>;
         window.userEmail = '<?php echo $_SESSION['user_email']; ?>';
-        
-        // Clean localhost version - no debug clutter
     </script>
 </head>
 <body class="dashboard-page">

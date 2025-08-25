@@ -85,7 +85,6 @@ $(document).ready(function() {
         
         // Send typing status
         $.post('api/typing_status.php', { trip_id: tripId, is_typing: true })
-            .fail(function() { console.log('Typing status failed'); });
         
         // Clear previous timer
         clearTimeout(typingTimer);
@@ -93,7 +92,6 @@ $(document).ready(function() {
         // Stop typing after 2 seconds of inactivity
         typingTimer = setTimeout(function() {
             $.post('api/typing_status.php', { trip_id: tripId, is_typing: false })
-                .fail(function() { console.log('Stop typing failed'); });
         }, 2000);
     });
     
@@ -307,7 +305,6 @@ function loadSubcategoriesForEdit(category, selectedSub = '') {
 function loadInvitations() {
     $.get('api/get_invitations.php')
         .done(function(data) {
-            console.log('Invitations loaded:', data);
             if (data.success) {
                 const invitations = data.invitations || [];
                 $('#invitation-count').text(invitations.length);
@@ -347,12 +344,10 @@ function loadInvitations() {
                 }
                 $('#invitations-list').html(html);
             } else {
-                console.error('Failed to load invitations:', data.error);
                 $('#invitations-list').html('<p class="red-text center-align">Error loading invitations</p>');
             }
         })
         .fail(function(xhr, status, error) {
-            console.error('Invitation request failed:', error);
             $('#invitations-list').html('<p class="red-text center-align">Failed to load invitations</p>');
         });
 }
@@ -411,7 +406,6 @@ function startLiveChat() {
 function loadTrips() {
     $.get('api/get_trips.php')
         .done(function(data) {
-            console.log('Trips API response:', data);
             const trips = data.trips || [];
             let options = '<option value="">Select a Trip</option>';
             
@@ -436,8 +430,6 @@ function loadTrips() {
             }
         })
         .fail(function(xhr, status, error) {
-            console.error('Failed to load trips:', error);
-            console.error('Response:', xhr.responseText);
             M.toast({html: 'Failed to load trips'});
             showEmptyState();
         });
@@ -447,12 +439,10 @@ function loadCategories() {
     // Add cache busting parameter
     $.get('api/get_categories.php?t=' + Date.now())
         .done(function(data) {
-            console.log('Categories API response:', data);
             const categories = data.categories || [];
             
             // Store categories data globally for subcategory loading
             window.categoriesData = categories;
-            console.log('Stored categories data:', window.categoriesData);
             
             let options = '<option value="">Select Category</option>';
             
@@ -468,7 +458,6 @@ function loadCategories() {
             $('#edit-category').formSelect();
         })
         .fail(function() {
-            console.error('Failed to load categories');
             M.toast({html: 'Failed to load categories'});
         });
 }
@@ -482,22 +471,17 @@ function getCurrencySymbol(currency) {
 }
 
 function loadSubcategories(category) {
-    console.log('Loading subcategories for:', category);
-    console.log('Available categories data:', window.categoriesData);
     
     // Find the category in the loaded categories data
     const categoryData = window.categoriesData?.find(cat => cat.name === category);
-    console.log('Found category data:', categoryData);
     
     let options = '<option value="">Select Subcategory</option>';
     if (categoryData && categoryData.subcategories) {
         const subcategories = categoryData.subcategories.split(',').map(s => s.trim()).filter(s => s);
-        console.log('Parsed subcategories:', subcategories);
         subcategories.forEach(function(sub) {
             options += `<option value="${sub}">${sub}</option>`;
         });
     } else {
-        console.log('No subcategories found for category:', category);
     }
     $('#subcategory').html(options);
     $('#subcategory').formSelect();
@@ -535,7 +519,6 @@ function createTrip() {
 }
 
 function loadTripDashboard(tripId) {
-    console.log('Loading trip dashboard for trip:', tripId);
     $('#no-trip').hide();
     $('#trip-dashboard').show();
     
@@ -546,12 +529,10 @@ function loadTripDashboard(tripId) {
     
     // Initialize enhanced chat if available
     if (window.enhancedChat) {
-        console.log('Initializing enhanced chat for trip:', tripId);
         setTimeout(() => {
             window.enhancedChat.setTripId(tripId);
         }, 1000); // Small delay to ensure everything is loaded
     } else {
-        console.log('Enhanced chat not available, using legacy chat');
         loadTripChat(tripId);
         startLiveChat();
     }
@@ -586,7 +567,6 @@ function loadTripSummary(tripId) {
             }
         })
         .fail(function() {
-            console.log('Failed to load trip summary');
         });
 }
 
@@ -740,7 +720,6 @@ function loadExpenses(tripId) {
             $('#expenses-list').html(html || '<p>No expenses yet</p>');
         })
         .fail(function() {
-            console.log('Failed to load expenses');
         });
 }
 
@@ -901,7 +880,6 @@ function loadTripChat(tripId) {
         return;
     }
     
-    console.log('Using legacy chat system');
     $.get('api/get_chat.php', { trip_id: tripId })
         .done(function(data) {
             const messages = data.messages || [];
@@ -1210,7 +1188,6 @@ function updateChatStatus(tripId) {
     $.get('api/typing_status.php', { trip_id: tripId })
         .done(function(data) {
             if (data.success === false) {
-                console.log('Chat status error:', data.error);
                 return;
             }
             
@@ -1227,7 +1204,6 @@ function updateChatStatus(tripId) {
             $('#online-status').text('Connected');
         })
         .fail(function(xhr, status, error) {
-            console.log('Chat status request failed:', error);
             $('#online-status').text('Connection error');
         });
 }
