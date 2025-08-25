@@ -39,7 +39,7 @@ requireMasterAdmin();
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon.svg">
     <link rel="manifest" href="/manifest.json">
     
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
     
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-0CMW9MRBRE"></script>
@@ -219,7 +219,7 @@ requireMasterAdmin();
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <script src="js/admin.js"></script>
-    <script src="js/dark-mode.js"></script>
+    <script src="js/admin.js?v=<?php echo time(); ?>"></script>
+    <script src="js/dark-mode.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

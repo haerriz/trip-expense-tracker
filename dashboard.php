@@ -56,7 +56,7 @@ requireLogin();
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon.svg">
     <link rel="manifest" href="/manifest.json">
     
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/avatar.js"></script>
@@ -556,9 +556,9 @@ requireLogin();
             M.updateTextFields();
         });
     </script>
-    <script src="js/trip-dashboard.js"></script>
-    <script src="js/enhanced-chat.js"></script>
-    <script src="js/pwa-install.js"></script>
-    <script src="js/dark-mode.js"></script>
+    <script src="js/trip-dashboard.js?v=<?php echo time(); ?>"></script>
+    <script src="js/enhanced-chat.js?v=<?php echo time(); ?>"></script>
+    <script src="js/pwa-install.js?v=<?php echo time(); ?>"></script>
+    <script src="js/dark-mode.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>
