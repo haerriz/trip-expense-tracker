@@ -120,8 +120,10 @@ self.addEventListener('fetch', (event) => {
         // Clone the response for caching
         const responseClone = response.clone();
         
-        // Cache successful responses
-        if (response.status === 200) {
+        // Cache successful responses (exclude chrome-extension and other unsupported schemes)
+        if (response.status === 200 && 
+            event.request.url.startsWith('http') && 
+            !event.request.url.includes('chrome-extension')) {
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseClone);
           });

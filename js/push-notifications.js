@@ -11,12 +11,16 @@ class PushNotificationManager {
             return;
         }
 
-        // Request notification permission on load
-        await this.requestPermission();
-        
-        // Subscribe to push notifications if permission granted
-        if (Notification.permission === 'granted') {
-            await this.subscribeUser();
+        try {
+            // Request notification permission on load
+            await this.requestPermission();
+            
+            // Subscribe to push notifications if permission granted
+            if (Notification.permission === 'granted') {
+                await this.subscribeUser();
+            }
+        } catch (error) {
+            console.error('Push notification init failed:', error);
         }
     }
 
@@ -61,7 +65,14 @@ class PushNotificationManager {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to save subscription');
+                const errorText = await response.text();
+                console.error('Server error:', errorText);
+                return;
+            }
+            
+            const result = await response.json();
+            if (result.success) {
+                console.log('Subscription saved successfully');
             }
         } catch (error) {
             console.error('Error saving subscription:', error);

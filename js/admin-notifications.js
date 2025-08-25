@@ -70,6 +70,12 @@ function sendTestNotification() {
 async function loadNotificationStats() {
     try {
         const response = await fetch('/api/get_notification_stats.php');
+        
+        if (!response.ok) {
+            console.error('Stats API error:', response.status);
+            return;
+        }
+        
         const stats = await response.json();
         
         if (stats.success) {
@@ -78,14 +84,22 @@ async function loadNotificationStats() {
         }
     } catch (error) {
         console.error('Error loading notification stats:', error);
+        // Set default values on error
+        document.getElementById('subscriber-count').textContent = '0';
+        document.getElementById('notifications-sent').textContent = '0';
     }
 }
 
 async function loadNotificationHistory() {
     try {
         const response = await fetch('/api/get_notification_history.php');
-        const history = await response.json();
         
+        if (!response.ok) {
+            console.error('History API error:', response.status);
+            return;
+        }
+        
+        const history = await response.json();
         const historyContainer = document.getElementById('notification-history');
         
         if (history.success && history.notifications.length > 0) {
@@ -103,5 +117,7 @@ async function loadNotificationHistory() {
         }
     } catch (error) {
         console.error('Error loading notification history:', error);
+        const historyContainer = document.getElementById('notification-history');
+        historyContainer.innerHTML = '<p style="color: #666; font-size: 0.9rem;">Error loading history</p>';
     }
 }
