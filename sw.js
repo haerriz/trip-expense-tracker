@@ -1,7 +1,7 @@
 // Haerriz Expenses Service Worker
 // This makes the app work offline and load faster
 
-const CACHE_NAME = 'haerriz-expenses-v1';
+const CACHE_NAME = 'haerriz-expenses-v2';
 const urlsToCache = [
   '/',
   '/index.php',
@@ -57,28 +57,40 @@ self.addEventListener('activate', (event) => {
 
 // Fetch - Serve cached files when offline
 self.addEventListener('fetch', (event) => {
-  // Don't cache logout or session-dependent requests
+  // Only exclude logout and session check from caching
   if (event.request.url.includes('logout.php') || 
-      event.request.url.includes('check_session.php') ||
-      event.request.url.includes('api/')) {
+      event.request.url.includes('check_session.php')) {
     event.respondWith(fetch(event.request));
     return;
   }
 
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then((response) => {
-        // Return cached version or fetch from network
-        if (response) {
-          return response;
+        // Clone the response for caching
+        const responseClone = response.clone();
+        
+        // Cache successful responses
+        if (response.status === 200) {
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
         }
-        return fetch(event.request);
+        
+        return response;
       })
       .catch(() => {
-        // If both cache and network fail, show offline page
-        if (event.request.destination === 'document') {
-          return caches.match('/index.php');
-        }
+        // If network fails, try cache
+        return caches.match(event.request)
+          .then((cachedResponse) => {
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            // If both fail and it's a document, show index
+            if (event.request.destination === 'document') {
+              return caches.match('/index.php');
+            }
+          });
       })
   );
 });
