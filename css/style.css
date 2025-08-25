@@ -261,6 +261,12 @@ body {
     clear: both;
 }
 
+/* Smaller done icon in chat messages */
+.message-status .material-icons {
+    font-size: 14px !important;
+    opacity: 0.7;
+}
+
 /* Responsive improvements */
 @media only screen and (max-width: 600px) {
     .container {
@@ -268,7 +274,7 @@ body {
     }
     
     .equal-height {
-        height: 140px;
+        height: 180px;
     }
     
     .equal-height .card-content h5 {
