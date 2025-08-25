@@ -937,7 +937,7 @@ function exportToPDF() {
         M.toast({html: 'Please select a trip first'});
         return;
     }
-    window.open('api/export_pdf.php?trip_id=' + tripId, '_blank');
+    window.open('api/export_pdf_enhanced.php?trip_id=' + tripId, '_blank');
 }
 
 function exportToExcel() {
