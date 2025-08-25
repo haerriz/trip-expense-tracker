@@ -11,6 +11,25 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_email'] !== 'haerriz@gmail.c
 }
 
 try {
+    // Create tables if they don't exist
+    $pdo->exec("CREATE TABLE IF NOT EXISTS push_subscriptions (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT,
+        endpoint TEXT NOT NULL,
+        p256dh_key TEXT NOT NULL,
+        auth_key TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+    
+    $pdo->exec("CREATE TABLE IF NOT EXISTS notification_log (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        admin_id INT NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        recipients_count INT DEFAULT 0,
+        sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+    
     // Get subscriber count
     $subscriberStmt = $pdo->query("SELECT COUNT(*) as count FROM push_subscriptions WHERE endpoint IS NOT NULL");
     $subscriberCount = $subscriberStmt->fetch(PDO::FETCH_ASSOC)['count'];
@@ -26,7 +45,8 @@ try {
     ]);
     
 } catch (Exception $e) {
+    error_log('Notification stats error: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Failed to get stats: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => 'Failed to get stats']);
 }
 ?>

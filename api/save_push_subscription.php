@@ -28,18 +28,15 @@ try {
         p256dh_key TEXT NOT NULL,
         auth_key TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE KEY unique_subscription (user_id, endpoint(255))
+        INDEX idx_user_endpoint (user_id, endpoint(100))
     )";
     
     $pdo->exec($createTable);
     
-    // Save subscription
+    // Save subscription (use REPLACE to handle duplicates)
     $stmt = $pdo->prepare("
-        INSERT INTO push_subscriptions (user_id, endpoint, p256dh_key, auth_key) 
+        REPLACE INTO push_subscriptions (user_id, endpoint, p256dh_key, auth_key) 
         VALUES (?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE 
-        p256dh_key = VALUES(p256dh_key),
-        auth_key = VALUES(auth_key)
     ");
     
     $stmt->execute([
@@ -52,7 +49,8 @@ try {
     echo json_encode(['success' => true]);
     
 } catch (Exception $e) {
+    error_log('Push subscription error: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Failed to save subscription: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => 'Failed to save subscription']);
 }
 ?>
