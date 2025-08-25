@@ -2,11 +2,249 @@
 
 body {
     font-family: 'Roboto', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark Mode Variables */
+:root {
+    --bg-color: #ffffff;
+    --text-color: #333333;
+    --card-bg: #ffffff;
+    --nav-bg: #2196F3;
+    --border-color: #e0e0e0;
+    --input-bg: #ffffff;
+    --shadow: rgba(0,0,0,0.1);
+}
+
+[data-theme="dark"] {
+    --bg-color: #121212;
+    --text-color: #ffffff;
+    --card-bg: #1e1e1e;
+    --nav-bg: #1976D2;
+    --border-color: #333333;
+    --input-bg: #2a2a2a;
+    --shadow: rgba(255,255,255,0.1);
+}
+
+/* Dark Mode Styles */
+[data-theme="dark"] body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .card {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .collection {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .collection .collection-item {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .input-field input {
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .input-field label {
+    color: #999;
+}
+
+[data-theme="dark"] .modal {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .tabs .tab a {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .tabs .indicator {
+    background-color: #2196F3;
+}
+
+[data-theme="dark"] table {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] th, [data-theme="dark"] td {
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+
+.theme-toggle:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+.theme-toggle svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover svg {
+    transform: scale(1.1);
+}
+
+/* Additional Dark Mode Styles */
+[data-theme="dark"] .sidenav {
+    background-color: var(--card-bg);
+}
+
+[data-theme="dark"] .sidenav li > a {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .sidenav .user-view .name,
+[data-theme="dark"] .sidenav .user-view .email {
+    color: white;
+}
+
+[data-theme="dark"] .dropdown-content {
+    background-color: var(--card-bg);
+}
+
+[data-theme="dark"] .dropdown-content li > a {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .select-dropdown {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .select-wrapper input.select-dropdown {
+    border-bottom: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .btn {
+    background-color: #2196F3;
+}
+
+[data-theme="dark"] .btn-flat {
+    color: #2196F3;
+}
+
+[data-theme="dark"] .card-panel {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .collapsible {
+    background-color: var(--card-bg);
+}
+
+[data-theme="dark"] .collapsible-header {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .collapsible-body {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .chat-message__bubble {
+    background-color: var(--input-bg);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .chat-message--own .chat-message__bubble {
+    background-color: #2196F3;
+    color: white;
+}
+
+[data-theme="dark"] .trip-chat__messages {
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .feature-badge {
+    background: rgba(33, 150, 243, 0.2);
+    color: #64B5F6;
+}
+
+[data-theme="dark"] .auth-card {
+    background: linear-gradient(135deg, var(--card-bg) 0%, #2a2a2a 100%);
+}
+
+[data-theme="dark"] .auth-card__title {
+    color: #64B5F6;
+}
+
+[data-theme="dark"] .auth-card__subtitle {
+    color: #999;
+}
+
+[data-theme="dark"] .form-title {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .form-subtitle {
+    color: #999;
+}
+
+[data-theme="dark"] .divider-line {
+    background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+}
+
+[data-theme="dark"] .divider-text {
+    color: #999;
+}
+
+[data-theme="dark"] .footer-text {
+    color: #999;
+}
+
+[data-theme="dark"] .trust-item {
+    color: #999;
+}
+
+[data-theme="dark"] .pagination li.active {
+    background-color: #2196F3;
+}
+
+[data-theme="dark"] .pagination li a {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .switch label input[type=checkbox]:checked + .lever {
+    background-color: rgba(33, 150, 243, 0.5);
+}
+
+[data-theme="dark"] .switch label input[type=checkbox]:checked + .lever:after {
+    background-color: #2196F3;
 }
 
 /* Visually hidden elements */
 .visually-hidden {
     font-size: 24px;
+    display: none;
 }
 
 @media only screen and (min-width: 993px) {
@@ -505,6 +743,37 @@ body {
 
 .btn-small.red.right {
     margin-left: 8px;
+}
+
+/* Mobile sidenav theme toggle */
+@media only screen and (max-width: 992px) {
+    .sidenav .theme-toggle {
+        background: none;
+        border: none;
+        color: var(--text-color);
+        cursor: pointer;
+        padding: 16px 32px;
+        width: 100%;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        font-size: 14px;
+    }
+    
+    .sidenav .theme-toggle svg {
+        width: 24px;
+        height: 24px;
+        fill: currentColor;
+    }
+    
+    .sidenav .theme-toggle:hover {
+        background-color: rgba(0,0,0,0.1);
+    }
+    
+    [data-theme="dark"] .sidenav .theme-toggle:hover {
+        background-color: rgba(255,255,255,0.1);
+    }
 }
 
 /* Improved chat bubble styling */

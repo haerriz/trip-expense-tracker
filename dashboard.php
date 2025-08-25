@@ -88,6 +88,11 @@ requireLogin();
                          alt="Profile" class="circle" style="width: 32px; height: 32px;">
                     <span class="white-text"><?php echo $_SESSION['user_name']; ?></span>
                 </li>
+                <li>
+                    <button class="theme-toggle" title="Toggle dark mode">
+                        <svg viewBox="0 0 24 24"><path d="M12.34 2.02C6.59 1.82 2 6.42 2 12c0 5.52 4.48 10 10 10 3.71 0 6.93-2.02 8.66-5.02-7.51-.25-13.64-6.42-13.64-13.96 0-.34.02-.67.05-1z"/></svg>
+                    </button>
+                </li>
                 <?php if ($_SESSION['user_email'] === 'haerriz@gmail.com'): ?>
                     <li><a href="admin.php">Admin</a></li>
                 <?php endif; ?>
@@ -105,6 +110,12 @@ requireLogin();
             <a href="#name"><span class="white-text name"><?php echo $_SESSION['user_name']; ?></span></a>
             <a href="#email"><span class="white-text email"><?php echo $_SESSION['user_email']; ?></span></a>
         </div></li>
+        <li>
+            <button class="theme-toggle">
+                <svg viewBox="0 0 24 24"><path d="M12.34 2.02C6.59 1.82 2 6.42 2 12c0 5.52 4.48 10 10 10 3.71 0 6.93-2.02 8.66-5.02-7.51-.25-13.64-6.42-13.64-13.96 0-.34.02-.67.05-1z"/></svg>
+                <span>Dark Mode</span>
+            </button>
+        </li>
         <?php if ($_SESSION['user_email'] === 'haerriz@gmail.com'): ?>
             <li><a href="admin.php"><i class="material-icons">admin_panel_settings</i>Admin</a></li>
         <?php endif; ?>
@@ -548,5 +559,6 @@ requireLogin();
     <script src="js/trip-dashboard.js"></script>
     <script src="js/enhanced-chat.js"></script>
     <script src="js/pwa-install.js"></script>
+    <script src="js/dark-mode.js"></script>
 </body>
 </html>

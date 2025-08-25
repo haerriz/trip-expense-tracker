@@ -66,6 +66,11 @@ requireMasterAdmin();
                          alt="Profile" class="circle" style="width: 32px; height: 32px;">
                     <span class="white-text hide-on-small-only"><?php echo $_SESSION['user_name']; ?></span>
                 </li>
+                <li>
+                    <button class="theme-toggle" title="Toggle dark mode">
+                        <svg viewBox="0 0 24 24"><path d="M12.34 2.02C6.59 1.82 2 6.42 2 12c0 5.52 4.48 10 10 10 3.71 0 6.93-2.02 8.66-5.02-7.51-.25-13.64-6.42-13.64-13.96 0-.34.02-.67.05-1z"/></svg>
+                    </button>
+                </li>
                 <li><a href="dashboard.php" class="btn blue waves-effect waves-light">Dashboard</a></li>
                 <li><a href="logout.php" class="btn red darken-2 waves-effect waves-light">Logout</a></li>
             </ul>
@@ -215,5 +220,6 @@ requireMasterAdmin();
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="js/admin.js"></script>
+    <script src="js/dark-mode.js"></script>
 </body>
 </html>
