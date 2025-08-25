@@ -221,5 +221,6 @@ requireMasterAdmin();
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="js/admin.js?v=<?php echo time(); ?>"></script>
     <script src="js/dark-mode.js?v=<?php echo time(); ?>"></script>
+    <script src="js/logout-handler.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

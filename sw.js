@@ -57,6 +57,14 @@ self.addEventListener('activate', (event) => {
 
 // Fetch - Serve cached files when offline
 self.addEventListener('fetch', (event) => {
+  // Don't cache logout or session-dependent requests
+  if (event.request.url.includes('logout.php') || 
+      event.request.url.includes('check_session.php') ||
+      event.request.url.includes('api/')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
@@ -69,7 +77,7 @@ self.addEventListener('fetch', (event) => {
       .catch(() => {
         // If both cache and network fail, show offline page
         if (event.request.destination === 'document') {
-          return caches.match('/splash.html');
+          return caches.match('/index.php');
         }
       })
   );
