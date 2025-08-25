@@ -104,7 +104,7 @@ requireLogin();
 
     <div class="container" style="margin-top: 20px;">
         <div class="row">
-            <div class="col s12 m4">
+            <div class="col s12 m5 l4">
                 <div class="input-field">
                     <select id="current-trip">
                         <option value="">Select a Trip</option>
@@ -112,26 +112,30 @@ requireLogin();
                     <label>Choose Trip</label>
                 </div>
             </div>
-            <div class="col s12 m8">
-                <div class="right-align">
-                    <a id="new-trip-btn" class="btn waves-effect waves-light blue">
-                        <i class="material-icons left">add</i>New Trip
-                    </a>
-                    <a id="invitations-btn" class="btn waves-effect waves-light orange">
-                        <i class="material-icons left">mail</i>Invitations <span id="invitation-count" class="new badge" data-badge-caption="">0</span>
-                    </a>
-                    <a id="export-pdf" class="btn-small waves-effect waves-light grey">
-                        <i class="material-icons left">picture_as_pdf</i>PDF
-                    </a>
-                    <a id="export-excel" class="btn-small waves-effect waves-light grey">
-                        <i class="material-icons left">table_chart</i>CSV
-                    </a>
-                    <a id="export-xlsx" class="btn-small waves-effect waves-light grey">
-                        <i class="material-icons left">description</i>XLSX
-                    </a>
-                    <a id="email-report" class="btn-small waves-effect waves-light grey">
-                        <i class="material-icons left">email</i>Email
-                    </a>
+            <div class="col s12 m7 l8">
+                <div class="trip-actions-container">
+                    <div class="primary-actions">
+                        <a id="new-trip-btn" class="btn waves-effect waves-light blue">
+                            <i class="material-icons left">add</i><span class="hide-on-small-only">New Trip</span>
+                        </a>
+                        <a id="invitations-btn" class="btn waves-effect waves-light orange">
+                            <i class="material-icons left">mail</i><span class="hide-on-small-only">Invitations</span> <span id="invitation-count" class="new badge" data-badge-caption="">0</span>
+                        </a>
+                    </div>
+                    <div class="export-actions">
+                        <a id="export-pdf" class="btn-small waves-effect waves-light grey">
+                            <i class="material-icons left">picture_as_pdf</i><span class="hide-on-small-only">PDF</span>
+                        </a>
+                        <a id="export-excel" class="btn-small waves-effect waves-light grey">
+                            <i class="material-icons left">table_chart</i><span class="hide-on-small-only">CSV</span>
+                        </a>
+                        <a id="export-xlsx" class="btn-small waves-effect waves-light grey">
+                            <i class="material-icons left">description</i><span class="hide-on-small-only">XLSX</span>
+                        </a>
+                        <a id="email-report" class="btn-small waves-effect waves-light grey">
+                            <i class="material-icons left">email</i><span class="hide-on-small-only">Email</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -155,7 +159,7 @@ requireLogin();
 
         <div id="trip-dashboard" style="display:none;">
             <div class="row">
-                <div class="col s6 m3">
+                <div class="col s6 m6 l3">
                     <div class="card blue lighten-4 hoverable equal-height" onclick="editBudget()" style="cursor: pointer;">
                         <div class="card-content center-align">
                             <i class="material-icons blue-text medium">account_balance_wallet</i>
@@ -165,7 +169,7 @@ requireLogin();
                         </div>
                     </div>
                 </div>
-                <div class="col s6 m3">
+                <div class="col s6 m6 l3">
                     <div class="card red lighten-4 equal-height">
                         <div class="card-content center-align">
                             <i class="material-icons red-text medium">trending_up</i>
@@ -175,7 +179,7 @@ requireLogin();
                         </div>
                     </div>
                 </div>
-                <div class="col s6 m3">
+                <div class="col s6 m6 l3">
                     <div class="card green lighten-4 equal-height">
                         <div class="card-content center-align">
                             <i class="material-icons green-text medium">savings</i>
@@ -185,7 +189,7 @@ requireLogin();
                         </div>
                     </div>
                 </div>
-                <div class="col s6 m3">
+                <div class="col s6 m6 l3">
                     <div class="card orange lighten-4 equal-height">
                         <div class="card-content center-align">
                             <i class="material-icons orange-text medium">person</i>
