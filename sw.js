@@ -2,6 +2,55 @@
 // This makes the app work offline and load faster
 
 const CACHE_NAME = 'haerriz-expenses-v2';
+
+// Push notification handling
+self.addEventListener('push', (event) => {
+  const options = {
+    body: event.data ? event.data.text() : 'New notification from Haerriz Expenses',
+    icon: '/favicon.svg',
+    badge: '/favicon.svg',
+    vibrate: [100, 50, 100],
+    data: {
+      dateOfArrival: Date.now(),
+      primaryKey: 1
+    },
+    actions: [
+      {
+        action: 'explore',
+        title: 'View App',
+        icon: '/favicon.svg'
+      },
+      {
+        action: 'close',
+        title: 'Close',
+        icon: '/favicon.svg'
+      }
+    ]
+  };
+
+  event.waitUntil(
+    self.registration.showNotification('Haerriz Trip Finance', options)
+  );
+});
+
+// Handle notification clicks
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  if (event.action === 'explore') {
+    event.waitUntil(
+      clients.openWindow('/dashboard.php')
+    );
+  } else if (event.action === 'close') {
+    // Just close the notification
+    return;
+  } else {
+    // Default action - open app
+    event.waitUntil(
+      clients.openWindow('/dashboard.php')
+    );
+  }
+});
 const urlsToCache = [
   '/',
   '/index.php',
@@ -15,6 +64,7 @@ const urlsToCache = [
   '/js/pwa-install.js',
   '/js/admin.js',
   '/js/avatar.js',
+  '/js/push-notifications.js',
   '/favicon.svg',
   '/manifest.json',
   // External CDN files

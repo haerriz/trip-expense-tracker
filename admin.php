@@ -81,10 +81,11 @@ requireMasterAdmin();
         <div class="row">
             <div class="col s12">
                 <ul class="tabs">
-                    <li class="tab col s6 m3"><a href="#categories" class="active">Categories</a></li>
-                    <li class="tab col s6 m3"><a href="#users">Users</a></li>
-                    <li class="tab col s6 m3"><a href="#trips">All Trips</a></li>
-                    <li class="tab col s6 m3"><a href="#stats">Statistics</a></li>
+                    <li class="tab col s6 m2"><a href="#categories" class="active">Categories</a></li>
+                    <li class="tab col s6 m2"><a href="#users">Users</a></li>
+                    <li class="tab col s6 m2"><a href="#trips">All Trips</a></li>
+                    <li class="tab col s6 m2"><a href="#notifications">Push Notifications</a></li>
+                    <li class="tab col s6 m2"><a href="#stats">Statistics</a></li>
                 </ul>
             </div>
         </div>
@@ -137,6 +138,54 @@ requireMasterAdmin();
                 <div class="card-content">
                     <span class="card-title">All Trips</span>
                     <div id="trips-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Push Notifications Tab -->
+        <div id="notifications" class="col s12">
+            <div class="row">
+                <div class="col s12 m8">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">
+                                <i class="material-icons left">notifications</i>Send Push Notification
+                            </span>
+                            <form id="notification-form">
+                                <div class="input-field">
+                                    <input type="text" id="notification-title" required maxlength="50">
+                                    <label for="notification-title">Notification Title</label>
+                                </div>
+                                <div class="input-field">
+                                    <textarea id="notification-message" class="materialize-textarea" required maxlength="200"></textarea>
+                                    <label for="notification-message">Message</label>
+                                </div>
+                                <button type="submit" class="btn waves-effect waves-light">
+                                    <i class="material-icons left">send</i>Send to All Users
+                                </button>
+                                <button type="button" id="test-notification" class="btn-flat waves-effect">
+                                    <i class="material-icons left">bug_report</i>Test Notification
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s12 m4">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Notification Stats</span>
+                            <div class="notification-stats">
+                                <p><strong id="subscriber-count">0</strong> Active Subscribers</p>
+                                <p><strong id="notifications-sent">0</strong> Notifications Sent Today</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Recent Notifications</span>
+                            <div id="notification-history"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -222,5 +271,7 @@ requireMasterAdmin();
     <script src="js/admin.js?v=<?php echo time(); ?>"></script>
     <script src="js/dark-mode.js?v=<?php echo time(); ?>"></script>
     <script src="js/logout-handler.js?v=<?php echo time(); ?>"></script>
+    <script src="js/push-notifications.js?v=<?php echo time(); ?>"></script>
+    <script src="js/admin-notifications.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

@@ -561,6 +561,7 @@ requireLogin();
     <script src="js/pwa-install.js?v=<?php echo time(); ?>"></script>
     <script src="js/dark-mode.js?v=<?php echo time(); ?>"></script>
     <script src="js/logout-handler.js?v=<?php echo time(); ?>"></script>
+    <script src="js/push-notifications.js?v=<?php echo time(); ?>"></script>
     
     <!-- Service Worker Registration -->
     <script>
