@@ -560,5 +560,20 @@ requireLogin();
     <script src="js/enhanced-chat.js?v=<?php echo time(); ?>"></script>
     <script src="js/pwa-install.js?v=<?php echo time(); ?>"></script>
     <script src="js/dark-mode.js?v=<?php echo time(); ?>"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>
