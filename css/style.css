@@ -9,8 +9,19 @@ body {
     background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
     min-height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    padding: 20px;
+}
+
+.auth-card__title {
+    color: #1976D2;
+    font-weight: 500;
+}
+
+.auth-card__subtitle {
+    color: #666;
 }
 
 /* Fix navbar - prevent overlapping */
@@ -345,6 +356,17 @@ body {
         width: 95%;
     }
     
+    /* Auth page mobile improvements */
+    .auth-card__title {
+        font-size: 1.5rem;
+        color: #1976D2;
+    }
+    
+    .auth-card__subtitle {
+        font-size: 0.9rem;
+        color: #666;
+    }
+    
     /* Trip actions for mobile */
     .trip-actions-container {
         text-align: center;
@@ -357,6 +379,17 @@ body {
         gap: 4px;
         justify-content: center;
         margin-bottom: 8px;
+    }
+    
+    /* Smaller buttons with text on mobile */
+    .btn {
+        font-size: 0.8rem;
+        padding: 0 12px;
+    }
+    
+    .btn-small {
+        font-size: 0.7rem;
+        padding: 0 8px;
     }
     
     .equal-height {
@@ -374,11 +407,6 @@ body {
     .chat-message__bubble {
         max-width: 80%;
         font-size: 0.85rem;
-    }
-    
-    /* Hide text on small buttons for mobile */
-    .btn-small span {
-        display: none;
     }
 }
 

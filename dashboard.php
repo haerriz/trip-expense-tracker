@@ -116,24 +116,24 @@ requireLogin();
                 <div class="trip-actions-container">
                     <div class="primary-actions">
                         <a id="new-trip-btn" class="btn waves-effect waves-light blue">
-                            <i class="material-icons left">add</i><span class="hide-on-small-only">New Trip</span>
+                            <i class="material-icons left">add</i>New Trip
                         </a>
                         <a id="invitations-btn" class="btn waves-effect waves-light orange">
-                            <i class="material-icons left">mail</i><span class="hide-on-small-only">Invitations</span> <span id="invitation-count" class="new badge" data-badge-caption="">0</span>
+                            <i class="material-icons left">mail</i>Invitations <span id="invitation-count" class="new badge" data-badge-caption="">0</span>
                         </a>
                     </div>
                     <div class="export-actions">
                         <a id="export-pdf" class="btn-small waves-effect waves-light grey">
-                            <i class="material-icons left">picture_as_pdf</i><span class="hide-on-small-only">PDF</span>
+                            <i class="material-icons left">picture_as_pdf</i>PDF
                         </a>
                         <a id="export-excel" class="btn-small waves-effect waves-light grey">
-                            <i class="material-icons left">table_chart</i><span class="hide-on-small-only">CSV</span>
+                            <i class="material-icons left">table_chart</i>CSV
                         </a>
                         <a id="export-xlsx" class="btn-small waves-effect waves-light grey">
-                            <i class="material-icons left">description</i><span class="hide-on-small-only">XLSX</span>
+                            <i class="material-icons left">description</i>XLSX
                         </a>
                         <a id="email-report" class="btn-small waves-effect waves-light grey">
-                            <i class="material-icons left">email</i><span class="hide-on-small-only">Email</span>
+                            <i class="material-icons left">email</i>Email
                         </a>
                     </div>
                 </div>
