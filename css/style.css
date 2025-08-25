@@ -254,6 +254,79 @@ body {
     background-color: #2196F3;
 }
 
+/* Admin Panel Dark Mode Fixes */
+[data-theme="dark"] .tabs {
+    background-color: var(--card-bg);
+}
+
+[data-theme="dark"] .tabs .tab a {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .tabs .tab a:hover {
+    color: #64B5F6 !important;
+}
+
+[data-theme="dark"] .tabs .tab a.active {
+    color: #2196F3 !important;
+}
+
+[data-theme="dark"] .container {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .card-title {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] label {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] p {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, [data-theme="dark"] h4, [data-theme="dark"] h5, [data-theme="dark"] h6 {
+    color: var(--text-color) !important;
+}
+
+/* Theme Toggle Text Fix */
+.theme-toggle {
+    color: white !important;
+}
+
+[data-theme="dark"] .sidenav .theme-toggle {
+    color: var(--text-color) !important;
+}
+
+[data-theme="light"] .sidenav .theme-toggle {
+    color: #333 !important;
+}
+
+/* Admin Stats Panel Dark Mode */
+[data-theme="dark"] .admin-stats-panel {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+/* Form Elements Dark Mode */
+[data-theme="dark"] textarea {
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .input-field input:focus {
+    border-bottom: 2px solid #2196F3;
+    box-shadow: 0 1px 0 0 #2196F3;
+}
+
+[data-theme="dark"] .input-field label.active {
+    color: #2196F3 !important;
+}
+
 /* Visually hidden elements */
 .visually-hidden {
     font-size: 24px;
