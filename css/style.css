@@ -217,6 +217,50 @@ body {
     overflow-y: auto;
 }
 
+/* Button spacing improvements */
+.right-align a {
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+.btn-small.red.right {
+    margin-left: 8px;
+}
+
+/* Improved chat bubble styling */
+.chat-message__bubble {
+    display: inline-block;
+    max-width: 65%;
+    padding: 6px 10px;
+    border-radius: 16px;
+    margin: 1px;
+    word-wrap: break-word;
+    font-size: 0.9rem;
+    line-height: 1.3;
+}
+
+.chat-message__header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 2px;
+}
+
+.chat-message__sender {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.chat-message__time {
+    font-size: 0.7rem;
+    opacity: 0.6;
+}
+
+.chat-message {
+    margin-bottom: 8px;
+    clear: both;
+}
+
 /* Responsive improvements */
 @media only screen and (max-width: 600px) {
     .container {
@@ -237,5 +281,15 @@ body {
     
     .right-align {
         text-align: center;
+    }
+    
+    .right-align a {
+        margin: 2px;
+        display: inline-block;
+    }
+    
+    .chat-message__bubble {
+        max-width: 80%;
+        font-size: 0.85rem;
     }
 }
