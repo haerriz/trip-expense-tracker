@@ -286,6 +286,90 @@ ob_start();
         .text-right { text-align: right; }
         .mb-0 { margin-bottom: 0; }
         .mt-20 { margin-top: 20px; }
+        
+        /* Floating Action Buttons */
+        .fab-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .fab {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+        }
+        
+        .fab-download {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+        }
+        
+        .fab-print {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+        }
+        
+        .fab-back {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+        }
+        
+        /* Tooltip */
+        .fab::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            right: 70px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .fab:hover::before {
+            opacity: 1;
+        }
+        
+        /* Print styles */
+        @media print {
+            .fab-container {
+                display: none !important;
+            }
+            
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            
+            .header {
+                page-break-after: avoid;
+            }
+            
+            .section {
+                page-break-inside: avoid;
+            }
+        }
     </style>
 </head>
 <body>
@@ -427,6 +511,82 @@ ob_start();
         <p>Total Expenses: <strong><?= $currencySymbol . number_format($total, 2) ?></strong> • 
            <?= count($expenses) ?> transactions • <?= count($members) ?> members</p>
     </div>
+    
+    <!-- Floating Action Buttons -->
+    <div class="fab-container">
+        <button class="fab fab-download" onclick="downloadPDF()" data-tooltip="Download PDF">
+            ⬇
+        </button>
+        <button class="fab fab-print" onclick="printReport()" data-tooltip="Print Report">
+            🖨
+        </button>
+        <a href="../dashboard.php" class="fab fab-back" data-tooltip="Back to Dashboard">
+            ←
+        </a>
+    </div>
+    
+    <script>
+        function downloadPDF() {
+            // Create filename
+            const tripName = '<?= preg_replace('/[^a-zA-Z0-9]/', '-', $trip['name']) ?>';
+            const filename = `trip-expenses-${tripName}-<?= date('Y-m-d') ?>.pdf`;
+            
+            // Use browser's print to PDF functionality
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(document.documentElement.outerHTML);
+            printWindow.document.close();
+            printWindow.focus();
+            
+            // Trigger print dialog
+            setTimeout(() => {
+                printWindow.print();
+            }, 500);
+        }
+        
+        function printReport() {
+            window.print();
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 's':
+                        e.preventDefault();
+                        downloadPDF();
+                        break;
+                    case 'p':
+                        e.preventDefault();
+                        printReport();
+                        break;
+                }
+            }
+        });
+        
+        // Show success message
+        setTimeout(() => {
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #4CAF50;
+                color: white;
+                padding: 12px 24px;
+                border-radius: 4px;
+                z-index: 1001;
+                font-size: 14px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            `;
+            message.textContent = 'Report generated successfully! Use the buttons below to download or print.';
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.remove();
+            }, 4000);
+        }, 1000);
+    </script>
 </body>
 </html>
 <?php
