@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haerriz Trip Finance</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .splash-container {
+            text-align: center;
+            color: white;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        .logo-container {
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .logo-icon {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            animation: pulse 2s infinite;
+        }
+        
+        .logo-svg {
+            width: 60px;
+            height: 60px;
+            fill: white;
+        }
+        
+        .brand-name {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .brand-tagline {
+            font-size: 1.2rem;
+            font-weight: 300;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+        
+        .loading-container {
+            margin-top: 40px;
+        }
+        
+        .loading-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .loading-dot {
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            animation: loadingDots 1.5s infinite;
+        }
+        
+        .loading-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .loading-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        .loading-text {
+            margin-top: 20px;
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        .features {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 30px;
+            opacity: 0.7;
+        }
+        
+        .feature {
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            margin: 0 auto 8px;
+            opacity: 0.8;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 20px rgba(255, 255, 255, 0);
+            }
+        }
+        
+        @keyframes loadingDots {
+            0%, 20% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            80%, 100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .brand-name {
+                font-size: 2rem;
+            }
+            
+            .brand-tagline {
+                font-size: 1rem;
+            }
+            
+            .logo-icon {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .logo-svg {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .features {
+                flex-direction: column;
+                gap: 15px;
+                bottom: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="splash-container">
+        <div class="logo-container">
+            <div class="logo-icon">
+                <svg class="logo-svg" viewBox="0 0 64 64">
+                    <path d="M20 28l-4-4 2-2 6 2 8-8c1-1 3-1 4 0s1 3 0 4l-8 8 2 6-2 2-4-4-4-4z" fill="white"/>
+                    <text x="32" y="20" font-family="Arial, sans-serif" font-size="8" font-weight="bold" text-anchor="middle" fill="white">HAERRIZ</text>
+                    <text x="32" y="48" font-family="Arial, sans-serif" font-size="5" text-anchor="middle" fill="white" opacity="0.9">TRIP FINANCE</text>
+                </svg>
+            </div>
+            <h1 class="brand-name">Haerriz</h1>
+            <p class="brand-tagline">Trip Finance</p>
+        </div>
+        
+        <div class="loading-container">
+            <div class="loading-dots">
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+            </div>
+            <p class="loading-text">Loading your expense tracker...</p>
+        </div>
+    </div>
+    
+    <div class="features">
+        <div class="feature">
+            <div class="feature-icon">💰</div>
+            <div>Multi-Currency</div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">👥</div>
+            <div>Group Splitting</div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">📊</div>
+            <div>Real-time Analytics</div>
+        </div>
+    </div>
+    
+    <script>
+        // Extended splash screen duration (3 additional seconds)
+        setTimeout(() => {
+            // Check if user is logged in
+            fetch('/api/check_session.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.logged_in) {
+                        window.location.href = '/dashboard.php';
+                    } else {
+                        window.location.href = '/index.php';
+                    }
+                })
+                .catch(() => {
+                    // Fallback to index page
+                    window.location.href = '/index.php';
+                });
+        }, 3000); // 3 seconds delay
+    </script>
+</body>
+</html>

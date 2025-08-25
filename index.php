@@ -346,5 +346,6 @@ if (isset($_SESSION['user_id'])) {
     <script src="js/auth.js"></script>
     <script src="js/manual-auth.js"></script>
     <script src="js/mobile-auth.js"></script>
+    <script src="js/pwa-install.js"></script>
 </body>
 </html>

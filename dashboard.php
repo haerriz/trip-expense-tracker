@@ -547,5 +547,6 @@ requireLogin();
     </script>
     <script src="js/trip-dashboard.js"></script>
     <script src="js/enhanced-chat.js"></script>
+    <script src="js/pwa-install.js"></script>
 </body>
 </html>

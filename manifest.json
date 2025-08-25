@@ -1,15 +1,17 @@
 {
-  "name": "Haerriz Trip Finance",
+  "name": "Haerriz Trip Finance - Expense Tracker",
   "short_name": "Haerriz",
-  "description": "Free trip expense tracker for backpackers and group travelers",
-  "start_url": "/",
+  "description": "Free trip expense tracker for backpackers and group travelers with multi-currency support",
+  "start_url": "/splash.html",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#2196F3",
   "theme_color": "#2196F3",
   "orientation": "portrait-primary",
-  "categories": ["finance", "travel", "productivity"],
+  "categories": ["finance", "travel", "productivity", "business"],
   "lang": "en",
   "dir": "ltr",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/favicon.svg",
@@ -21,6 +23,18 @@
       "src": "/favicon.ico",
       "sizes": "16x16 32x32 48x48",
       "type": "image/x-icon"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ],
   "screenshots": [
@@ -28,13 +42,15 @@
       "src": "/assets/screenshot-wide.jpg",
       "sizes": "1280x720",
       "type": "image/jpeg",
-      "form_factor": "wide"
+      "form_factor": "wide",
+      "label": "Dashboard view with expense tracking"
     },
     {
       "src": "/assets/screenshot-narrow.jpg", 
       "sizes": "720x1280",
       "type": "image/jpeg",
-      "form_factor": "narrow"
+      "form_factor": "narrow",
+      "label": "Mobile expense management"
     }
   ],
   "shortcuts": [
@@ -51,6 +67,18 @@
       "description": "Add new expense",
       "url": "/dashboard.php?action=add-expense",
       "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "View Reports",
+      "short_name": "Reports",
+      "description": "View expense reports",
+      "url": "/dashboard.php?action=reports",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
     }
-  ]
+  ],
+  "related_applications": [],
+  "iarc_rating_id": "",
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
 }
