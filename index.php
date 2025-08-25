@@ -177,88 +177,166 @@ if (isset($_SESSION['user_id'])) {
     </header>
     
     <main role="main" id="main-content" class="auth-page__container">
-        <section class="auth-card card" aria-labelledby="main-heading">
+        <section class="auth-card card z-depth-3" aria-labelledby="main-heading">
             <div class="auth-card__content card-content">
-                <header class="auth-card__header">
-                    <h1 id="main-heading" class="auth-card__title">Haerriz Trip Finance</h1>
-                    <p class="auth-card__subtitle">Track your backpacking and tour expenses with friends</p>
+                <!-- Modern Header with Brand Identity -->
+                <header class="auth-card__header center-align">
+                    <div class="auth-brand-logo">
+                        <div class="brand-icon-wrapper">
+                            <i class="material-icons brand-icon">flight_takeoff</i>
+                        </div>
+                        <h1 id="main-heading" class="auth-card__title">
+                            <span class="brand-name">Haerriz</span>
+                            <span class="brand-product">Trip Finance</span>
+                        </h1>
+                    </div>
+                    <p class="auth-card__subtitle">
+                        <span class="highlight-text">Smart expense tracking</span> for backpackers and group travelers
+                    </p>
+                    
+                    <!-- Feature Highlights -->
+                    <div class="feature-badges">
+                        <span class="feature-badge">
+                            <i class="material-icons tiny">groups</i> Group Splitting
+                        </span>
+                        <span class="feature-badge">
+                            <i class="material-icons tiny">currency_exchange</i> Multi-Currency
+                        </span>
+                        <span class="feature-badge">
+                            <i class="material-icons tiny">analytics</i> Real-time Analytics
+                        </span>
+                    </div>
                 </header>
                 
-                <!-- Manual Login Form -->
+                <!-- Enhanced Login Form -->
                 <section id="login-form" class="auth-form auth-form--active" aria-labelledby="login-heading">
                     <h2 id="login-heading" class="visually-hidden">Login to Your Account</h2>
-                    <form id="loginForm" class="auth-form__form" role="form" aria-label="Login form">
-                        <div class="input-field">
+                    
+                    <div class="form-header center-align">
+                        <h3 class="form-title">Welcome Back</h3>
+                        <p class="form-subtitle">Sign in to manage your travel expenses</p>
+                    </div>
+                    
+                    <form id="loginForm" class="auth-form__form modern-form" role="form" aria-label="Login form">
+                        <div class="input-field modern-input">
+                            <i class="material-icons prefix">email</i>
                             <input type="email" id="loginEmail" class="validate" required aria-describedby="email-help" autocomplete="email">
                             <label for="loginEmail">Email Address</label>
                             <span id="email-help" class="visually-hidden">Enter your registered email address</span>
                         </div>
-                        <div class="input-field">
+                        <div class="input-field modern-input">
+                            <i class="material-icons prefix">lock</i>
                             <input type="password" id="loginPassword" class="validate" required aria-describedby="password-help" autocomplete="current-password">
                             <label for="loginPassword">Password</label>
                             <span id="password-help" class="visually-hidden">Enter your account password</span>
                         </div>
-                        <button type="submit" class="btn waves-effect waves-light auth-form__submit" aria-describedby="login-button-help">
-                            Login
-                            <i class="material-icons right" aria-hidden="true">send</i>
+                        
+                        <button type="submit" class="btn-large waves-effect waves-light auth-form__submit gradient-btn" aria-describedby="login-button-help">
+                            <span>Sign In</span>
+                            <i class="material-icons right" aria-hidden="true">arrow_forward</i>
                         </button>
                         <span id="login-button-help" class="visually-hidden">Click to sign in to your account</span>
                     </form>
-                    <p class="auth-form__switch">Don't have an account? <a href="#" onclick="showSignup()" aria-label="Switch to sign up form">Sign up</a></p>
+                    
+                    <div class="auth-form__switch center-align">
+                        <p>New to Haerriz? <a href="#" onclick="showSignup()" class="auth-link" aria-label="Switch to sign up form">Create Account</a></p>
+                    </div>
                 </section>
                 
-                <!-- Manual Signup Form -->
+                <!-- Enhanced Signup Form -->
                 <div id="signup-form" class="auth-form" style="display:none;">
-                    <form id="signupForm" class="auth-form__form">
-                        <div class="input-field">
+                    <div class="form-header center-align">
+                        <h3 class="form-title">Join Haerriz</h3>
+                        <p class="form-subtitle">Start tracking your travel expenses today</p>
+                    </div>
+                    
+                    <form id="signupForm" class="auth-form__form modern-form">
+                        <div class="input-field modern-input">
+                            <i class="material-icons prefix">person</i>
                             <input type="text" id="signupName" class="validate" required>
                             <label for="signupName">Full Name</label>
                         </div>
-                        <div class="input-field">
+                        <div class="input-field modern-input">
+                            <i class="material-icons prefix">email</i>
                             <input type="email" id="signupEmail" class="validate" required>
-                            <label for="signupEmail">Email</label>
+                            <label for="signupEmail">Email Address</label>
                         </div>
-                        <div class="input-field">
+                        <div class="input-field modern-input">
+                            <i class="material-icons prefix">phone</i>
                             <input type="tel" id="signupPhone" class="validate" required>
                             <label for="signupPhone">Phone Number</label>
                         </div>
-                        <div class="input-field">
+                        <div class="input-field modern-input">
+                            <i class="material-icons prefix">lock</i>
                             <input type="password" id="signupPassword" class="validate" required>
-                            <label for="signupPassword">Password</label>
+                            <label for="signupPassword">Create Password</label>
                         </div>
-                        <div class="auth-form__captcha">
+                        
+                        <div class="auth-form__captcha center-align">
                             <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
                         </div>
-                        <button type="submit" class="btn waves-effect waves-light auth-form__submit">
-                            Sign Up
+                        
+                        <button type="submit" class="btn-large waves-effect waves-light auth-form__submit gradient-btn">
+                            <span>Create Account</span>
                             <i class="material-icons right">person_add</i>
                         </button>
                     </form>
-                    <p class="auth-form__switch">Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+                    
+                    <div class="auth-form__switch center-align">
+                        <p>Already have an account? <a href="#" onclick="showLogin()" class="auth-link">Sign In</a></p>
+                    </div>
                 </div>
                 
+                <!-- Modern Divider -->
                 <div class="auth-card__divider">
-                    <span>OR</span>
+                    <div class="divider-line"></div>
+                    <span class="divider-text">or continue with</span>
+                    <div class="divider-line"></div>
                 </div>
                 
-                <!-- Google OAuth -->
-                <div class="auth-card__oauth">
-                    <div id="g_id_onload"
-                         data-client_id="435239215784-eckha7a4i5fg8ik7u7f7h750nc2upibh.apps.googleusercontent.com"
-                         data-context="signin"
-                         data-ux_mode="popup"
-                         data-callback="handleCredentialResponse"
-                         data-auto_prompt="false">
+                <!-- Enhanced Google OAuth -->
+                <div class="auth-card__oauth center-align">
+                    <div class="oauth-wrapper">
+                        <div id="g_id_onload"
+                             data-client_id="435239215784-eckha7a4i5fg8ik7u7f7h750nc2upibh.apps.googleusercontent.com"
+                             data-context="signin"
+                             data-ux_mode="popup"
+                             data-callback="handleCredentialResponse"
+                             data-auto_prompt="false">
+                        </div>
+                        <div class="g_id_signin"
+                             data-type="standard"
+                             data-size="large"
+                             data-theme="outline"
+                             data-text="continue_with"
+                             data-shape="rectangular"
+                             data-logo_alignment="left">
+                        </div>
                     </div>
-                    <div class="g_id_signin"
-                         data-type="standard"
-                         data-size="large"
-                         data-theme="outline"
-                         data-text="sign_in_with"
-                         data-shape="rectangular"
-                         data-logo_alignment="left">
+                    
+                    <!-- Trust Indicators -->
+                    <div class="trust-indicators">
+                        <div class="trust-item">
+                            <i class="material-icons tiny">security</i>
+                            <span>Secure & Private</span>
+                        </div>
+                        <div class="trust-item">
+                            <i class="material-icons tiny">cloud_done</i>
+                            <span>Cloud Synced</span>
+                        </div>
+                        <div class="trust-item">
+                            <i class="material-icons tiny">mobile_friendly</i>
+                            <span>Mobile Ready</span>
+                        </div>
                     </div>
                 </div>
+                
+                <!-- SEO-Enhanced Footer -->
+                <footer class="auth-footer center-align">
+                    <p class="footer-text">
+                        <strong>Free forever</strong> • No hidden fees • <a href="#privacy" class="footer-link">Privacy Policy</a>
+                    </p>
+                </footer>
             </div>
         </section>
     </main>

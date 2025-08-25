@@ -33,6 +33,264 @@ body {
 
 .auth-card__subtitle {
     color: #666;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    margin-bottom: 30px;
+}
+
+/* Modern Auth Card Styles */
+.auth-card {
+    max-width: 480px;
+    margin: 0 auto;
+    border-radius: 16px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.auth-brand-logo {
+    margin-bottom: 25px;
+}
+
+.brand-icon-wrapper {
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.brand-icon {
+    color: white;
+    font-size: 28px;
+}
+
+.brand-name {
+    display: block;
+    font-weight: 700;
+    font-size: 1.8rem;
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.brand-product {
+    display: block;
+    font-weight: 400;
+    font-size: 1.2rem;
+    color: #666;
+    margin-top: -5px;
+}
+
+.highlight-text {
+    color: #2196F3;
+    font-weight: 500;
+}
+
+/* Feature Badges */
+.feature-badges {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.feature-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(33, 150, 243, 0.1);
+    color: #1976D2;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* Form Headers */
+.form-header {
+    margin: 30px 0 25px 0;
+}
+
+.form-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 8px 0;
+}
+
+.form-subtitle {
+    color: #666;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Modern Form Inputs */
+.modern-form {
+    margin-top: 0;
+}
+
+.modern-input {
+    margin-bottom: 25px;
+}
+
+.modern-input .prefix {
+    color: #2196F3;
+    font-size: 20px;
+    margin-top: 8px;
+}
+
+.modern-input input:focus + label,
+.modern-input input.valid + label {
+    color: #2196F3;
+}
+
+.modern-input input:focus {
+    border-bottom: 2px solid #2196F3;
+    box-shadow: 0 1px 0 0 #2196F3;
+}
+
+/* Gradient Button */
+.gradient-btn {
+    background: linear-gradient(135deg, #2196F3, #1976D2) !important;
+    border-radius: 25px !important;
+    text-transform: none !important;
+    font-weight: 500 !important;
+    padding: 0 30px !important;
+    height: 48px !important;
+    line-height: 48px !important;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3) !important;
+    width: 100%;
+    margin: 20px 0 !important;
+}
+
+.gradient-btn:hover {
+    box-shadow: 0 6px 16px rgba(33, 150, 243, 0.4) !important;
+    transform: translateY(-1px);
+}
+
+.gradient-btn span {
+    font-size: 1rem;
+}
+
+/* Auth Links */
+.auth-link {
+    color: #2196F3;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.auth-link:hover {
+    color: #1976D2;
+    text-decoration: underline;
+}
+
+/* Modern Divider */
+.auth-card__divider {
+    display: flex;
+    align-items: center;
+    margin: 30px 0;
+    gap: 15px;
+}
+
+.divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e0e0e0, transparent);
+}
+
+.divider-text {
+    color: #666;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* OAuth Section */
+.oauth-wrapper {
+    margin-bottom: 25px;
+}
+
+/* Trust Indicators */
+.trust-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.trust-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #666;
+    font-size: 0.8rem;
+}
+
+.trust-item i {
+    color: #4CAF50;
+}
+
+/* Auth Footer */
+.auth-footer {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.footer-text {
+    color: #666;
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.footer-link {
+    color: #2196F3;
+    text-decoration: none;
+}
+
+.footer-link:hover {
+    text-decoration: underline;
+}
+
+/* Mobile Optimizations */
+@media only screen and (max-width: 600px) {
+    .auth-card {
+        margin: 10px;
+        border-radius: 12px;
+    }
+    
+    .brand-name {
+        font-size: 1.6rem;
+    }
+    
+    .brand-product {
+        font-size: 1.1rem;
+    }
+    
+    .feature-badges {
+        gap: 6px;
+    }
+    
+    .feature-badge {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+    }
+    
+    .trust-indicators {
+        gap: 15px;
+    }
+    
+    .trust-item {
+        font-size: 0.75rem;
+    }
 }
 
 /* Fix navbar - prevent overlapping */
