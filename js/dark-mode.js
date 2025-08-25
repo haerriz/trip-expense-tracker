@@ -21,6 +21,15 @@ class DarkModeToggle {
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('theme', theme);
         
+        // Force body background update
+        if (theme === 'dark') {
+            document.body.style.backgroundColor = '#121212';
+            document.body.style.color = '#ffffff';
+        } else {
+            document.body.style.backgroundColor = '';
+            document.body.style.color = '';
+        }
+        
         // Update toggle button icon
         this.updateToggleIcon(theme);
     }

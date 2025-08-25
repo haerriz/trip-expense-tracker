@@ -28,8 +28,12 @@ body {
 
 /* Dark Mode Styles */
 [data-theme="dark"] body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    background-color: var(--bg-color) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] body.grey.lighten-4 {
+    background-color: var(--bg-color) !important;
 }
 
 [data-theme="dark"] .card {
@@ -94,6 +98,15 @@ body {
     justify-content: center;
     width: 40px;
     height: 40px;
+    margin: 0;
+    vertical-align: middle;
+}
+
+/* Desktop navigation alignment */
+.nav-wrapper ul.right li {
+    display: flex;
+    align-items: center;
+    height: 64px;
 }
 
 .theme-toggle:hover {
@@ -759,6 +772,9 @@ body {
         align-items: center;
         gap: 32px;
         font-size: 14px;
+        height: auto;
+        border-radius: 0;
+        justify-content: flex-start;
     }
     
     .sidenav .theme-toggle svg {
@@ -769,6 +785,10 @@ body {
     
     .sidenav .theme-toggle:hover {
         background-color: rgba(0,0,0,0.1);
+    }
+    
+    [data-theme="dark"] .sidenav .theme-toggle {
+        color: var(--text-color);
     }
     
     [data-theme="dark"] .sidenav .theme-toggle:hover {
