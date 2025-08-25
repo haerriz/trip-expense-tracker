@@ -56,6 +56,16 @@ requireLogin();
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/avatar.js"></script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0CMW9MRBRE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-0CMW9MRBRE');
+    </script>
+    
     <script>
         window.currentUserId = <?php echo $_SESSION['user_id']; ?>;
         window.userEmail = '<?php echo $_SESSION['user_email']; ?>';
