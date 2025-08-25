@@ -36,16 +36,15 @@ requireMasterAdmin();
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-    <nav class="navbar red">
+<body class="grey lighten-4">
+    <nav class="red darken-1">
         <div class="nav-wrapper">
             <a href="#" class="brand-logo">
-                <i class="material-icons">admin_panel_settings</i>
-                Master Admin
+                <i class="material-icons left">admin_panel_settings</i>Master Admin
             </a>
             <ul class="right">
-                <li><a href="dashboard.php">Dashboard</a></li>
-                <li><a href="logout.php">Logout</a></li>
+                <li><a href="dashboard.php" class="btn blue waves-effect waves-light">Dashboard</a></li>
+                <li><a href="logout.php" class="btn red darken-2 waves-effect waves-light">Logout</a></li>
             </ul>
         </div>
     </nav>

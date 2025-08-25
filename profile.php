@@ -39,16 +39,15 @@ requireLogin();
     <link rel="stylesheet" href="css/style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-<body class="dashboard-page">
-    <nav class="navbar">
+<body class="grey lighten-4">
+    <nav class="blue darken-1">
         <div class="nav-wrapper">
-            <a href="dashboard.php" class="navbar__brand brand-logo">
-                <i class="material-icons">flight_takeoff</i>
-                Trip Finance
+            <a href="dashboard.php" class="brand-logo">
+                <i class="material-icons left">flight_takeoff</i>Trip Finance
             </a>
-            <ul class="navbar__menu right">
-                <li><a href="dashboard.php">Dashboard</a></li>
-                <li><a href="logout.php" class="btn-small red">Logout</a></li>
+            <ul class="right">
+                <li><a href="dashboard.php" class="btn blue waves-effect waves-light">Dashboard</a></li>
+                <li><a href="logout.php" class="btn red waves-effect waves-light">Logout</a></li>
             </ul>
         </div>
     </nav>

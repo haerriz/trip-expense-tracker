@@ -94,7 +94,7 @@ if (isset($_SESSION['user_id'])) {
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
-<body class="auth-page">
+<body class="auth-page grey lighten-4">
     <a href="#main-content" class="skip-link">Skip to main content</a>
     
     <header role="banner">
