@@ -70,12 +70,10 @@ class EnhancedChat {
     testApiConnectivity() {
         $.get('api/get_chat.php', { trip_id: this.currentTripId })
             .done(() => {
+                // API connectivity test passed
             })
             .fail((xhr) => {
-                    status: xhr.status,
-                    statusText: xhr.statusText,
-                    responseText: xhr.responseText
-                });
+                // API connectivity failed
             });
     }
     
@@ -100,14 +98,10 @@ class EnhancedChat {
                         }
                     }
                 } else {
+                    // Failed to load messages
                 }
             })
             .fail((xhr, status, error) => {
-                    status: xhr.status,
-                    statusText: xhr.statusText,
-                    error: error,
-                    url: 'api/get_chat.php'
-                });
                 if (xhr.status === 404) {
                     this.showError('Chat API not found - please check server configuration');
                 } else {
