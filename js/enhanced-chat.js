@@ -489,16 +489,19 @@ class EnhancedChat {
         
         $.get('api/typing_status.php', { trip_id: this.currentTripId })
             .done((response) => {
-                if (response.success && response.typing_users.length > 0) {
+                if (response.success && response.typing_users && response.typing_users.length > 0) {
                     const typingText = response.typing_users.length === 1 
                         ? `${response.typing_users[0]} is typing`
                         : `${response.typing_users.slice(0, -1).join(', ')} and ${response.typing_users.slice(-1)} are typing`;
                     
                     $('#typing-user').text(typingText.replace(' is typing', '').replace(' are typing', ''));
-                    $('#typing-indicator').addClass('active');
+                    $('#typing-indicator').addClass('active').show();
                 } else {
-                    $('#typing-indicator').removeClass('active');
+                    $('#typing-indicator').removeClass('active').hide();
                 }
+            })
+            .fail(() => {
+                $('#typing-indicator').removeClass('active').hide();
             });
     }
     
@@ -523,22 +526,23 @@ class EnhancedChat {
     displayOnlineUsers(users, count) {
         let onlineHtml = '';
         
-        if (count > 0) {
+        if (count > 0 && users && users.length > 0) {
             // Show online count
             $('#online-status').text(`${count} online`);
             
             // Show online users
             users.forEach(user => {
-                const indicator = user.is_current ? 'online-indicator' : 'online-indicator';
-                onlineHtml += `
-                    <span class="chip" title="${user.name}${user.is_current ? ' (You)' : ''}">
-                        <span class="${indicator}"></span>
-                        ${user.name}${user.is_current ? ' (You)' : ''}
-                    </span>
-                `;
+                if (user && user.name) {
+                    onlineHtml += `
+                        <span class="chip green lighten-4" title="${user.name}${user.is_current ? ' (You)' : ''}">
+                            <span class="green-text">●</span>
+                            ${user.name}${user.is_current ? ' (You)' : ''}
+                        </span>
+                    `;
+                }
             });
         } else {
-            $('#online-status').text('No one online');
+            $('#online-status').text('Offline');
         }
         
         $('#online-members').html(onlineHtml);
@@ -549,12 +553,12 @@ class EnhancedChat {
         if (this.messageInterval) clearInterval(this.messageInterval);
         if (this.typingInterval) clearInterval(this.typingInterval);
         
-        // Load messages less frequently to reduce duplicates
+        // Load messages every 5 seconds
         this.messageInterval = setInterval(() => {
             if (this.currentTripId && !this.isRendering) {
                 this.loadMessages();
             }
-        }, 10000); // Increased to 10 seconds
+        }, 5000); // 5 seconds for better responsiveness
         
         // Check typing status and online users
         this.typingInterval = setInterval(() => {

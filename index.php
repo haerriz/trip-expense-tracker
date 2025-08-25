@@ -109,7 +109,7 @@ if (isset($_SESSION['user_id'])) {
     <a href="#main-content" class="skip-link">Skip to main content</a>
     
     <header role="banner">
-        <h1 class="visually-hidden">Haerriz Trip Finance - Free Trip Expense Tracker</h1>
+        <h1 class="visually-hidden" style="display:none;">Haerriz Trip Finance - Free Trip Expense Tracker</h1>
     </header>
     
     <main role="main" id="main-content" class="auth-page__container">

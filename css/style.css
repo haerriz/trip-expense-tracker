@@ -4,6 +4,17 @@ body {
     font-family: 'Roboto', sans-serif;
 }
 
+/* Visually hidden elements */
+.visually-hidden {
+    font-size: ;
+}
+
+@media only screen and (min-width: 993px) {
+    .visually-hidden {
+        font-size: 0.6rem;
+    }
+}
+
 /* Auth page */
 .auth-page {
     background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
@@ -276,6 +287,34 @@ body {
 .message-status .material-icons {
     font-size: 14px !important;
     opacity: 0.7;
+}
+
+/* Chat status improvements */
+#typing-indicator {
+    display: none;
+    font-style: italic;
+    color: #2196F3;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    background: rgba(33, 150, 243, 0.1);
+    border-radius: 12px;
+    margin: 4px 0;
+}
+
+#typing-indicator.active {
+    display: block;
+}
+
+#online-status {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+#online-members .chip {
+    font-size: 0.7rem;
+    height: 24px;
+    line-height: 24px;
+    margin: 2px;
 }
 
 /* Tablet view improvements */
