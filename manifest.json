@@ -1,6 +1,6 @@
 {
-  "name": "Haerriz Trip Finance - Expense Tracker",
-  "short_name": "Haerriz",
+  "name": "Haerriz Expenses - Trip Finance Tracker",
+  "short_name": "Haerriz Expenses",
   "description": "Free trip expense tracker for backpackers and group travelers with multi-currency support",
   "start_url": "/splash.html",
   "scope": "/",
