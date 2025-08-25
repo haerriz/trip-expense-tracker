@@ -17,7 +17,7 @@ if (isset($_SESSION['user_id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Haerriz Trip Finance - Expense Tracker for Backpackers & Groups</title>
     <meta name="description" content="Free trip expense tracker for backpackers and group travelers. Split costs, track budgets, manage multi-currency expenses with real-time analytics. Perfect for tours, backpacking, and group travel.">
-    <meta name="keywords" content="trip expense tracker, backpacking expenses, group travel budget, multi-currency, expense splitting, travel finance, tour expenses, travel budget app, group expense manager, backpacker finance, travel cost tracker, trip budget planner">
+    <meta name="keywords" content="Haerriz trip expense tracker, backpacking expenses, group travel budget, multi-currency expense tracker, expense splitting app, travel finance management, tour expenses tracker, travel budget app, group expense manager, backpacker finance tool, travel cost tracker, trip budget planner, free expense tracker, travel expense sharing, group trip budget, vacation expense tracker, travel money management, expense split calculator, trip cost sharing, travel budget organizer">
     <meta name="author" content="Haerriz">
     <meta name="theme-color" content="#2196F3">
     <meta name="application-name" content="Haerriz Trip Finance">
@@ -57,31 +57,95 @@ if (isset($_SESSION['user_id'])) {
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "Haerriz Trip Finance",
+      "alternateName": "Haerriz Expense Tracker",
       "description": "Free trip expense tracker for backpackers and group travelers with multi-currency support and expense splitting.",
       "url": "https://expenses.haerriz.com",
       "applicationCategory": "FinanceApplication",
       "operatingSystem": "Web",
+      "browserRequirements": "Requires JavaScript. Requires HTML5.",
+      "softwareVersion": "2.0",
+      "releaseNotes": "Enhanced UI with Material Design, improved mobile experience, professional PDF/Excel exports",
       "offers": {
         "@type": "Offer",
         "price": "0",
-        "priceCurrency": "USD"
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
       },
       "author": {
+        "@type": "Person",
+        "name": "Haerriz",
+        "url": "https://expenses.haerriz.com",
+        "sameAs": [
+          "https://github.com/haerriz",
+          "https://twitter.com/haerriz"
+        ]
+      },
+      "creator": {
         "@type": "Person",
         "name": "Haerriz"
       },
       "aggregateRating": {
         "@type": "AggregateRating",
         "ratingValue": "4.8",
-        "ratingCount": "150"
+        "ratingCount": "150",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "featureList": [
+        "Multi-currency expense tracking",
+        "Group expense splitting",
+        "Real-time chat collaboration",
+        "Professional PDF/Excel reports",
+        "Mobile-responsive design",
+        "Google OAuth integration",
+        "Budget tracking and analytics",
+        "Expense categorization"
+      ],
+      "screenshot": "https://expenses.haerriz.com/assets/screenshot.jpg",
+      "applicationSubCategory": "Travel Finance",
+      "downloadUrl": "https://expenses.haerriz.com",
+      "installUrl": "https://expenses.haerriz.com",
+      "memoryRequirements": "512MB",
+      "storageRequirements": "10MB",
+      "permissions": "camera, location"
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Haerriz",
+      "url": "https://expenses.haerriz.com",
+      "logo": "https://expenses.haerriz.com/favicon.svg",
+      "sameAs": [
+        "https://github.com/haerriz",
+        "https://twitter.com/haerriz"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "availableLanguage": "English"
       }
     }
     </script>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon.svg">
     <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+    
+    <!-- Enhanced SEO -->
+    <meta name="google-site-verification" content="haerriz-trip-finance-verification">
+    <meta name="msvalidate.01" content="haerriz-trip-finance-bing">
+    <meta name="yandex-verification" content="haerriz-trip-finance-yandex">
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+    <meta name="rating" content="general">
+    <meta name="distribution" content="global">
+    <meta name="revisit-after" content="7 days">
+    <meta name="language" content="en">
+    <meta name="geo.region" content="US">
+    <meta name="geo.placename" content="United States">
     
     <!-- Materialize CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
