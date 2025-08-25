@@ -65,15 +65,17 @@ requireLogin();
     <nav class="blue darken-1">
         <div class="nav-wrapper">
             <a href="#" class="brand-logo">
-                <i class="material-icons left">flight_takeoff</i>Trip Finance
+                <i class="material-icons left hide-on-small-only">flight_takeoff</i>
+                <span class="hide-on-med-and-up">Trip Finance</span>
+                <span class="hide-on-small-only">Trip Finance</span>
             </a>
             <ul class="right">
-                <li><span class="white-text hide-on-small-only"><?php echo $_SESSION['user_name']; ?></span></li>
+                <li><span class="white-text hide-on-med-and-down"><?php echo $_SESSION['user_name']; ?></span></li>
                 <?php if ($_SESSION['user_email'] === 'haerriz@gmail.com'): ?>
-                    <li><a href="admin.php" class="btn red darken-1 waves-effect waves-light">Admin</a></li>
+                    <li><a href="admin.php" class="btn-small red darken-1 waves-effect waves-light">Admin</a></li>
                 <?php endif; ?>
-                <li><a href="profile.php" class="btn blue waves-effect waves-light">Profile</a></li>
-                <li><a href="logout.php" class="btn red waves-effect waves-light">Logout</a></li>
+                <li><a href="profile.php" class="btn-small blue waves-effect waves-light">Profile</a></li>
+                <li><a href="logout.php" class="btn-small red waves-effect waves-light">Logout</a></li>
             </ul>
         </div>
     </nav>
@@ -480,22 +482,39 @@ requireLogin();
         // Initialize Materialize components
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize all select dropdowns
-            M.FormSelect.init(document.querySelectorAll('select'));
+            var selects = document.querySelectorAll('select');
+            M.FormSelect.init(selects);
             
             // Initialize all modals
-            M.Modal.init(document.querySelectorAll('.modal'));
+            var modals = document.querySelectorAll('.modal');
+            M.Modal.init(modals);
             
             // Initialize all tooltips
-            M.Tooltip.init(document.querySelectorAll('[data-tooltip]'));
+            var tooltips = document.querySelectorAll('[data-tooltip]');
+            if (tooltips.length > 0) {
+                M.Tooltip.init(tooltips);
+            }
             
             // Initialize all textareas
-            M.textareaAutoResize(document.querySelectorAll('textarea'));
+            var textareas = document.querySelectorAll('textarea');
+            if (textareas.length > 0) {
+                M.textareaAutoResize(textareas);
+            }
             
             // Initialize date picker
-            M.Datepicker.init(document.querySelectorAll('.datepicker'));
+            var datepickers = document.querySelectorAll('.datepicker');
+            if (datepickers.length > 0) {
+                M.Datepicker.init(datepickers);
+            }
             
             // Update labels for pre-filled inputs
             M.updateTextFields();
+            
+            // Initialize tabs if present
+            var tabs = document.querySelectorAll('.tabs');
+            if (tabs.length > 0) {
+                M.Tabs.init(tabs);
+            }
         });
     </script>
     <script src="js/trip-dashboard.js"></script>
