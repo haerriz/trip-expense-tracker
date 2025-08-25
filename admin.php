@@ -54,6 +54,11 @@ requireMasterAdmin();
                 <i class="material-icons left">admin_panel_settings</i>Master Admin
             </a>
             <ul class="right">
+                <li style="display: flex; align-items: center; gap: 8px; padding: 0 15px;">
+                    <img src="<?php echo $_SESSION['user_picture'] ?: 'https://ui-avatars.com/api/?name=' . urlencode($_SESSION['user_name']) . '&size=32&background=D32F2F&color=fff'; ?>" 
+                         alt="Profile" class="circle" style="width: 32px; height: 32px;">
+                    <span class="white-text hide-on-small-only"><?php echo $_SESSION['user_name']; ?></span>
+                </li>
                 <li><a href="dashboard.php" class="btn blue waves-effect waves-light">Dashboard</a></li>
                 <li><a href="logout.php" class="btn red darken-2 waves-effect waves-light">Logout</a></li>
             </ul>

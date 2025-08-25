@@ -79,7 +79,11 @@ requireLogin();
             </a>
             <a href="#" data-target="mobile-nav" class="sidenav-trigger right"><i class="material-icons">menu</i></a>
             <ul class="right hide-on-med-and-down">
-                <li><span class="white-text"><?php echo $_SESSION['user_name']; ?></span></li>
+                <li style="display: flex; align-items: center; gap: 8px; padding: 0 15px;">
+                    <img src="<?php echo $_SESSION['user_picture'] ?: 'https://ui-avatars.com/api/?name=' . urlencode($_SESSION['user_name']) . '&size=32&background=1976D2&color=fff'; ?>" 
+                         alt="Profile" class="circle" style="width: 32px; height: 32px;">
+                    <span class="white-text"><?php echo $_SESSION['user_name']; ?></span>
+                </li>
                 <?php if ($_SESSION['user_email'] === 'haerriz@gmail.com'): ?>
                     <li><a href="admin.php">Admin</a></li>
                 <?php endif; ?>
@@ -93,7 +97,9 @@ requireLogin();
     <ul class="sidenav" id="mobile-nav">
         <li><div class="user-view">
             <div class="background blue darken-1"></div>
-            <span class="white-text name"><?php echo $_SESSION['user_name']; ?></span>
+            <a href="#user"><img class="circle" src="<?php echo $_SESSION['user_picture'] ?: 'https://ui-avatars.com/api/?name=' . urlencode($_SESSION['user_name']) . '&size=64&background=1976D2&color=fff'; ?>" alt="Profile"></a>
+            <a href="#name"><span class="white-text name"><?php echo $_SESSION['user_name']; ?></span></a>
+            <a href="#email"><span class="white-text email"><?php echo $_SESSION['user_email']; ?></span></a>
         </div></li>
         <?php if ($_SESSION['user_email'] === 'haerriz@gmail.com'): ?>
             <li><a href="admin.php"><i class="material-icons">admin_panel_settings</i>Admin</a></li>

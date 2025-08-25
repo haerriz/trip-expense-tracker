@@ -57,6 +57,11 @@ requireLogin();
                 <i class="material-icons left">flight_takeoff</i>Trip Finance
             </a>
             <ul class="right">
+                <li style="display: flex; align-items: center; gap: 8px; padding: 0 15px;">
+                    <img src="<?php echo $_SESSION['user_picture'] ?: 'https://ui-avatars.com/api/?name=' . urlencode($_SESSION['user_name']) . '&size=32&background=1976D2&color=fff'; ?>" 
+                         alt="Profile" class="circle" style="width: 32px; height: 32px;">
+                    <span class="white-text hide-on-small-only"><?php echo $_SESSION['user_name']; ?></span>
+                </li>
                 <li><a href="dashboard.php" class="btn blue waves-effect waves-light">Dashboard</a></li>
                 <li><a href="logout.php" class="btn red waves-effect waves-light">Logout</a></li>
             </ul>
