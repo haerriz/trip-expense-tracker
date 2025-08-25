@@ -60,43 +60,7 @@ requireLogin();
         window.currentUserId = <?php echo $_SESSION['user_id']; ?>;
         window.userEmail = '<?php echo $_SESSION['user_email']; ?>';
         
-        // Debug: Log all link URLs on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('=== DASHBOARD LINK DEBUG ===');
-            console.log('Current URL:', window.location.href);
-            console.log('User email:', window.userEmail);
-            
-            // Show debug box for 15 seconds
-            const debugBox = document.createElement('div');
-            debugBox.style.cssText = 'position:fixed;top:10px;left:10px;background:#ff0000;color:white;padding:15px;z-index:9999;max-width:400px;font-size:11px;border:2px solid white;';
-            
-            let debugText = `DEBUG INFO:<br>URL: ${window.location.href}<br>User: ${window.userEmail}<br><br>NAVIGATION LINKS:<br>`;
-            
-            const links = document.querySelectorAll('a');
-            let linkCount = 0;
-            links.forEach((link, index) => {
-                if (link.href && (link.href.includes('admin') || link.href.includes('profile') || link.href.includes('logout') || link.href.includes('dashboard'))) {
-                    console.log(`Link ${index}: "${link.textContent.trim()}" → ${link.href}`);
-                    debugText += `${link.textContent.trim()}: ${link.href}<br>`;
-                    linkCount++;
-                }
-            });
-            
-            if (linkCount === 0) {
-                debugText += 'NO NAVIGATION LINKS FOUND!<br>';
-                debugText += 'Checking all links...<br>';
-                links.forEach((link, index) => {
-                    if (link.href && link.textContent.trim()) {
-                        debugText += `${link.textContent.trim()}: ${link.href}<br>`;
-                    }
-                });
-            }
-            
-            debugBox.innerHTML = debugText;
-            document.body.appendChild(debugBox);
-            
-            setTimeout(() => debugBox.remove(), 15000);
-        });
+        // Clean localhost version - no debug clutter
     </script>
 </head>
 <body class="dashboard-page">
