@@ -76,10 +76,10 @@ requireMasterAdmin();
         <div class="row">
             <div class="col s12">
                 <ul class="tabs">
-                    <li class="tab col s3"><a href="#categories" class="active">Categories</a></li>
-                    <li class="tab col s3"><a href="#users">Users</a></li>
-                    <li class="tab col s3"><a href="#trips">All Trips</a></li>
-                    <li class="tab col s3"><a href="#stats">Statistics</a></li>
+                    <li class="tab col s6 m3"><a href="#categories" class="active">Categories</a></li>
+                    <li class="tab col s6 m3"><a href="#users">Users</a></li>
+                    <li class="tab col s6 m3"><a href="#trips">All Trips</a></li>
+                    <li class="tab col s6 m3"><a href="#stats">Statistics</a></li>
                 </ul>
             </div>
         </div>

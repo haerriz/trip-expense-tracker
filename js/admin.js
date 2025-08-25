@@ -142,26 +142,86 @@ function loadUsers() {
     $.get('api/admin/get_users.php')
         .done(function(data) {
             const users = data.users || [];
-            let html = '<table class="striped"><thead><tr><th>Name</th><th>Email</th><th>Trips</th><th>Total Expenses</th><th>Actions</th></tr></thead><tbody>';
+            
+            // Mobile-first responsive design
+            let html = `
+                <div class="hide-on-small-only">
+                    <table class="striped responsive-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Trips</th>
+                                <th>Total Expenses</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
             
             users.forEach(function(user) {
                 html += `
                     <tr>
                         <td>
-                            <img src="${user.picture || 'default-avatar.png'}" class="circle" style="width:30px;height:30px;">
+                            <img src="${user.picture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name) + '&size=30&background=D32F2F&color=fff'}" class="circle" style="width:30px;height:30px;margin-right:8px;">
                             ${user.name}
                         </td>
                         <td>${user.email}</td>
-                        <td>${user.trip_count || 0}</td>
-                        <td>$${parseFloat(user.total_expenses || 0).toFixed(2)}</td>
+                        <td><span class="badge">${user.trip_count || 0}</span></td>
+                        <td class="green-text">$${parseFloat(user.total_expenses || 0).toFixed(2)}</td>
                         <td>
-                            <button class="btn-small" onclick="viewUserDetails(${user.id})">View</button>
+                            <button class="btn-small blue waves-effect" onclick="viewUserDetails(${user.id})">
+                                <i class="material-icons">visibility</i>
+                            </button>
                         </td>
                     </tr>
                 `;
             });
             
-            html += '</tbody></table>';
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Mobile Cards -->
+                <div class="hide-on-med-and-up">
+            `;
+            
+            users.forEach(function(user) {
+                html += `
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="row valign-wrapper" style="margin-bottom: 0;">
+                                <div class="col s3">
+                                    <img src="${user.picture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name) + '&size=50&background=D32F2F&color=fff'}" class="circle responsive-img" style="width:50px;height:50px;">
+                                </div>
+                                <div class="col s9">
+                                    <h6 style="margin: 0 0 5px 0;">${user.name}</h6>
+                                    <p style="margin: 0; font-size: 0.9rem; color: #666;">${user.email}</p>
+                                </div>
+                            </div>
+                            <div class="row" style="margin: 10px 0 0 0;">
+                                <div class="col s4 center-align">
+                                    <span class="badge blue">${user.trip_count || 0}</span>
+                                    <br><small>Trips</small>
+                                </div>
+                                <div class="col s4 center-align">
+                                    <span class="green-text"><strong>$${parseFloat(user.total_expenses || 0).toFixed(2)}</strong></span>
+                                    <br><small>Expenses</small>
+                                </div>
+                                <div class="col s4 center-align">
+                                    <button class="btn-small blue waves-effect" onclick="viewUserDetails(${user.id})">
+                                        <i class="material-icons">visibility</i>
+                                    </button>
+                                    <br><small>View</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
             $('#users-list').html(html);
         });
 }
@@ -209,32 +269,208 @@ function loadAllTrips() {
     $.get('api/admin/get_all_trips.php')
         .done(function(data) {
             const trips = data.trips || [];
-            let html = '<table class="striped"><thead><tr><th>Trip Name</th><th>Creator</th><th>Members</th><th>Budget</th><th>Expenses</th><th>Actions</th></tr></thead><tbody>';
+            
+            // Desktop table
+            let html = `
+                <div class="hide-on-small-only">
+                    <table class="striped responsive-table">
+                        <thead>
+                            <tr>
+                                <th>Trip Name</th>
+                                <th>Creator</th>
+                                <th>Members</th>
+                                <th>Budget</th>
+                                <th>Expenses</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
             
             trips.forEach(function(trip) {
+                const budgetText = trip.budget ? `$${parseFloat(trip.budget).toFixed(2)}` : 'No Budget';
                 html += `
                     <tr>
-                        <td>${trip.name}</td>
+                        <td><strong>${trip.name}</strong></td>
                         <td>${trip.creator_name}</td>
-                        <td>${trip.member_count || 0}</td>
-                        <td>$${parseFloat(trip.budget || 0).toFixed(2)}</td>
-                        <td>$${parseFloat(trip.total_expenses || 0).toFixed(2)}</td>
+                        <td><span class="badge">${trip.member_count || 0}</span></td>
+                        <td class="blue-text">${budgetText}</td>
+                        <td class="green-text">$${parseFloat(trip.total_expenses || 0).toFixed(2)}</td>
                         <td>
-                            <button class="btn-small" onclick="viewTripDetails(${trip.id})">View</button>
-                            <button class="btn-small red" onclick="deleteTrip(${trip.id})">Delete</button>
+                            <button class="btn-small blue waves-effect" onclick="viewTripDetails(${trip.id})" style="margin-right: 4px;">
+                                <i class="material-icons">visibility</i>
+                            </button>
+                            <button class="btn-small red waves-effect" onclick="deleteTrip(${trip.id})">
+                                <i class="material-icons">delete</i>
+                            </button>
                         </td>
                     </tr>
                 `;
             });
             
-            html += '</tbody></table>';
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Mobile Cards -->
+                <div class="hide-on-med-and-up">
+            `;
+            
+            trips.forEach(function(trip) {
+                const budgetText = trip.budget ? `$${parseFloat(trip.budget).toFixed(2)}` : 'No Budget';
+                html += `
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="card-title" style="font-size: 1.1rem; margin-bottom: 10px;">
+                                <i class="material-icons left">flight_takeoff</i>${trip.name}
+                            </div>
+                            <p style="margin: 5px 0; color: #666;">
+                                <i class="material-icons tiny">person</i> Created by: <strong>${trip.creator_name}</strong>
+                            </p>
+                            <div class="row" style="margin: 15px 0 0 0;">
+                                <div class="col s4 center-align">
+                                    <span class="badge blue">${trip.member_count || 0}</span>
+                                    <br><small>Members</small>
+                                </div>
+                                <div class="col s4 center-align">
+                                    <span class="blue-text"><strong>${budgetText}</strong></span>
+                                    <br><small>Budget</small>
+                                </div>
+                                <div class="col s4 center-align">
+                                    <span class="green-text"><strong>$${parseFloat(trip.total_expenses || 0).toFixed(2)}</strong></span>
+                                    <br><small>Expenses</small>
+                                </div>
+                            </div>
+                            <div class="card-action center-align">
+                                <button class="btn-small blue waves-effect" onclick="viewTripDetails(${trip.id})" style="margin-right: 8px;">
+                                    <i class="material-icons left">visibility</i>View
+                                </button>
+                                <button class="btn-small red waves-effect" onclick="deleteTrip(${trip.id})">
+                                    <i class="material-icons left">delete</i>Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
             $('#trips-list').html(html);
         });
 }
 
 function viewTripDetails(tripId) {
-    // Placeholder for trip details view
-    M.toast({html: 'Trip details view - coming soon'});
+    $.get('api/admin/get_trip_details.php', { trip_id: tripId })
+        .done(function(data) {
+            if (data.success) {
+                const trip = data.trip;
+                const members = data.members || [];
+                const expenses = data.expenses || [];
+                
+                let membersList = '<div class="collection">';
+                members.forEach(function(member) {
+                    membersList += `
+                        <div class="collection-item avatar">
+                            <img src="${member.picture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(member.name) + '&size=40&background=2196F3&color=fff'}" class="circle">
+                            <span class="title">${member.name}</span>
+                            <p>${member.email}<br>
+                               Total Paid: <strong class="green-text">$${parseFloat(member.total_paid || 0).toFixed(2)}</strong>
+                            </p>
+                        </div>
+                    `;
+                });
+                membersList += '</div>';
+                
+                let expensesList = '<ul class="collection">';
+                expenses.slice(0, 10).forEach(function(expense) {
+                    expensesList += `
+                        <li class="collection-item">
+                            <div class="row valign-wrapper" style="margin-bottom: 0;">
+                                <div class="col s8">
+                                    <strong>${expense.category}</strong>
+                                    <br><span style="color: #666;">${expense.description}</span>
+                                    <br><small>by ${expense.paid_by_name} on ${expense.date}</small>
+                                </div>
+                                <div class="col s4 right-align">
+                                    <span class="green-text"><strong>$${parseFloat(expense.amount).toFixed(2)}</strong></span>
+                                </div>
+                            </div>
+                        </li>
+                    `;
+                });
+                if (expenses.length > 10) {
+                    expensesList += `<li class="collection-item center-align"><em>... and ${expenses.length - 10} more expenses</em></li>`;
+                }
+                expensesList += '</ul>';
+                
+                const budgetText = trip.budget ? `$${parseFloat(trip.budget).toFixed(2)}` : 'No Budget Set';
+                const totalExpenses = parseFloat(trip.total_expenses || 0);
+                const remaining = trip.budget ? (parseFloat(trip.budget) - totalExpenses) : 0;
+                
+                const modalContent = `
+                    <div class="modal-content">
+                        <h4><i class="material-icons left">flight_takeoff</i>${trip.name}</h4>
+                        
+                        <div class="row">
+                            <div class="col s12 m6">
+                                <div class="card-panel blue lighten-4">
+                                    <h6>Trip Summary</h6>
+                                    <p><strong>Created by:</strong> ${trip.creator_name}</p>
+                                    <p><strong>Budget:</strong> ${budgetText}</p>
+                                    <p><strong>Total Expenses:</strong> <span class="green-text">$${totalExpenses.toFixed(2)}</span></p>
+                                    ${trip.budget ? `<p><strong>Remaining:</strong> <span class="${remaining >= 0 ? 'green' : 'red'}-text">$${remaining.toFixed(2)}</span></p>` : ''}
+                                    <p><strong>Members:</strong> ${members.length}</p>
+                                    <p><strong>Total Expenses Count:</strong> ${expenses.length}</p>
+                                </div>
+                            </div>
+                            <div class="col s12 m6">
+                                <div class="card-panel orange lighten-4">
+                                    <h6>Trip Details</h6>
+                                    <p><strong>Start Date:</strong> ${trip.start_date || 'Not set'}</p>
+                                    <p><strong>End Date:</strong> ${trip.end_date || 'Not set'}</p>
+                                    <p><strong>Currency:</strong> ${trip.currency || 'USD'}</p>
+                                    <p><strong>Created:</strong> ${new Date(trip.created_at).toLocaleDateString()}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <ul class="tabs">
+                            <li class="tab col s4"><a href="#trip-members" class="active">Members</a></li>
+                            <li class="tab col s4"><a href="#trip-expenses">Recent Expenses</a></li>
+                        </ul>
+                        
+                        <div id="trip-members" class="col s12">
+                            <h6>Trip Members (${members.length})</h6>
+                            ${membersList}
+                        </div>
+                        
+                        <div id="trip-expenses" class="col s12">
+                            <h6>Recent Expenses (${expenses.length} total)</h6>
+                            ${expensesList}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#!" class="modal-close waves-effect btn-flat">Close</a>
+                    </div>
+                `;
+                
+                $('#trip-modal').remove();
+                $('body').append(`<div id="trip-modal" class="modal modal-fixed-footer" style="max-height: 80%;">${modalContent}</div>`);
+                const modalInstance = M.Modal.init(document.getElementById('trip-modal'));
+                modalInstance.open();
+                
+                // Initialize tabs in modal
+                setTimeout(() => {
+                    M.Tabs.init(document.querySelectorAll('#trip-modal .tabs'));
+                }, 100);
+            } else {
+                M.toast({html: data.message || 'Error loading trip details'});
+            }
+        })
+        .fail(function() {
+            M.toast({html: 'Network error loading trip details'});
+        });
 }
 
 function deleteTrip(tripId) {
