@@ -64,21 +64,33 @@ requireLogin();
 <body class="grey lighten-4">
     <nav class="blue darken-1">
         <div class="nav-wrapper">
-            <a href="#" class="brand-logo">
-                <i class="material-icons left hide-on-small-only">flight_takeoff</i>
-                <span class="hide-on-med-and-up">Trip Finance</span>
-                <span class="hide-on-small-only">Trip Finance</span>
+            <a href="#" class="brand-logo left">
+                <i class="material-icons left">flight_takeoff</i>Trip Finance
             </a>
-            <ul class="right">
-                <li><span class="white-text hide-on-med-and-down"><?php echo $_SESSION['user_name']; ?></span></li>
+            <a href="#" data-target="mobile-nav" class="sidenav-trigger right"><i class="material-icons">menu</i></a>
+            <ul class="right hide-on-med-and-down">
+                <li><span class="white-text"><?php echo $_SESSION['user_name']; ?></span></li>
                 <?php if ($_SESSION['user_email'] === 'haerriz@gmail.com'): ?>
-                    <li><a href="admin.php" class="btn-small red darken-1 waves-effect waves-light">Admin</a></li>
+                    <li><a href="admin.php">Admin</a></li>
                 <?php endif; ?>
-                <li><a href="profile.php" class="btn-small blue waves-effect waves-light">Profile</a></li>
-                <li><a href="logout.php" class="btn-small red waves-effect waves-light">Logout</a></li>
+                <li><a href="profile.php">Profile</a></li>
+                <li><a href="logout.php">Logout</a></li>
             </ul>
         </div>
     </nav>
+    
+    <!-- Mobile Navigation -->
+    <ul class="sidenav" id="mobile-nav">
+        <li><div class="user-view">
+            <div class="background blue darken-1"></div>
+            <span class="white-text name"><?php echo $_SESSION['user_name']; ?></span>
+        </div></li>
+        <?php if ($_SESSION['user_email'] === 'haerriz@gmail.com'): ?>
+            <li><a href="admin.php"><i class="material-icons">admin_panel_settings</i>Admin</a></li>
+        <?php endif; ?>
+        <li><a href="profile.php"><i class="material-icons">person</i>Profile</a></li>
+        <li><a href="logout.php"><i class="material-icons">exit_to_app</i>Logout</a></li>
+    </ul>
 
     <div class="container" style="margin-top: 20px;">
         <div class="row">
@@ -134,39 +146,42 @@ requireLogin();
         <div id="trip-dashboard" style="display:none;">
             <div class="row">
                 <div class="col s6 m3">
-                    <div class="card blue lighten-4 hoverable" onclick="editBudget()" style="cursor: pointer;">
+                    <div class="card blue lighten-4 hoverable equal-height" onclick="editBudget()" style="cursor: pointer;">
                         <div class="card-content center-align">
-                            <i class="material-icons blue-text">account_balance_wallet</i>
+                            <i class="material-icons blue-text medium">account_balance_wallet</i>
                             <span class="card-title">Trip Budget</span>
                             <h5 id="trip-budget" class="blue-text">$0.00</h5>
-                            <small class="grey-text">Click to edit</small>
+                            <p class="grey-text"><small>Click to edit</small></p>
                         </div>
                     </div>
                 </div>
                 <div class="col s6 m3">
-                    <div class="card red lighten-4">
+                    <div class="card red lighten-4 equal-height">
                         <div class="card-content center-align">
-                            <i class="material-icons red-text">trending_up</i>
+                            <i class="material-icons red-text medium">trending_up</i>
                             <span class="card-title">Total Spent</span>
                             <h5 id="total-spent" class="red-text">$0.00</h5>
+                            <p class="grey-text"><small>&nbsp;</small></p>
                         </div>
                     </div>
                 </div>
                 <div class="col s6 m3">
-                    <div class="card green lighten-4">
+                    <div class="card green lighten-4 equal-height">
                         <div class="card-content center-align">
-                            <i class="material-icons green-text">savings</i>
+                            <i class="material-icons green-text medium">savings</i>
                             <span class="card-title">Remaining</span>
                             <h5 id="remaining-budget" class="green-text">$0.00</h5>
+                            <p class="grey-text"><small>&nbsp;</small></p>
                         </div>
                     </div>
                 </div>
                 <div class="col s6 m3">
-                    <div class="card orange lighten-4">
+                    <div class="card orange lighten-4 equal-height">
                         <div class="card-content center-align">
-                            <i class="material-icons orange-text">person</i>
+                            <i class="material-icons orange-text medium">person</i>
                             <span class="card-title">My Share</span>
                             <h5 id="my-share" class="orange-text">$0.00</h5>
+                            <p class="grey-text"><small>&nbsp;</small></p>
                         </div>
                     </div>
                 </div>
@@ -480,41 +495,30 @@ requireLogin();
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script>
         // Initialize Materialize components
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize all select dropdowns
-            var selects = document.querySelectorAll('select');
-            M.FormSelect.init(selects);
+        $(document).ready(function() {
+            // Initialize sidenav
+            $('.sidenav').sidenav();
             
-            // Initialize all modals
-            var modals = document.querySelectorAll('.modal');
-            M.Modal.init(modals);
+            // Initialize select dropdowns
+            $('select').formSelect();
             
-            // Initialize all tooltips
-            var tooltips = document.querySelectorAll('[data-tooltip]');
-            if (tooltips.length > 0) {
-                M.Tooltip.init(tooltips);
-            }
+            // Initialize modals
+            $('.modal').modal();
             
-            // Initialize all textareas
-            var textareas = document.querySelectorAll('textarea');
-            if (textareas.length > 0) {
-                M.textareaAutoResize(textareas);
-            }
+            // Initialize tooltips
+            $('.tooltipped').tooltip();
+            
+            // Initialize textareas
+            $('textarea').characterCounter();
             
             // Initialize date picker
-            var datepickers = document.querySelectorAll('.datepicker');
-            if (datepickers.length > 0) {
-                M.Datepicker.init(datepickers);
-            }
+            $('.datepicker').datepicker();
             
-            // Update labels for pre-filled inputs
+            // Initialize tabs
+            $('.tabs').tabs();
+            
+            // Update text fields
             M.updateTextFields();
-            
-            // Initialize tabs if present
-            var tabs = document.querySelectorAll('.tabs');
-            if (tabs.length > 0) {
-                M.Tabs.init(tabs);
-            }
         });
     </script>
     <script src="js/trip-dashboard.js"></script>
