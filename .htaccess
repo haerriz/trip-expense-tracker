@@ -1,7 +1,14 @@
-# FORCE .php extensions - NO clean URLs allowed
+# FORCE .php extensions + Custom Error Pages
+
+# Custom Error Pages
+ErrorDocument 404 /404.php
+ErrorDocument 401 /unauthorized.php
+ErrorDocument 403 /unauthorized.php
+
+# Force .php extension redirects
 RewriteEngine On
 
-# Redirect clean URLs to .php files (if someone tries to access them)
+# Redirect clean URLs to .php files
 RewriteRule ^dashboard/?$ dashboard.php [R=301,L]
 RewriteRule ^admin/?$ admin.php [R=301,L]
 RewriteRule ^profile/?$ profile.php [R=301,L]
@@ -45,3 +52,7 @@ Options -MultiViews
     Order allow,deny
     Deny from all
 </Files>
+
+# SEO - Redirect www to non-www
+RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+RewriteRule ^(.*)$ https://%1/$1 [R=301,L]

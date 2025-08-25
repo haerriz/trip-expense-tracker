@@ -1,34 +1,25 @@
 User-agent: *
 Allow: /
-Allow: /css/
-Allow: /js/
-Allow: /assets/
+Allow: /index.php
+Allow: /manual-signup.php
+Allow: /manual-login.php
+Allow: /404.php
+Allow: /unauthorized.php
 
-# Disallow private areas
-Disallow: /dashboard
-Disallow: /profile
-Disallow: /admin
+# Block private pages
+Disallow: /dashboard.php
+Disallow: /profile.php
+Disallow: /admin.php
 Disallow: /api/
-Disallow: /config/
 Disallow: /includes/
-Disallow: /manual-login.php
-Disallow: /manual-signup.php
-Disallow: /google-auth.php
-Disallow: /logout
+Disallow: /config/
+Disallow: /uploads/
+Disallow: /tests/
 
-# Disallow development and test files
-Disallow: /test-*
-Disallow: /debug*
-Disallow: /migrate-*
-Disallow: /cleanup-*
-Disallow: /setup-*
+# Block sensitive files
+Disallow: /*.sql$
+Disallow: /.htaccess
+Disallow: /.env
 
-# Allow important files
-Allow: /sitemap.xml
-Allow: /favicon.ico
-
-# Sitemap location
+# Sitemap
 Sitemap: https://expenses.haerriz.com/sitemap.xml
-
-# Crawl delay (optional)
-Crawl-delay: 1
