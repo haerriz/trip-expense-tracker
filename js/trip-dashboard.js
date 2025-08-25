@@ -955,7 +955,7 @@ function exportToXLSX() {
         M.toast({html: 'Please select a trip first'});
         return;
     }
-    window.open('api/export_xlsx.php?trip_id=' + tripId, '_blank');
+    window.open('api/export_xlsx_enhanced.php?trip_id=' + tripId, '_blank');
 }
 
 function emailReport() {
