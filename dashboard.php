@@ -50,7 +50,7 @@ requireLogin();
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
-    <link rel="stylesheet" href="css/style.css">
+    <!-- Pure Materialize Design - No custom CSS -->
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -61,63 +61,53 @@ requireLogin();
         window.userEmail = '<?php echo $_SESSION['user_email']; ?>';
     </script>
 </head>
-<body class="dashboard-page">
-    <nav class="navbar">
+<body class="grey lighten-4">
+    <nav class="blue darken-1">
         <div class="nav-wrapper">
-            <a href="#" class="navbar__brand brand-logo">
-                <i class="material-icons">flight_takeoff</i>
-                Trip Finance
+            <a href="#" class="brand-logo">
+                <i class="material-icons left">flight_takeoff</i>Trip Finance
             </a>
-            <ul class="navbar__menu right">
-                <li class="navbar__user">
-                    <a href="profile.php">
-                        <img src="<?php echo $_SESSION['user_picture']; ?>" alt="Profile" class="navbar__avatar circle">
-                    </a>
-                    <span class="navbar__name hide-on-small-only"><?php echo $_SESSION['user_name']; ?></span>
-                    <?php if ($_SESSION['user_email'] === 'haerriz@gmail.com'): ?>
-                        <a href="admin.php" class="btn-small red hide-on-small-only">Admin</a>
-                    <?php endif; ?>
-                    <a href="profile.php" class="btn-small blue hide-on-small-only">Profile</a>
-                    <a href="logout.php" class="navbar__logout btn-small red">Logout</a>
-                </li>
+            <ul class="right">
+                <li><span class="white-text hide-on-small-only"><?php echo $_SESSION['user_name']; ?></span></li>
+                <?php if ($_SESSION['user_email'] === 'haerriz@gmail.com'): ?>
+                    <li><a href="admin.php" class="btn red darken-1 waves-effect waves-light">Admin</a></li>
+                <?php endif; ?>
+                <li><a href="profile.php" class="btn blue waves-effect waves-light">Profile</a></li>
+                <li><a href="logout.php" class="btn red waves-effect waves-light">Logout</a></li>
             </ul>
         </div>
     </nav>
 
-    <div class="dashboard-page__container container">
-        <div class="trip-selector">
-            <div class="row">
-                <div class="col s12 m6 l4">
-                    <div class="input-field">
-                        <select id="current-trip" class="trip-selector__select">
-                            <option value="">Select a Trip</option>
-                        </select>
-                        <label>Choose Trip</label>
-                    </div>
+    <div class="container" style="margin-top: 20px;">
+        <div class="row">
+            <div class="col s12 m4">
+                <div class="input-field">
+                    <select id="current-trip">
+                        <option value="">Select a Trip</option>
+                    </select>
+                    <label>Choose Trip</label>
                 </div>
-                <div class="col s12 m6 l8">
-                    <div class="trip-selector__actions">
-                        <button id="new-trip-btn" class="btn waves-effect waves-light">
-                            <i class="material-icons left">add</i>New Trip
-                        </button>
-                        <button id="invitations-btn" class="btn waves-effect waves-light orange">
-                            <i class="material-icons left">mail</i>Invitations <span id="invitation-count" class="badge white-text">0</span>
-                        </button>
-                        <div class="export-buttons">
-                            <button id="export-pdf" class="btn-small waves-effect waves-light grey">
-                                <i class="material-icons left">picture_as_pdf</i>PDF
-                            </button>
-                            <button id="export-excel" class="btn-small waves-effect waves-light grey">
-                                <i class="material-icons left">table_chart</i>CSV
-                            </button>
-                            <button id="export-xlsx" class="btn-small waves-effect waves-light grey">
-                                <i class="material-icons left">description</i>XLSX
-                            </button>
-                            <button id="email-report" class="btn-small waves-effect waves-light grey">
-                                <i class="material-icons left">email</i>Email
-                            </button>
-                        </div>
-                    </div>
+            </div>
+            <div class="col s12 m8">
+                <div class="right-align">
+                    <a id="new-trip-btn" class="btn waves-effect waves-light blue">
+                        <i class="material-icons left">add</i>New Trip
+                    </a>
+                    <a id="invitations-btn" class="btn waves-effect waves-light orange">
+                        <i class="material-icons left">mail</i>Invitations <span id="invitation-count" class="new badge" data-badge-caption="">0</span>
+                    </a>
+                    <a id="export-pdf" class="btn-small waves-effect waves-light grey">
+                        <i class="material-icons left">picture_as_pdf</i>PDF
+                    </a>
+                    <a id="export-excel" class="btn-small waves-effect waves-light grey">
+                        <i class="material-icons left">table_chart</i>CSV
+                    </a>
+                    <a id="export-xlsx" class="btn-small waves-effect waves-light grey">
+                        <i class="material-icons left">description</i>XLSX
+                    </a>
+                    <a id="email-report" class="btn-small waves-effect waves-light grey">
+                        <i class="material-icons left">email</i>Email
+                    </a>
                 </div>
             </div>
         </div>
@@ -133,57 +123,61 @@ requireLogin();
             </div>
         </div>
 
-        <div id="no-trip" class="empty-state center-align">
-            <i class="material-icons large">flight_takeoff</i>
-            <h4>Welcome to Trip Expense Tracker!</h4>
-            <p>Create your first trip to start tracking expenses with friends</p>
+        <div id="no-trip" class="center-align" style="margin-top: 50px;">
+            <i class="material-icons large grey-text">flight_takeoff</i>
+            <h4 class="grey-text">Welcome to Trip Expense Tracker!</h4>
+            <p class="grey-text">Create your first trip to start tracking expenses with friends</p>
         </div>
 
         <div id="trip-dashboard" style="display:none;">
-            <div class="summary-cards row">
+            <div class="row">
                 <div class="col s6 m3">
-                    <div class="card summary-card summary-card--budget clickable" onclick="editBudget()">
-                        <div class="card-content">
-                            <span class="summary-card__title">Trip Budget <i class="material-icons tiny">edit</i></span>
-                            <div class="summary-card__amount" id="trip-budget">$0.00</div>
+                    <div class="card blue lighten-4 hoverable" onclick="editBudget()" style="cursor: pointer;">
+                        <div class="card-content center-align">
+                            <i class="material-icons blue-text">account_balance_wallet</i>
+                            <span class="card-title">Trip Budget</span>
+                            <h5 id="trip-budget" class="blue-text">$0.00</h5>
                             <small class="grey-text">Click to edit</small>
                         </div>
                     </div>
                 </div>
                 <div class="col s6 m3">
-                    <div class="card summary-card summary-card--spent">
-                        <div class="card-content">
-                            <span class="summary-card__title">Total Spent</span>
-                            <div class="summary-card__amount" id="total-spent">$0.00</div>
+                    <div class="card red lighten-4">
+                        <div class="card-content center-align">
+                            <i class="material-icons red-text">trending_up</i>
+                            <span class="card-title">Total Spent</span>
+                            <h5 id="total-spent" class="red-text">$0.00</h5>
                         </div>
                     </div>
                 </div>
                 <div class="col s6 m3">
-                    <div class="card summary-card summary-card--remaining">
-                        <div class="card-content">
-                            <span class="summary-card__title">Remaining</span>
-                            <div class="summary-card__amount" id="remaining-budget">$0.00</div>
+                    <div class="card green lighten-4">
+                        <div class="card-content center-align">
+                            <i class="material-icons green-text">savings</i>
+                            <span class="card-title">Remaining</span>
+                            <h5 id="remaining-budget" class="green-text">$0.00</h5>
                         </div>
                     </div>
                 </div>
                 <div class="col s6 m3">
-                    <div class="card summary-card summary-card--share">
-                        <div class="card-content">
-                            <span class="summary-card__title">My Share</span>
-                            <div class="summary-card__amount" id="my-share">$0.00</div>
+                    <div class="card orange lighten-4">
+                        <div class="card-content center-align">
+                            <i class="material-icons orange-text">person</i>
+                            <span class="card-title">My Share</span>
+                            <h5 id="my-share" class="orange-text">$0.00</h5>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="dashboard-content row">
+            <div class="row">
                 <div class="col s12 l6">
-                    <div class="card expense-form">
+                    <div class="card">
                         <div class="card-content">
                             <span class="card-title">
                                 <i class="material-icons left">add_circle</i>Add Expense
                             </span>
-                            <form id="expense-form" class="expense-form__form">
+                            <form id="expense-form">
                                 <div class="input-field">
                                     <select id="category" class="validate" required>
                                         <option value="">Select Category</option>
@@ -482,6 +476,28 @@ requireLogin();
 
     <!-- Materialize JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        // Initialize Materialize components
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all select dropdowns
+            M.FormSelect.init(document.querySelectorAll('select'));
+            
+            // Initialize all modals
+            M.Modal.init(document.querySelectorAll('.modal'));
+            
+            // Initialize all tooltips
+            M.Tooltip.init(document.querySelectorAll('[data-tooltip]'));
+            
+            // Initialize all textareas
+            M.textareaAutoResize(document.querySelectorAll('textarea'));
+            
+            // Initialize date picker
+            M.Datepicker.init(document.querySelectorAll('.datepicker'));
+            
+            // Update labels for pre-filled inputs
+            M.updateTextFields();
+        });
+    </script>
     <script src="js/trip-dashboard.js"></script>
     <script src="js/enhanced-chat.js"></script>
 </body>
