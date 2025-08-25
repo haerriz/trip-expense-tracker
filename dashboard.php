@@ -59,6 +59,19 @@ requireLogin();
     <script>
         window.currentUserId = <?php echo $_SESSION['user_id']; ?>;
         window.userEmail = '<?php echo $_SESSION['user_email']; ?>';
+        
+        // Debug: Log all link URLs on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== DASHBOARD LINK DEBUG ===');
+            console.log('Current URL:', window.location.href);
+            
+            const links = document.querySelectorAll('a');
+            links.forEach((link, index) => {
+                if (link.href.includes('admin') || link.href.includes('profile') || link.href.includes('logout') || link.href.includes('dashboard')) {
+                    console.log(`Link ${index}: "${link.textContent.trim()}" → ${link.href}`);
+                }
+            });
+        });
     </script>
 </head>
 <body class="dashboard-page">
