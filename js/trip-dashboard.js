@@ -695,6 +695,12 @@ function loadExpenses(tripId) {
     $.get('api/get_expenses.php', { trip_id: tripId })
         .done(function(data) {
             const expenses = data.expenses || [];
+            
+            // Get trip currency from the selected option
+            const selectedOption = $('#current-trip option:selected');
+            const tripCurrency = selectedOption.data('currency') || 'USD';
+            const currencySymbol = getCurrencySymbol(tripCurrency);
+            
             let html = '';
             
             expenses.forEach(function(expense) {
@@ -708,7 +714,7 @@ function loadExpenses(tripId) {
                             <p>${expense.description} - ${expense.date}</p>
                             <small>Paid by ${expense.paid_by_name}</small>
                         </div>
-                        <div class="expense-item__amount">$${parseFloat(expense.amount).toFixed(2)}</div>
+                        <div class="expense-item__amount">${currencySymbol}${parseFloat(expense.amount).toFixed(2)}</div>
                         <div class="expense-item__actions">
                             ${canModify ? `<button class="btn-small blue" onclick="editExpense(${expense.id})" title="Edit expense"><i class="material-icons">edit</i></button>` : ''}
                             ${canModify ? `<button class="btn-small red" onclick="deleteExpense(${expense.id})" title="Delete expense"><i class="material-icons">delete</i></button>` : ''}
