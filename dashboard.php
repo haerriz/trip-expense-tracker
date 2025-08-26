@@ -336,49 +336,7 @@ requireLogin();
                         </div>
                     </div>
                     
-                    <div class="card trip-chat">
-                        <div class="card-content">
-                            <span class="card-title">
-                                <i class="material-icons left">chat</i>Group Chat
-                                <span class="online-indicator"></span>
-                                <div class="chat-features">
-                                    <button class="chat-feature-btn" id="emoji-btn">
-                                        <i class="material-icons tiny">sentiment_satisfied</i> Emoji
-                                    </button>
-                                    <button class="chat-feature-btn" id="clear-chat-btn">
-                                        <i class="material-icons tiny">clear_all</i> Clear
-                                    </button>
-                                </div>
-                            </span>
-                            <div class="trip-chat__online" id="online-members"></div>
-                            <div class="trip-chat__status">
-                                <div id="typing-indicator" class="trip-chat__typing">
-                                    <span id="typing-user"></span> is typing
-                                    <span class="typing-dots">
-                                        <span></span><span></span><span></span>
-                                    </span>
-                                </div>
-                                <div id="online-status">Connected</div>
-                            </div>
-                            <div id="chat-messages" class="trip-chat__messages" style="position: relative;">
-                                <button id="scroll-to-bottom" class="btn chat-scroll-to-bottom">
-                                    <i class="material-icons">keyboard_arrow_down</i>
-                                </button>
-                            </div>
-                            <div class="trip-chat__input">
-                                <button class="btn-flat chat-attachment-btn" id="attachment-btn" title="Attach file">
-                                    <i class="material-icons">attach_file</i>
-                                </button>
-                                <div class="input-field">
-                                    <input type="text" id="chat-message" maxlength="500" placeholder="Type a message...">
-                                    <label for="chat-message"></label>
-                                </div>
-                                <button id="send-message" class="btn chat-send-btn" disabled>
-                                    <i class="material-icons">send</i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -577,5 +535,35 @@ requireLogin();
             });
         }
     </script>
+    
+    <!-- Floating Chat Bubble -->
+    <div class="chat-bubble" id="chat-bubble" style="display: none;">
+        <i class="material-icons">chat</i>
+        <div class="badge" id="chat-badge" style="display: none;">0</div>
+    </div>
+
+    <!-- Floating Chat Window -->
+    <div class="chat-window" id="chat-window">
+        <div class="chat-window-header">
+            <div class="chat-window-title">
+                <i class="material-icons" style="font-size: 18px; margin-right: 8px;">chat</i>
+                Group Chat
+            </div>
+            <button class="chat-window-close" id="chat-window-close">
+                <i class="material-icons" style="font-size: 18px;">close</i>
+            </button>
+        </div>
+        <div class="chat-window-body">
+            <div id="chat-messages-floating" class="trip-chat__messages"></div>
+            <div class="trip-chat__input">
+                <input type="text" id="chat-message-floating" maxlength="500" placeholder="Type a message...">
+                <button id="send-message-floating" class="chat-send-btn" disabled>
+                    <i class="material-icons" style="font-size: 16px;">send</i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/floating-chat.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

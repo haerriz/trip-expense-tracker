@@ -334,7 +334,7 @@ if (isset($_SESSION['user_id'])) {
                 <!-- SEO-Enhanced Footer -->
                 <footer class="auth-footer center-align">
                     <p class="footer-text">
-                        <strong>Free forever</strong> • No hidden fees • <a href="#privacy" class="footer-link">Privacy Policy</a>
+                        <strong>Free forever</strong> • No hidden fees • <a href="privacy.php" class="footer-link">Privacy Policy</a>
                     </p>
                 </footer>
             </div>
