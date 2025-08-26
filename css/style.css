@@ -1083,15 +1083,19 @@ body {
     }
     
     .equal-height {
-        height: 180px;
+        height: 140px;
     }
     
     .equal-height .card-content h5 {
-        font-size: 1.4rem;
+        font-size: 1.2rem;
+    }
+    
+    .equal-height .card-content .material-icons {
+        font-size: 1.8rem !important;
     }
     
     .card-title {
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
     
     .chat-message__bubble {
