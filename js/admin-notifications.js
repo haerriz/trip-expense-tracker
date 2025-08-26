@@ -1,2 +1,93 @@
 // Admin Push Notifications Handler
-$(document).ready(function() {\n    loadNotificationStats();\n    loadNotificationHistory();\n    \n    // Send notification form\n    $('#notification-form').on('submit', function(e) {\n        e.preventDefault();\n        sendPushNotification();\n    });\n    \n    // Test notification button\n    $('#test-notification').on('click', function() {\n        testNotification();\n    });\n});\n\nfunction sendPushNotification() {\n    const title = $('#notification-title').val();\n    const message = $('#notification-message').val();\n    \n    if (!title || !message) {\n        M.toast({html: 'Please fill in both title and message'});\n        return;\n    }\n    \n    $.post('api/send_push_notification.php', {\n        title: title,\n        message: message\n    })\n    .done(function(data) {\n        if (data.success) {\n            M.toast({html: data.message});\n            $('#notification-form')[0].reset();\n            M.updateTextFields();\n            loadNotificationStats();\n            loadNotificationHistory();\n        } else {\n            M.toast({html: data.error || 'Failed to send notification'});\n        }\n    })\n    .fail(function() {\n        M.toast({html: 'Network error sending notification'});\n    });\n}\n\nfunction testNotification() {\n    if (window.pushManager) {\n        window.pushManager.sendTestNotification();\n    } else {\n        M.toast({html: 'Push manager not available'});\n    }\n}\n\nfunction loadNotificationStats() {\n    $.get('api/get_notification_stats.php')\n        .done(function(data) {\n            if (data.success) {\n                $('#subscriber-count').text(data.subscribers || 0);\n                $('#notifications-sent').text(data.sent_today || 0);\n            }\n        })\n        .fail(function() {\n            console.error('Failed to load notification stats');\n        });\n}\n\nfunction loadNotificationHistory() {\n    $.get('api/get_notification_history.php')\n        .done(function(data) {\n            if (data.success) {\n                let html = '';\n                if (data.history && data.history.length > 0) {\n                    data.history.forEach(function(notification) {\n                        const date = new Date(notification.sent_at).toLocaleDateString();\n                        html += `\n                            <div class=\"notification-history-item\">\n                                <strong>${notification.title}</strong><br>\n                                <small>${notification.message}</small><br>\n                                <span class=\"grey-text\">${date} - ${notification.recipients_count} recipients</span>\n                            </div>\n                        `;\n                    });\n                } else {\n                    html = '<p class=\"grey-text\">No notifications sent yet</p>';\n                }\n                $('#notification-history').html(html);\n            }\n        })\n        .fail(function() {\n            console.error('Failed to load notification history');\n        });\n}
+$(document).ready(function() {
+    loadNotificationStats();
+    loadNotificationHistory();
+    
+    // Send notification form
+    $('#notification-form').on('submit', function(e) {
+        e.preventDefault();
+        sendPushNotification();
+    });
+    
+    // Test notification button
+    $('#test-notification').on('click', function() {
+        testNotification();
+    });
+});
+
+function sendPushNotification() {
+    const title = $('#notification-title').val();
+    const message = $('#notification-message').val();
+    
+    if (!title || !message) {
+        M.toast({html: 'Please fill in both title and message'});
+        return;
+    }
+    
+    $.post('api/send_push_notification.php', {
+        title: title,
+        message: message
+    })
+    .done(function(data) {
+        if (data.success) {
+            M.toast({html: data.message});
+            $('#notification-form')[0].reset();
+            M.updateTextFields();
+            loadNotificationStats();
+            loadNotificationHistory();
+        } else {
+            M.toast({html: data.error || 'Failed to send notification'});
+        }
+    })
+    .fail(function() {
+        M.toast({html: 'Network error sending notification'});
+    });
+}
+
+function testNotification() {
+    if (window.pushManager) {
+        window.pushManager.sendTestNotification();
+    } else {
+        M.toast({html: 'Push manager not available'});
+    }
+}
+
+function loadNotificationStats() {
+    $.get('api/get_notification_stats.php')
+        .done(function(data) {
+            if (data.success) {
+                $('#subscriber-count').text(data.subscribers || 0);
+                $('#notifications-sent').text(data.sent_today || 0);
+            }
+        })
+        .fail(function() {
+            console.error('Failed to load notification stats');
+        });
+}
+
+function loadNotificationHistory() {
+    $.get('api/get_notification_history.php')
+        .done(function(data) {
+            if (data.success) {
+                let html = '';
+                if (data.history && data.history.length > 0) {
+                    data.history.forEach(function(notification) {
+                        const date = new Date(notification.sent_at).toLocaleDateString();
+                        html += `
+                            <div class="notification-history-item">
+                                <strong>${notification.title}</strong><br>
+                                <small>${notification.message}</small><br>
+                                <span class="grey-text">${date} - ${notification.recipients_count} recipients</span>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html = '<p class="grey-text">No notifications sent yet</p>';
+                }
+                $('#notification-history').html(html);
+            }
+        })
+        .fail(function() {
+            console.error('Failed to load notification history');
+        });
+}
