@@ -1171,6 +1171,14 @@ body {
         display: none !important;
     }
     
+    .expense-form__split [type="radio"]:checked+span:after {
+        display: none !important;
+    }
+    
+    .expense-form__split [type="radio"]:not(:checked)+span:after {
+        display: none !important;
+    }
+    
     /* Fix custom split mode buttons */
     .split-mode-toggle {
         display: flex;
@@ -1217,6 +1225,14 @@ body {
     
     .split-mode-toggle label:before,
     .split-mode-toggle label:after {
+        display: none !important;
+    }
+    
+    .split-mode-toggle [type="radio"]:checked+span:after {
+        display: none !important;
+    }
+    
+    .split-mode-toggle [type="radio"]:not(:checked)+span:after {
         display: none !important;
     }
 }
