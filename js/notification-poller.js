@@ -20,10 +20,20 @@ class NotificationPoller {
             const response = await fetch('api/check_notifications.php');
             const data = await response.json();
             
-            if (data.success && data.notifications.length > 0) {
+            console.log('Polling check result:', data);
+            
+            if (data.success && data.notifications && data.notifications.length > 0) {
+                console.log('Found notifications:', data.notifications.length);
                 data.notifications.forEach(notification => {
-                    this.showNotification(notification);
+                    // Only show notifications we haven't seen before
+                    const notificationTime = new Date(notification.created_at).getTime();
+                    if (notificationTime > this.lastCheck) {
+                        console.log('Showing new notification:', notification);
+                        this.showNotification(notification);
+                    }
                 });
+                // Update last check time
+                this.lastCheck = Date.now();
             }
         } catch (error) {
             console.error('Notification polling error:', error);
@@ -37,8 +47,8 @@ class NotificationPoller {
             // Use the same method as test notifications (which work!)
             const realNotification = new Notification('🔔 ' + notification.title, {
                 body: notification.message,
-                icon: '/favicon.svg',
-                badge: '/favicon.svg',
+                icon: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzIxOTZGMyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDMTMuMSAyIDE0IDIuOSAxNCA0VjVDMTcuMyA2LjcgMTkuOCAxMC4xIDE5LjggMTRWMjBMMjIgMjJIMkw0LjIgMjBWMTRDNC4yIDEwLjEgNi43IDYuNyAxMCA1VjRDMTAgMi45IDEwLjkgMiAxMiAyWk0xMiA2QzguNyA2IDYgOC43IDYgMTJWMTlIMThWMTJDMTggOC43IDE1LjMgNiAxMiA2Wk0xMCAyM0gxNEMxNCAyNC4xIDEzLjEgMjUgMTIgMjVTMTAgMjQuMSAxMCAyM1oiLz4KPC9zdmc+',
+                badge: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzIxOTZGMyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDMTMuMSAyIDE0IDIuOSAxNCA0VjVDMTcuMyA2LjcgMTkuOCAxMC4xIDE5LjggMTRWMjBMMjIgMjJIMkw0LjIgMjBWMTRDNC4yIDEwLjEgNi43IDYuNyAxMCA1VjRDMTAgMi45IDEwLjkgMiAxMiAyWk0xMiA2QzguNyA2IDYgOC43IDYgMTJWMTlIMThWMTJDMTggOC43IDE1LjMgNiAxMiA2Wk0xMCAyM0gxNEMxNCAyNC4xIDEzLjEgMjUgMTIgMjVTMTAgMjQuMSAxMCAyM1oiLz4KPC9zdmc+',
                 vibrate: [300, 100, 300],
                 requireInteraction: true,
                 tag: 'real-push-' + notification.id,

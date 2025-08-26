@@ -288,8 +288,8 @@ function directSystemNotificationTest() {
         // This should definitely show in Android notification panel
         const notification = new Notification('🔔 SYSTEM TEST', {
             body: 'This should appear in your Android notification panel! Pull down to see it.',
-            icon: '/favicon.svg',
-            badge: '/favicon.svg',
+            icon: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzIxOTZGMyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDMTMuMSAyIDE0IDIuOSAxNCA0VjVDMTcuMyA2LjcgMTkuOCAxMC4xIDE5LjggMTRWMjBMMjIgMjJIMkw0LjIgMjBWMTRDNC4yIDEwLjEgNi43IDYuNyAxMCA1VjRDMTAgMi45IDEwLjkgMiAxMiAyWk0xMiA2QzguNyA2IDYgOC43IDYgMTJWMTlIMThWMTJDMTggOC43IDE1LjMgNiAxMiA2Wk0xMCAyM0gxNEMxNCAyNC4xIDEzLjEgMjUgMTIgMjVTMTAgMjQuMSAxMCAyM1oiLz4KPC9zdmc+',
+            badge: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzIxOTZGMyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDMTMuMSAyIDE0IDIuOSAxNCA0VjVDMTcuMyA2LjcgMTkuOCAxMC4xIDE5LjggMTRWMjBMMjIgMjJIMkw0LjIgMjBWMTRDNC4yIDEwLjEgNi43IDYuNyAxMCA1VjRDMTAgMi45IDEwLjkgMiAxMiAyWk0xMiA2QzguNyA2IDYgOC43IDYgMTJWMTlIMThWMTJDMTggOC43IDE1LjMgNiAxMiA2Wk0xMCAyM0gxNEMxNCAyNC4xIDEzLjEgMjUgMTIgMjVTMTAgMjQuMSAxMCAyM1oiLz4KPC9zdmc+',
             vibrate: [300, 100, 300],
             requireInteraction: true,
             tag: 'system-test',
