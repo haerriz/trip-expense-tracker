@@ -1233,6 +1233,16 @@ body {
     .split-mode-toggle [type="radio"]:checked+span:after {
         display: none !important;
     }
+    
+    .expense-form__split input[type="radio"],
+    .split-mode-toggle input[type="radio"] {
+        width: 0 !important;
+    }
+    
+    .expense-form__split label span,
+    .split-mode-toggle label span {
+        padding-left: 0 !important;
+    }
 }
 
 /* Large screen improvements */
