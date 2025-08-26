@@ -935,7 +935,6 @@ function loadExpenseChart(tripId) {
             });
         });
 }
-}
 
 // Helper function to create gradient color variations
 function adjustColorBrightness(hex, factor) {
