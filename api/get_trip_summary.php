@@ -12,6 +12,9 @@ try {
         exit;
     }
     
+    // Debug: Log the request
+    error_log("get_trip_summary.php called with trip_id: $tripId by user: " . ($_SESSION['user_id'] ?? 'unknown'));
+    
     // Get trip details
     $stmt = $pdo->prepare("SELECT * FROM trips WHERE id = ?");
     $stmt->execute([$tripId]);
