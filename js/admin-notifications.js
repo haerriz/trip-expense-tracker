@@ -43,6 +43,11 @@ $(document).ready(function() {
     $('#debug-subscriptions').on('click', function() {
         debugSubscriptions();
     });
+    
+    // Force notification test
+    $('#force-notification').on('click', function() {
+        forceNotificationTest();
+    });
 });
 
 function sendPushNotification() {
@@ -201,4 +206,31 @@ function debugSubscriptions() {
             console.error('Debug failed:', {xhr, status, error});
             M.toast({html: 'Debug request failed'});
         });
+}
+
+function forceNotificationTest() {
+    console.log('Force notification test...');
+    
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(function(registration) {
+            console.log('Triggering service worker notification...');
+            
+            return registration.showNotification('Force Test Notification', {
+                body: 'This is a forced test notification bypassing push service',
+                icon: '/favicon.svg',
+                badge: '/favicon.svg',
+                vibrate: [200, 100, 200],
+                requireInteraction: false,
+                tag: 'force-test'
+            });
+        }).then(function() {
+            console.log('Force notification sent successfully');
+            M.toast({html: 'Force notification sent!'});
+        }).catch(function(error) {
+            console.error('Force notification failed:', error);
+            M.toast({html: 'Force notification failed: ' + error.message});
+        });
+    } else {
+        M.toast({html: 'Service worker not supported'});
+    }
 }

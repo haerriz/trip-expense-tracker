@@ -5,31 +5,49 @@ const CACHE_NAME = 'haerriz-expenses-v2';
 
 // Push notification handling
 self.addEventListener('push', (event) => {
+  console.log('Push event received:', event);
+  
+  let notificationData = {
+    title: 'Haerriz Trip Finance',
+    body: 'New notification from Haerriz Expenses'
+  };
+  
+  if (event.data) {
+    try {
+      const data = event.data.json();
+      console.log('Push data:', data);
+      notificationData.title = data.title || notificationData.title;
+      notificationData.body = data.body || data.message || notificationData.body;
+    } catch (e) {
+      console.log('Push data as text:', event.data.text());
+      notificationData.body = event.data.text();
+    }
+  }
+  
   const options = {
-    body: event.data ? event.data.text() : 'New notification from Haerriz Expenses',
+    body: notificationData.body,
     icon: '/favicon.svg',
     badge: '/favicon.svg',
-    vibrate: [100, 50, 100],
+    vibrate: [200, 100, 200],
+    requireInteraction: false,
     data: {
       dateOfArrival: Date.now(),
-      primaryKey: 1
+      url: '/dashboard.php'
     },
     actions: [
       {
-        action: 'explore',
-        title: 'View App',
-        icon: '/favicon.svg'
+        action: 'open',
+        title: 'Open App'
       },
       {
         action: 'close',
-        title: 'Close',
-        icon: '/favicon.svg'
+        title: 'Close'
       }
     ]
   };
 
   event.waitUntil(
-    self.registration.showNotification('Haerriz Trip Finance', options)
+    self.registration.showNotification(notificationData.title, options)
   );
 });
 
