@@ -332,6 +332,16 @@ requireLogin();
                         </div>
                     </div>
 
+                    <!-- Recent Expenses - Mobile Priority -->
+                    <div class="card recent-expenses hide-on-large-only">
+                        <div class="card-content">
+                            <span class="card-title">
+                                <i class="material-icons left">receipt</i>Recent Expenses
+                            </span>
+                            <div id="expenses-list-mobile" class="recent-expenses__list"></div>
+                        </div>
+                    </div>
+
                     <div class="card trip-members">
                         <div class="card-content">
                             <span class="card-title">
@@ -361,7 +371,8 @@ requireLogin();
                         </div>
                     </div>
 
-                    <div class="card recent-expenses">
+                    <!-- Recent Expenses - Desktop Only -->
+                    <div class="card recent-expenses hide-on-med-and-down">
                         <div class="card-content">
                             <span class="card-title">
                                 <i class="material-icons left">receipt</i>Recent Expenses

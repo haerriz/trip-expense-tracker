@@ -729,6 +729,7 @@ function loadExpenses(tripId) {
             });
             
             $('#expenses-list').html(html || '<p>No expenses yet</p>');
+            $('#expenses-list-mobile').html(html || '<p>No expenses yet</p>');
         })
         .fail(function() {
         });
