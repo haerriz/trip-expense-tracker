@@ -1150,12 +1150,25 @@ body {
     
     /* Hide radio buttons on mobile */
     .expense-form__split input[type="radio"] {
-        display: none;
+        display: none !important;
+        opacity: 0 !important;
+        position: absolute !important;
+        left: -9999px !important;
+    }
+    
+    .expense-form__split input[type="radio"]:before,
+    .expense-form__split input[type="radio"]:after {
+        display: none !important;
     }
     
     .expense-form__split label {
         margin: 0;
         cursor: pointer;
+    }
+    
+    .expense-form__split label:before,
+    .expense-form__split label:after {
+        display: none !important;
     }
     
     /* Fix custom split mode buttons */
@@ -1191,7 +1204,20 @@ body {
     }
     
     .split-mode-toggle input[type="radio"] {
-        display: none;
+        display: none !important;
+        opacity: 0 !important;
+        position: absolute !important;
+        left: -9999px !important;
+    }
+    
+    .split-mode-toggle input[type="radio"]:before,
+    .split-mode-toggle input[type="radio"]:after {
+        display: none !important;
+    }
+    
+    .split-mode-toggle label:before,
+    .split-mode-toggle label:after {
+        display: none !important;
     }
 }
 
