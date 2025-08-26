@@ -788,10 +788,11 @@ function loadExpenseChart(tripId) {
                 expenseChart.destroy();
             }
             
-            // Prepare data for nested donut chart
+            // Modern gradient colors for categories
             const categoryColors = [
-                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                '#9966FF', '#FF9F40', '#E7E9ED', '#C9CBCF'
+                '#667eea', '#764ba2', '#f093fb', '#f5576c',
+                '#4facfe', '#00f2fe', '#43e97b', '#38f9d7',
+                '#ffecd2', '#fcb69f', '#a8edea', '#fed6e3'
             ];
             
             // Create inner dataset (categories)
@@ -867,6 +868,13 @@ function loadExpenseChart(tripId) {
                             }
                         },
                         tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            displayColors: true,
                             callbacks: {
                                 label: function(context) {
                                     const label = context.label || '';
@@ -878,26 +886,74 @@ function loadExpenseChart(tripId) {
                             }
                         }
                     },
-                    cutout: '20%'
-                }
+                    cutout: '50%',
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true,
+                        duration: 2000,
+                        easing: 'easeOutQuart'
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    elements: {
+                        arc: {
+                            borderWidth: 0,
+                            hoverBorderWidth: 3,
+                            hoverBorderColor: '#fff'
+                        }
+                    }
+                },
+                plugins: [{
+                    id: 'centerText',
+                    beforeDraw: function(chart) {
+                        const ctx = chart.ctx;
+                        const centerX = chart.chartArea.left + (chart.chartArea.right - chart.chartArea.left) / 2;
+                        const centerY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
+                        
+                        // Calculate total
+                        const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                        
+                        ctx.save();
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        
+                        // Draw total amount
+                        ctx.font = 'bold 24px Arial';
+                        ctx.fillStyle = '#2c3e50';
+                        ctx.fillText(`$${total.toFixed(0)}`, centerX, centerY - 10);
+                        
+                        // Draw label
+                        ctx.font = '14px Arial';
+                        ctx.fillStyle = '#7f8c8d';
+                        ctx.fillText('Total Spent', centerX, centerY + 15);
+                        
+                        ctx.restore();
+                    }
+                }]
             });
         });
 }
+}
 
-// Helper function to adjust color brightness
+// Helper function to create gradient color variations
 function adjustColorBrightness(hex, factor) {
     // Convert hex to RGB
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
     const b = parseInt(hex.slice(5, 7), 16);
     
-    // Adjust brightness
-    const newR = Math.min(255, Math.max(0, r + (factor * 50)));
-    const newG = Math.min(255, Math.max(0, g + (factor * 50)));
-    const newB = Math.min(255, Math.max(0, b + (factor * 50)));
+    // Create more sophisticated color variations
+    const variation = factor * 0.3; // Reduced variation for subtlety
+    const newR = Math.min(255, Math.max(0, r + (variation * 80)));
+    const newG = Math.min(255, Math.max(0, g + (variation * 80)));
+    const newB = Math.min(255, Math.max(0, b + (variation * 80)));
     
-    // Convert back to hex
-    return `#${Math.round(newR).toString(16).padStart(2, '0')}${Math.round(newG).toString(16).padStart(2, '0')}${Math.round(newB).toString(16).padStart(2, '0')}`;
+    // Add slight transparency for depth
+    const alpha = 0.9 - (factor * 0.1);
+    
+    return `rgba(${Math.round(newR)}, ${Math.round(newG)}, ${Math.round(newB)}, ${alpha})`;
 }
 
 function addExpense() {
