@@ -22,8 +22,8 @@ try {
         exit;
     }
     
-    // Get total expenses (excluding budget category)
-    $stmt = $pdo->prepare("SELECT COALESCE(SUM(amount), 0) as total FROM expenses WHERE trip_id = ? AND category != 'Budget'");
+    // Get total expenses (excluding budget category, only active expenses)
+    $stmt = $pdo->prepare("SELECT COALESCE(SUM(amount), 0) as total FROM expenses WHERE trip_id = ? AND category != 'Budget' AND category != 'Budget Adjustment' AND (is_active IS NULL OR is_active = TRUE)");
     $stmt->execute([$tripId]);
     $totalExpenses = $stmt->fetchColumn();
     

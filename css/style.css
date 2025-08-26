@@ -1270,6 +1270,79 @@ body {
     z-index: 1;
 }
 
+/* Immutable System Styles */
+.expense-item--replaced {
+    opacity: 0.7;
+    border-left: 3px solid #ff9800;
+}
+
+.budget-with-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.budget-adjust-btn {
+    background: none;
+    border: 1px solid #2196F3;
+    color: #2196F3;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.budget-adjust-btn:hover {
+    background: #2196F3;
+    color: white;
+}
+
+.budget-adjust-btn i {
+    font-size: 18px;
+}
+
+.expense-history, .budget-history {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.history-record {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    background: #f9f9f9;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.history-date {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.history-details ul {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.history-details li {
+    margin: 4px 0;
+}
+
 .chart-total-display {
     text-align: center;
     margin-top: 20px;

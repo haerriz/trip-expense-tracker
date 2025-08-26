@@ -225,19 +225,22 @@ function editBudget() {
 function updateBudget() {
     const tripId = $('#current-trip').val();
     const budgetType = $('input[name="budget-type"]:checked').val();
-    const budgetAmount = $('#edit-budget-amount').val();
+    const budgetAmount = parseFloat($('#edit-budget-amount').val()) || 0;
+    const reason = prompt('Reason for budget change (optional):') || 'Budget updated by user';
     
     const formData = {
+        action: 'set',
         trip_id: tripId,
-        no_budget: budgetType === 'no-budget',
-        budget: budgetAmount
+        budget: budgetType === 'no-budget' ? 0 : budgetAmount,
+        reason: reason
     };
     
-    $.post('api/edit_trip_budget.php', formData)
+    $.post('api/immutable_budget.php', formData)
         .done(function(data) {
             if (data.success) {
                 $('#edit-budget-modal').modal('close');
                 loadTripSummary(tripId); // Refresh the summary
+                loadExpenses(tripId); // Refresh to show budget history
                 M.toast({html: data.message});
             } else {
                 M.toast({html: data.message || 'Error updating budget'});
@@ -270,42 +273,53 @@ function editExpense(expenseId) {
 }
 
 function updateExpense() {
+    const reason = prompt('Reason for modification (optional):') || 'Modified by user';
+    
     const formData = {
+        action: 'modify',
         expense_id: $('#edit-expense-id').val(),
         category: $('#edit-category').val(),
         subcategory: $('#edit-subcategory').val(),
         amount: $('#edit-amount').val(),
         description: $('#edit-description').val(),
-        date: $('#edit-date').val()
+        date: $('#edit-date').val(),
+        reason: reason
     };
     
-    $.post('api/edit_expense.php', formData)
+    $.post('api/immutable_expense.php', formData)
         .done(function(data) {
             if (data.success) {
                 $('#edit-expense-modal').modal('close');
                 const tripId = $('#current-trip').val();
                 loadTripDashboard(tripId);
-                M.toast({html: 'Expense updated successfully'});
+                M.toast({html: 'Expense modified successfully (new record created)'});
             } else {
-                M.toast({html: data.message || 'Error updating expense'});
+                M.toast({html: data.message || 'Error modifying expense'});
             }
         });
 }
 
 function deleteExpense(expenseId) {
-    if (confirm('Are you sure you want to delete this expense? This action cannot be undone.')) {
-        $.post('api/delete_expense.php', { expense_id: expenseId })
+    const reason = prompt('Reason for deactivating this expense:');
+    if (reason === null) return; // User cancelled
+    
+    if (confirm('This will deactivate the expense (not permanently delete). The record will be kept for audit purposes. Continue?')) {
+        $.post('api/immutable_expense.php', { 
+            action: 'deactivate',
+            expense_id: expenseId,
+            reason: reason || 'Deactivated by user'
+        })
             .done(function(data) {
                 if (data.success) {
                     const tripId = $('#current-trip').val();
                     loadTripDashboard(tripId);
                     M.toast({html: data.message});
                 } else {
-                    M.toast({html: data.message || 'Error deleting expense'});
+                    M.toast({html: data.message || 'Error deactivating expense'});
                 }
             })
             .fail(function() {
-                M.toast({html: 'Network error deleting expense'});
+                M.toast({html: 'Network error deactivating expense'});
             });
     }
 }
@@ -584,7 +598,12 @@ function loadTripSummary(tripId) {
                 
                 // Handle budget display with controls
                 if (budget === null || budget === undefined) {
-                    $('#budget-display').html('<h5 id="trip-budget" class="blue-text">No Budget</h5>');
+                    $('#budget-display').html(`
+                        <h5 id="trip-budget" class="blue-text">No Budget</h5>
+                        <button class="btn-small blue" onclick="viewBudgetHistory(); event.stopPropagation();" title="View budget history">
+                            <i class="material-icons left">history</i>History
+                        </button>
+                    `);
                     $('#remaining-budget').text('Unlimited');
                 } else {
                     const budgetAmount = currency + parseFloat(budget).toFixed(2);
@@ -598,6 +617,9 @@ function loadTripSummary(tripId) {
                                 <i class="material-icons">add</i>
                             </button>
                         </div>
+                        <button class="btn-small blue" onclick="viewBudgetHistory(); event.stopPropagation();" title="View budget history" style="margin-top: 8px;">
+                            <i class="material-icons left">history</i>History
+                        </button>
                     `);
                     $('#remaining-budget').text(currency + parseFloat(data.remaining_budget || 0).toFixed(2));
                 }
@@ -749,11 +771,14 @@ function loadExpenses(tripId) {
                 const expenseDate = new Date(expense.date).toLocaleDateString();
                 const avatar = expense.paid_by_picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(expense.paid_by_name)}&size=40&background=2196F3&color=fff`;
                 
+                const isReplaced = expense.replaced_by ? ' (Modified)' : '';
+                const statusClass = expense.replaced_by ? 'expense-item--replaced' : '';
+                
                 html += `
-                    <div class="expense-item">
+                    <div class="expense-item ${statusClass}">
                         <img src="${avatar}" alt="${expense.paid_by_name}" class="expense-item__avatar">
                         <div class="expense-item__info">
-                            <div class="expense-item__category">${expense.category}</div>
+                            <div class="expense-item__category">${expense.category}${isReplaced}</div>
                             <div class="expense-item__description">${expense.description}</div>
                             <div class="expense-item__meta">
                                 <span>${expenseDate}</span>
@@ -762,8 +787,9 @@ function loadExpenses(tripId) {
                         </div>
                         <div class="expense-item__amount">${currencySymbol}${parseFloat(expense.amount).toFixed(2)}</div>
                         <div class="expense-item__actions">
-                            ${canModify ? `<button class="btn-small blue" onclick="editExpense(${expense.id})" title="Edit expense"><i class="material-icons">edit</i></button>` : ''}
-                            ${canModify ? `<button class="btn-small red" onclick="deleteExpense(${expense.id})" title="Delete expense"><i class="material-icons">delete</i></button>` : ''}
+                            ${canModify ? `<button class="btn-small blue" onclick="editExpense(${expense.id})" title="Modify expense (creates new record)"><i class="material-icons">edit</i></button>` : ''}
+                            ${canModify ? `<button class="btn-small orange" onclick="viewExpenseHistory(${expense.id})" title="View expense history"><i class="material-icons">history</i></button>` : ''}
+                            ${canModify ? `<button class="btn-small red" onclick="deleteExpense(${expense.id})" title="Deactivate expense"><i class="material-icons">visibility_off</i></button>` : ''}
                         </div>
                     </div>
                 `;
@@ -998,6 +1024,7 @@ function addExpense() {
     }
     
     const formData = {
+        action: 'add',
         trip_id: tripId,
         category: $('#category').val(),
         subcategory: $('#subcategory').val(),
@@ -1022,7 +1049,7 @@ function addExpense() {
         });
     }
     
-    $.post('api/add_expense.php', formData)
+    $.post('api/immutable_expense.php', formData)
         .done(function(response) {
             if (response.success) {
                 $('#expense-form')[0].reset();
@@ -1393,15 +1420,19 @@ function adjustBudget(action) {
         return;
     }
     
-    $.post('api/adjust_budget.php', {
+    const reason = prompt('Reason for budget adjustment (optional):') || `Budget ${action}d by user`;
+    
+    $.post('api/immutable_budget.php', {
+        action: 'adjust',
         trip_id: tripId,
-        action: action,
-        amount: parseFloat(amount)
+        adjustment_type: action,
+        amount: parseFloat(amount),
+        reason: reason
     })
     .done(function(data) {
         if (data.success) {
             loadTripSummary(tripId);
-            loadExpenses(tripId); // Refresh expenses to show budget change
+            loadExpenses(tripId); // Refresh expenses to show budget adjustment record
             M.toast({html: data.message});
         } else {
             M.toast({html: data.message || 'Error adjusting budget'});
@@ -1433,5 +1464,141 @@ function updateChatStatus(tripId) {
         })
         .fail(function(xhr, status, error) {
             $('#online-status').text('Connection error');
+        });
+}
+
+function viewExpenseHistory(expenseId) {
+    $.get('api/get_expense_history.php', { expense_id: expenseId })
+        .done(function(data) {
+            if (data.success) {
+                const history = data.history || [];
+                let html = '<div class="expense-history">';
+                
+                if (history.length === 0) {
+                    html += '<p>No modification history for this expense.</p>';
+                } else {
+                    html += '<h6>Expense Modification History</h6>';
+                    history.forEach(function(record) {
+                        const changeDate = new Date(record.created_at).toLocaleString();
+                        html += `
+                            <div class="history-record">
+                                <div class="history-header">
+                                    <strong>${record.change_reason}</strong>
+                                    <span class="history-date">${changeDate}</span>
+                                </div>
+                                <div class="history-details">
+                                    <p><strong>Changed by:</strong> ${record.changed_by_name}</p>
+                                    <p><strong>Previous values:</strong></p>
+                                    <ul>
+                                        <li>Category: ${record.category}</li>
+                                        <li>Subcategory: ${record.subcategory}</li>
+                                        <li>Amount: $${parseFloat(record.amount).toFixed(2)}</li>
+                                        <li>Description: ${record.description}</li>
+                                        <li>Date: ${record.date}</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                html += '</div>';
+                
+                // Show in a modal or alert
+                const modal = $(`
+                    <div class="modal" id="expense-history-modal">
+                        <div class="modal-content">
+                            <h4><i class="material-icons left">history</i>Expense History</h4>
+                            ${html}
+                        </div>
+                        <div class="modal-footer">
+                            <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+                        </div>
+                    </div>
+                `);
+                
+                $('body').append(modal);
+                modal.modal();
+                modal.modal('open');
+                
+                // Remove modal after closing
+                modal.on('modal:close', function() {
+                    modal.remove();
+                });
+            } else {
+                M.toast({html: 'Error loading expense history'});
+            }
+        })
+        .fail(function() {
+            M.toast({html: 'Network error loading expense history'});
+        });
+}
+
+function viewBudgetHistory() {
+    const tripId = $('#current-trip').val();
+    if (!tripId) {
+        M.toast({html: 'Please select a trip first'});
+        return;
+    }
+    
+    $.get('api/immutable_budget.php', { action: 'history', trip_id: tripId })
+        .done(function(data) {
+            if (data.success) {
+                const history = data.history || [];
+                let html = '<div class="budget-history">';
+                
+                if (history.length === 0) {
+                    html += '<p>No budget change history for this trip.</p>';
+                } else {
+                    html += '<h6>Budget Change History</h6>';
+                    history.forEach(function(record) {
+                        const changeDate = new Date(record.created_at).toLocaleString();
+                        const changeType = record.adjustment_type.charAt(0).toUpperCase() + record.adjustment_type.slice(1);
+                        html += `
+                            <div class="history-record">
+                                <div class="history-header">
+                                    <strong>${changeType}: $${parseFloat(record.adjustment_amount).toFixed(2)}</strong>
+                                    <span class="history-date">${changeDate}</span>
+                                </div>
+                                <div class="history-details">
+                                    <p><strong>Changed by:</strong> ${record.adjusted_by_name}</p>
+                                    <p><strong>Previous budget:</strong> $${parseFloat(record.previous_budget || 0).toFixed(2)}</p>
+                                    <p><strong>New budget:</strong> $${parseFloat(record.new_budget || 0).toFixed(2)}</p>
+                                    ${record.reason ? `<p><strong>Reason:</strong> ${record.reason}</p>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                html += '</div>';
+                
+                // Show in a modal
+                const modal = $(`
+                    <div class="modal" id="budget-history-modal">
+                        <div class="modal-content">
+                            <h4><i class="material-icons left">history</i>Budget History</h4>
+                            ${html}
+                        </div>
+                        <div class="modal-footer">
+                            <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+                        </div>
+                    </div>
+                `);
+                
+                $('body').append(modal);
+                modal.modal();
+                modal.modal('open');
+                
+                // Remove modal after closing
+                modal.on('modal:close', function() {
+                    modal.remove();
+                });
+            } else {
+                M.toast({html: 'Error loading budget history'});
+            }
+        })
+        .fail(function() {
+            M.toast({html: 'Network error loading budget history'});
         });
 }
