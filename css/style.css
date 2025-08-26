@@ -1349,6 +1349,13 @@ body {
     background: #a1a1a1;
 }
 
+/* Fix split avatar size */
+.split-avatar {
+    width: 24px !important;
+    height: 24px !important;
+    margin-right: 8px;
+}
+
 /* Mobile hamburger menu accordion styles */
 .mobile-accordion {
     border: none;

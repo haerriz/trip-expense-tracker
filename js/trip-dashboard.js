@@ -1002,6 +1002,7 @@ function loadCustomSplitSection() {
             let html = `
                 <div class="custom-split-header">
                     <h6>Custom Split ${isPercentage ? 'Percentages' : 'Amounts'}</h6>
+                    ${isPercentage ? `<div class="split-amount-info"><span>Total Amount: <strong>$${totalAmount.toFixed(2)}</strong></span></div>` : ''}
                     <div class="split-info">
                         <span>Total: <strong id="split-total">${isPercentage ? '100%' : '$' + totalAmount.toFixed(2)}</strong></span>
                         <span>Remaining: <strong id="split-remaining">${isPercentage ? '100%' : '$' + totalAmount.toFixed(2)}</strong></span>
