@@ -1107,6 +1107,51 @@ body {
     .brand-icon-wrapper {
         text-align: center;
     }
+    
+    /* Mobile expense split buttons */
+    .expense-form__split {
+        display: flex;
+        gap: 4px;
+        margin: 16px 0;
+    }
+    
+    .expense-form__split p {
+        flex: 1;
+        margin: 0;
+    }
+    
+    .split-option-btn {
+        width: 100%;
+        padding: 8px 4px;
+        border: 1px solid #e0e0e0;
+        background: white;
+        color: #666;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+    }
+    
+    .split-option-btn.active {
+        background: #2196F3;
+        color: white;
+        border-color: #2196F3;
+    }
+    
+    .split-option-btn:hover {
+        border-color: #2196F3;
+    }
+    
+    /* Hide radio buttons on mobile */
+    .expense-form__split input[type="radio"] {
+        display: none;
+    }
+    
+    .expense-form__split label {
+        margin: 0;
+        cursor: pointer;
+    }
 }
 
 /* Large screen improvements */

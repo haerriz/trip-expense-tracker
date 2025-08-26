@@ -292,20 +292,20 @@ requireLogin();
                                 </div>
                                 <div class="expense-form__split">
                                     <p>
-                                        <label>
-                                            <input name="split" type="radio" value="equal" checked />
+                                        <label class="split-option-btn active" for="split-equal">
+                                            <input id="split-equal" name="split" type="radio" value="equal" checked />
                                             <span>Split Equally</span>
                                         </label>
                                     </p>
                                     <p>
-                                        <label>
-                                            <input name="split" type="radio" value="full" />
+                                        <label class="split-option-btn" for="split-full">
+                                            <input id="split-full" name="split" type="radio" value="full" />
                                             <span>Full Expense on Me</span>
                                         </label>
                                     </p>
                                     <p>
-                                        <label>
-                                            <input name="split" type="radio" value="custom" />
+                                        <label class="split-option-btn" for="split-custom">
+                                            <input id="split-custom" name="split" type="radio" value="custom" />
                                             <span>Custom Split</span>
                                         </label>
                                     </p>

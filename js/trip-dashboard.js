@@ -96,12 +96,23 @@ $(document).ready(function() {
     });
     
     $('input[name="split"]').on('change', function() {
+        // Update active state for mobile buttons
+        $('.split-option-btn').removeClass('active');
+        $(this).closest('label').addClass('active');
+        
         if ($(this).val() === 'custom') {
             loadCustomSplitSection();
             $('#custom-split-section').show();
         } else {
             $('#custom-split-section').hide();
         }
+    });
+    
+    // Handle mobile split button clicks
+    $('.split-option-btn').on('click', function() {
+        $('.split-option-btn').removeClass('active');
+        $(this).addClass('active');
+        $(this).find('input[type="radio"]').prop('checked', true).trigger('change');
     });
     
     $(document).on('change', 'input[name="split-mode"]', function() {
