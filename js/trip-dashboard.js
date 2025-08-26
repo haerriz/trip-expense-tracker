@@ -788,29 +788,116 @@ function loadExpenseChart(tripId) {
                 expenseChart.destroy();
             }
             
+            // Prepare data for nested donut chart
+            const categoryColors = [
+                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                '#9966FF', '#FF9F40', '#E7E9ED', '#C9CBCF'
+            ];
+            
+            // Create inner dataset (categories)
+            const innerLabels = data.categories || [];
+            const innerData = data.amounts || [];
+            const innerColors = categoryColors.slice(0, innerLabels.length);
+            
+            // Create outer dataset (subcategories)
+            const outerLabels = [];
+            const outerData = [];
+            const outerColors = [];
+            
+            innerLabels.forEach((category, categoryIndex) => {
+                const subcats = data.subcategories[category] || [];
+                if (subcats.length > 0) {
+                    subcats.forEach((subcat, subIndex) => {
+                        outerLabels.push(`${category} - ${subcat.name}`);
+                        outerData.push(subcat.amount);
+                        // Create lighter/darker variations of category color
+                        const baseColor = innerColors[categoryIndex];
+                        const variation = subIndex * 0.2;
+                        outerColors.push(adjustColorBrightness(baseColor, variation));
+                    });
+                } else {
+                    // If no subcategories, add the category itself to outer ring
+                    outerLabels.push(category);
+                    outerData.push(innerData[categoryIndex]);
+                    outerColors.push(innerColors[categoryIndex]);
+                }
+            });
+            
             expenseChart = new Chart(ctx, {
-                type: 'pie',
+                type: 'doughnut',
                 data: {
-                    labels: data.categories || [],
-                    datasets: [{
-                        data: data.amounts || [],
-                        backgroundColor: [
-                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                            '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
-                        ]
-                    }]
+                    labels: outerLabels,
+                    datasets: [
+                        {
+                            label: 'Categories',
+                            data: innerData,
+                            backgroundColor: innerColors,
+                            borderWidth: 2,
+                            borderColor: '#fff',
+                            radius: '40%'
+                        },
+                        {
+                            label: 'Subcategories',
+                            data: outerData,
+                            backgroundColor: outerColors,
+                            borderWidth: 1,
+                            borderColor: '#fff',
+                            radius: '70%'
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'bottom'
+                            position: 'bottom',
+                            labels: {
+                                generateLabels: function(chart) {
+                                    // Show only category labels in legend
+                                    return innerLabels.map((label, index) => ({
+                                        text: label,
+                                        fillStyle: innerColors[index],
+                                        strokeStyle: innerColors[index],
+                                        lineWidth: 0,
+                                        hidden: false,
+                                        index: index
+                                    }));
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: $${value.toFixed(2)} (${percentage}%)`;
+                                }
+                            }
                         }
-                    }
+                    },
+                    cutout: '20%'
                 }
             });
         });
+}
+
+// Helper function to adjust color brightness
+function adjustColorBrightness(hex, factor) {
+    // Convert hex to RGB
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    
+    // Adjust brightness
+    const newR = Math.min(255, Math.max(0, r + (factor * 50)));
+    const newG = Math.min(255, Math.max(0, g + (factor * 50)));
+    const newB = Math.min(255, Math.max(0, b + (factor * 50)));
+    
+    // Convert back to hex
+    return `#${Math.round(newR).toString(16).padStart(2, '0')}${Math.round(newG).toString(16).padStart(2, '0')}${Math.round(newB).toString(16).padStart(2, '0')}`;
 }
 
 function addExpense() {
