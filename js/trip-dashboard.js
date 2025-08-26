@@ -416,14 +416,19 @@ function loadTrips() {
                 });
             }
             
+            // Update both desktop and mobile selectors
             $('#current-trip').html(options);
-            $('#current-trip').formSelect(); // Reinitialize Materialize select
+            $('#current-trip-mobile').html(options);
+            $('#current-trip').formSelect();
+            $('#current-trip-mobile').formSelect();
             
             // Auto-select last trip
             const lastTripId = localStorage.getItem('selectedTripId');
             if (lastTripId && trips.find(t => t.id == lastTripId)) {
                 $('#current-trip').val(lastTripId);
+                $('#current-trip-mobile').val(lastTripId);
                 $('#current-trip').formSelect();
+                $('#current-trip-mobile').formSelect();
                 $('#current-trip').trigger('change');
             } else if (trips.length === 0) {
                 showEmptyState();
