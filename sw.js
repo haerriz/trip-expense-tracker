@@ -55,7 +55,7 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
-  if (event.action === 'explore') {
+  if (event.action === 'open') {
     event.waitUntil(
       clients.openWindow('/dashboard.php')
     );
@@ -67,6 +67,27 @@ self.addEventListener('notificationclick', (event) => {
     event.waitUntil(
       clients.openWindow('/dashboard.php')
     );
+  }
+});
+
+// Handle messages from main thread (for testing)
+self.addEventListener('message', (event) => {
+  console.log('SW received message:', event.data);
+  
+  if (event.data.type === 'SIMULATE_PUSH') {
+    const data = event.data.data;
+    
+    const options = {
+      body: data.body,
+      icon: data.icon || '/favicon.svg',
+      badge: '/favicon.svg',
+      vibrate: [200, 100, 200],
+      requireInteraction: false,
+      tag: 'simulated-push'
+    };
+    
+    self.registration.showNotification(data.title, options);
+    console.log('Simulated push notification shown');
   }
 });
 const urlsToCache = [

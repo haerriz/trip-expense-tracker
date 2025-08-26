@@ -48,6 +48,11 @@ $(document).ready(function() {
     $('#force-notification').on('click', function() {
         forceNotificationTest();
     });
+    
+    // Service worker push test
+    $('#sw-push-test').on('click', function() {
+        serviceWorkerPushTest();
+    });
 });
 
 function sendPushNotification() {
@@ -229,6 +234,42 @@ function forceNotificationTest() {
         }).catch(function(error) {
             console.error('Force notification failed:', error);
             M.toast({html: 'Force notification failed: ' + error.message});
+        });
+    } else {
+        M.toast({html: 'Service worker not supported'});
+    }
+}
+
+function serviceWorkerPushTest() {
+    console.log('Service worker push test...');
+    
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(function(registration) {
+            console.log('Simulating push event...');
+            
+            // Create a fake push event
+            const pushData = {
+                title: 'SW Push Test',
+                body: 'This simulates a real push notification',
+                icon: '/favicon.svg'
+            };
+            
+            // Send message to service worker to simulate push
+            if (registration.active) {
+                registration.active.postMessage({
+                    type: 'SIMULATE_PUSH',
+                    data: pushData
+                });
+                
+                console.log('Push simulation message sent to SW');
+                M.toast({html: 'Push simulation sent to service worker!'});
+            } else {
+                console.error('No active service worker');
+                M.toast({html: 'No active service worker found'});
+            }
+        }).catch(function(error) {
+            console.error('SW push test failed:', error);
+            M.toast({html: 'SW push test failed: ' + error.message});
         });
     } else {
         M.toast({html: 'Service worker not supported'});
