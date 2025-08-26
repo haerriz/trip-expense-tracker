@@ -22,8 +22,8 @@ try {
         exit;
     }
     
-    // Get total expenses
-    $stmt = $pdo->prepare("SELECT COALESCE(SUM(amount), 0) as total FROM expenses WHERE trip_id = ?");
+    // Get total expenses (excluding budget category)
+    $stmt = $pdo->prepare("SELECT COALESCE(SUM(amount), 0) as total FROM expenses WHERE trip_id = ? AND category != 'Budget'");
     $stmt->execute([$tripId]);
     $totalExpenses = $stmt->fetchColumn();
     
@@ -33,7 +33,7 @@ try {
     $memberCount = $stmt->fetchColumn();
     
     // Calculate remaining budget
-    $remaining = $trip['budget'] - $totalExpenses;
+    $remaining = $trip['budget'] ? $trip['budget'] - $totalExpenses : null;
     $perPersonShare = $memberCount > 0 ? $totalExpenses / $memberCount : 0;
     
     echo json_encode([

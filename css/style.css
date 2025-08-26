@@ -1298,6 +1298,38 @@ body {
     color: #2c3e50;
     margin-bottom: 20px;
     display: flex;
+}
+
+/* Budget Controls */
+.budget-with-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.budget-adjust-btn {
+    background: #2196F3;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: white;
+}
+
+.budget-adjust-btn:hover {
+    background: #1976D2;
+    transform: scale(1.1);
+}
+
+.budget-adjust-btn .material-icons {
+    font-size: 18px;
+}
     align-items: center;
     gap: 12px;
 }

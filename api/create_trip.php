@@ -47,6 +47,40 @@ try {
                 $stmt->execute([$tripId, $userId]);
             }
             
+            // Add initial budget as expense record if budget is set
+            if ($budget > 0) {
+                // Ensure Budget category exists
+                $stmt = $pdo->prepare("SELECT id FROM categories WHERE name = 'Budget'");
+                $stmt->execute();
+                if (!$stmt->fetch()) {
+                    $stmt = $pdo->prepare("INSERT INTO categories (name, subcategories) VALUES ('Budget', 'Initial Budget,Budget Increase,Budget Decrease')");
+                    $stmt->execute();
+                }
+                
+                // Create initial budget expense record
+                $stmt = $pdo->prepare("
+                    INSERT INTO expenses (trip_id, category, subcategory, amount, description, date, paid_by, created_at)
+                    VALUES (?, 'Budget', 'Initial Budget', ?, 'Initial trip budget allocation', ?, ?, NOW())
+                ");
+                
+                $stmt->execute([
+                    $tripId,
+                    $budget,
+                    $startDate ?: date('Y-m-d'),
+                    $userId
+                ]);
+                
+                $expenseId = $pdo->lastInsertId();
+                
+                // Add expense split for the creator
+                $stmt = $pdo->prepare("
+                    INSERT INTO expense_splits (expense_id, user_id, amount, created_at)
+                    VALUES (?, ?, ?, NOW())
+                ");
+                
+                $stmt->execute([$expenseId, $userId, $budget]);
+            }
+            
             echo json_encode(['success' => true, 'trip_id' => $tripId, 'message' => 'Trip created successfully']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to create trip']);

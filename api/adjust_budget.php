@@ -1,47 +1,31 @@
 <?php
-session_start();
-require_once '../includes/db.php';
+require_once '../includes/auth.php';
+requireLogin();
 
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Not authenticated']);
-    exit;
-}
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'message' => 'Invalid request method']);
-    exit;
-}
-
-$trip_id = $_POST['trip_id'] ?? null;
-$action = $_POST['action'] ?? null;
-$amount = $_POST['amount'] ?? null;
-
-if (!$trip_id || !$action || !$amount) {
-    echo json_encode(['success' => false, 'message' => 'Missing required fields']);
-    exit;
-}
-
-if (!in_array($action, ['increase', 'decrease'])) {
-    echo json_encode(['success' => false, 'message' => 'Invalid action']);
-    exit;
-}
-
-$amount = floatval($amount);
-if ($amount <= 0) {
-    echo json_encode(['success' => false, 'message' => 'Amount must be positive']);
-    exit;
-}
-
 try {
-    // Check if user is trip creator or master admin
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        echo json_encode(['success' => false, 'error' => 'Invalid request method']);
+        exit;
+    }
+    
+    $tripId = $_POST['trip_id'] ?? null;
+    $action = $_POST['action'] ?? null; // 'increase' or 'decrease'
+    $amount = floatval($_POST['amount'] ?? 0);
+    
+    if (!$tripId || !$action || $amount <= 0) {
+        echo json_encode(['success' => false, 'error' => 'Missing required parameters']);
+        exit;
+    }
+    
+    // Verify user has permission (trip creator or master admin)
     $stmt = $pdo->prepare("SELECT created_by, budget FROM trips WHERE id = ?");
-    $stmt->execute([$trip_id]);
-    $trip = $stmt->fetch();
+    $stmt->execute([$tripId]);
+    $trip = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$trip) {
-        echo json_encode(['success' => false, 'message' => 'Trip not found']);
+        echo json_encode(['success' => false, 'error' => 'Trip not found']);
         exit;
     }
     
@@ -49,52 +33,60 @@ try {
     $isCreator = $trip['created_by'] == $_SESSION['user_id'];
     
     if (!$isCreator && !$isMasterAdmin) {
-        echo json_encode(['success' => false, 'message' => 'Only trip creator can adjust budget']);
+        echo json_encode(['success' => false, 'error' => 'Permission denied']);
         exit;
     }
     
-    $currentBudget = $trip['budget'];
-    if ($currentBudget === null) {
-        echo json_encode(['success' => false, 'message' => 'No budget set for this trip']);
+    // Calculate new budget
+    $currentBudget = floatval($trip['budget'] ?? 0);
+    $newBudget = $action === 'increase' ? $currentBudget + $amount : $currentBudget - $amount;
+    
+    if ($newBudget < 0) {
+        echo json_encode(['success' => false, 'error' => 'Budget cannot be negative']);
         exit;
     }
     
-    $newBudget = $action === 'increase' ? 
-        $currentBudget + $amount : 
-        max(0, $currentBudget - $amount);
-    
+    // Update trip budget
     $stmt = $pdo->prepare("UPDATE trips SET budget = ? WHERE id = ?");
-    $stmt->execute([$newBudget, $trip_id]);
+    $stmt->execute([$newBudget, $tripId]);
     
-    // Log budget change as expense entry
+    // Create budget adjustment expense record
+    $subcategory = $action === 'increase' ? 'Budget Increase' : 'Budget Decrease';
     $description = $action === 'increase' ? 
-        "Budget increased by {$amount}" : 
-        "Budget decreased by {$amount}";
+        "Budget increased by $amount" : 
+        "Budget decreased by $amount";
     
     $stmt = $pdo->prepare("
-        INSERT INTO expenses (trip_id, paid_by, category, subcategory, amount, description, date, created_at) 
-        VALUES (?, ?, 'Budget Adjustment', ?, ?, ?, CURDATE(), NOW())
+        INSERT INTO expenses (trip_id, category, subcategory, amount, description, date, paid_by, created_at)
+        VALUES (?, 'Budget', ?, ?, ?, ?, ?, NOW())
     ");
     
-    $adjustmentAmount = $action === 'increase' ? $amount : -$amount;
-    $subcategory = $action === 'increase' ? 'Budget Increase' : 'Budget Decrease';
-    
     $stmt->execute([
-        $trip_id, 
-        $_SESSION['user_id'], 
+        $tripId,
         $subcategory,
-        $adjustmentAmount,
-        $description
+        $amount,
+        $description,
+        date('Y-m-d'),
+        $_SESSION['user_id']
     ]);
     
-    $actionText = $action === 'increase' ? 'increased' : 'decreased';
+    $expenseId = $pdo->lastInsertId();
+    
+    // Add expense split
+    $stmt = $pdo->prepare("
+        INSERT INTO expense_splits (expense_id, user_id, amount, created_at)
+        VALUES (?, ?, ?, NOW())
+    ");
+    
+    $stmt->execute([$expenseId, $_SESSION['user_id'], $amount]);
+    
     echo json_encode([
-        'success' => true, 
-        'message' => "Budget {$actionText} successfully",
+        'success' => true,
+        'message' => "Budget {$action}d by $amount successfully",
         'new_budget' => $newBudget
     ]);
     
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
 ?>
