@@ -1099,7 +1099,7 @@ body {
 .chat-bubble {
     position: fixed;
     bottom: 20px;
-    right: 20px;
+    left: 20px;
     width: 60px;
     height: 60px;
     background: linear-gradient(135deg, #2196F3, #1976D2);
@@ -1143,7 +1143,7 @@ body {
 .chat-window {
     position: fixed;
     bottom: 90px;
-    right: 20px;
+    left: 20px;
     width: 350px;
     height: 450px;
     background: white;
@@ -1202,6 +1202,8 @@ body {
     border-radius: 8px;
     padding: 12px;
     background: #fafafa;
+    overflow-y: auto;
+    max-height: 300px;
 }
 
 [data-theme="dark"] .chat-window .trip-chat__messages {
@@ -1259,12 +1261,46 @@ body {
         width: calc(100vw - 40px);
         height: 400px;
         bottom: 90px;
-        right: 20px;
         left: 20px;
+        right: 20px;
     }
     
     .chat-bubble {
         bottom: 20px;
-        right: 20px;
+        left: 20px;
     }
+}
+
+/* Chat message avatars */
+.chat-message__avatar {
+    width: 16px !important;
+    height: 16px !important;
+    border-radius: 50%;
+    margin-right: 4px;
+    flex-shrink: 0;
+}
+
+/* Fix chat window scrolling */
+.chat-window .trip-chat__messages {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+.chat-window .trip-chat__messages::-webkit-scrollbar {
+    width: 4px;
+}
+
+.chat-window .trip-chat__messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 2px;
+}
+
+.chat-window .trip-chat__messages::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 2px;
+}
+
+.chat-window .trip-chat__messages::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
 }

@@ -94,17 +94,23 @@ class FloatingChatManager {
         const messageDate = new Date(message.created_at);
         const time = messageDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         
+        // Get user avatar
+        const avatar = message.sender_avatar || 
+            `https://ui-avatars.com/api/?name=${encodeURIComponent(message.sender_name)}&size=16&background=2196F3&color=fff`;
+        
         div.className = `chat-message ${messageClass}`;
         div.innerHTML = `
             <div class="chat-message__bubble">
                 ${!isOwn ? `
                     <div class="chat-message__header">
+                        <img src="${avatar}" alt="${message.sender_name}" class="chat-message__avatar">
                         <span class="chat-message__sender">${message.sender_name}</span>
                         <span class="chat-message__time">${time}</span>
                     </div>
                 ` : `
                     <div class="chat-message__header">
                         <span class="chat-message__time">${time}</span>
+                        <img src="${avatar}" alt="You" class="chat-message__avatar">
                     </div>
                 `}
                 <div class="chat-message__text">${message.message}</div>
