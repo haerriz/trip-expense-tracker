@@ -53,7 +53,7 @@ class PushNotificationManager {
 
     async sendSubscriptionToServer(subscription) {
         try {
-            const response = await fetch('/api/save_push_subscription.php', {
+            const response = await fetch('api/save_push_subscription.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -73,6 +73,10 @@ class PushNotificationManager {
             const result = await response.json();
             if (result.success) {
                 console.log('Subscription saved successfully');
+                // Show success message
+                if (window.M && window.M.toast) {
+                    M.toast({html: 'Push notifications enabled!'});
+                }
             }
         } catch (error) {
             console.error('Error saving subscription:', error);
@@ -99,8 +103,34 @@ class PushNotificationManager {
         if (Notification.permission === 'granted') {
             new Notification('Test Notification', {
                 body: 'This is a test notification from Haerriz Expenses',
-                icon: '/favicon.svg'
+                icon: '/favicon.svg',
+                badge: '/favicon.svg'
             });
+        } else {
+            console.log('Notification permission not granted');
+            if (window.M && window.M.toast) {
+                M.toast({html: 'Please enable notifications first'});
+            }
+        }
+    }
+    
+    // Check subscription status
+    async getSubscriptionStatus() {
+        if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+            return { supported: false, subscribed: false };
+        }
+        
+        try {
+            const registration = await navigator.serviceWorker.ready;
+            const subscription = await registration.pushManager.getSubscription();
+            return {
+                supported: true,
+                subscribed: !!subscription,
+                permission: Notification.permission
+            };
+        } catch (error) {
+            console.error('Error checking subscription:', error);
+            return { supported: true, subscribed: false, error: error.message };
         }
     }
 }

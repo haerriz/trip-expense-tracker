@@ -32,7 +32,7 @@ try {
     
     echo json_encode([
         'success' => true,
-        'notifications' => $notifications
+        'history' => $notifications
     ]);
     
 } catch (Exception $e) {

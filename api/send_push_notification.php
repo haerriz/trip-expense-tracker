@@ -39,12 +39,27 @@ try {
     $message = $input['message'];
     $sentCount = 0;
     
-    // Simple push notification (for demo - in production use proper VAPID keys)
+    // Send actual push notifications
     foreach ($subscriptions as $subscription) {
-        // In a real implementation, you would use a library like web-push
-        // For demo purposes, we'll just log the attempt
-        error_log("Would send push notification to: " . $subscription['endpoint']);
-        $sentCount++;
+        try {
+            $success = sendWebPushNotification(
+                $subscription['endpoint'],
+                $subscription['p256dh_key'],
+                $subscription['auth_key'],
+                json_encode([
+                    'title' => $title,
+                    'body' => $message,
+                    'icon' => '/favicon.svg',
+                    'badge' => '/favicon.svg'
+                ])
+            );
+            
+            if ($success) {
+                $sentCount++;
+            }
+        } catch (Exception $e) {
+            error_log("Failed to send push to {$subscription['endpoint']}: " . $e->getMessage());
+        }
     }
     
     // Log the notification
@@ -76,5 +91,31 @@ try {
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Failed to send notifications: ' . $e->getMessage()]);
+}
+
+// Simple web push function (basic implementation)
+function sendWebPushNotification($endpoint, $p256dh, $auth, $payload) {
+    // For demo purposes, we'll use a simple HTTP request
+    // In production, use a proper library like web-push-php
+    
+    $headers = [
+        'Content-Type: application/json',
+        'TTL: 86400'
+    ];
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $endpoint);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    
+    $result = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    return $httpCode >= 200 && $httpCode < 300;
 }
 ?>
