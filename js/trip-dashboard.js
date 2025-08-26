@@ -993,6 +993,11 @@ function loadCustomSplitSection() {
     
     if (!tripId) return;
     
+    // Get trip currency
+    const selectedOption = $('#current-trip option:selected');
+    const tripCurrency = selectedOption.data('currency') || 'USD';
+    const currencySymbol = getCurrencySymbol(tripCurrency);
+    
     $.get('api/get_trip_members.php', { trip_id: tripId })
         .done(function(data) {
             const members = data.members || [];
@@ -1002,10 +1007,10 @@ function loadCustomSplitSection() {
             let html = `
                 <div class="custom-split-header">
                     <h6>Custom Split ${isPercentage ? 'Percentages' : 'Amounts'}</h6>
-                    ${isPercentage ? `<div class="split-amount-info"><span>Total Amount: <strong>$${totalAmount.toFixed(2)}</strong></span></div>` : ''}
+                    ${isPercentage ? `<div class="split-amount-info"><span>Total Amount: <strong>${currencySymbol}${totalAmount.toFixed(2)}</strong></span></div>` : ''}
                     <div class="split-info">
-                        <span>Total: <strong id="split-total">${isPercentage ? '100%' : '$' + totalAmount.toFixed(2)}</strong></span>
-                        <span>Remaining: <strong id="split-remaining">${isPercentage ? '100%' : '$' + totalAmount.toFixed(2)}</strong></span>
+                        <span>Total: <strong id="split-total">${isPercentage ? '100%' : currencySymbol + totalAmount.toFixed(2)}</strong></span>
+                        <span>Remaining: <strong id="split-remaining">${isPercentage ? '100%' : currencySymbol + totalAmount.toFixed(2)}</strong></span>
                     </div>
                     <div class="split-actions">
                         <button type="button" class="btn-small" onclick="splitEqually()">Split Equally</button>
@@ -1057,6 +1062,7 @@ function loadCustomSplitSection() {
             // Store members data for calculations
             window.tripMembers = members;
             window.totalExpenseAmount = totalAmount;
+            window.tripCurrencySymbol = currencySymbol;
         });
 }
 
@@ -1112,6 +1118,7 @@ function updateSplitCalculation() {
     const members = window.tripMembers || [];
     const splitMode = $('input[name="split-mode"]:checked').val() || 'currency';
     const isPercentage = splitMode === 'percentage';
+    const currencySymbol = window.tripCurrencySymbol || '$';
     
     let splitTotal = 0;
     let hasValues = false;
@@ -1124,7 +1131,7 @@ function updateSplitCalculation() {
             if (inputValue > 0) {
                 hasValues = true;
                 const amount = (inputValue / 100) * totalAmount;
-                $(`#display_${member.id}`).text('$' + amount.toFixed(2));
+                $(`#display_${member.id}`).text(currencySymbol + amount.toFixed(2));
             } else {
                 $(`#display_${member.id}`).text('-');
             }
@@ -1166,17 +1173,17 @@ function updateSplitCalculation() {
         }
     } else {
         const remaining = totalAmount - splitTotal;
-        $('#split-total').text('$' + totalAmount.toFixed(2));
-        $('#split-remaining').text('$' + remaining.toFixed(2));
+        $('#split-total').text(currencySymbol + totalAmount.toFixed(2));
+        $('#split-remaining').text(currencySymbol + remaining.toFixed(2));
         
         // Validation for currency
         if (hasValues) {
             if (Math.abs(remaining) > 0.01) {
                 $('#split-validation').show();
                 if (remaining > 0) {
-                    $('#split-error').text(`$${remaining.toFixed(2)} remaining to be allocated`);
+                    $('#split-error').text(`${currencySymbol}${remaining.toFixed(2)} remaining to be allocated`);
                 } else {
-                    $('#split-error').text(`Over-allocated by $${Math.abs(remaining).toFixed(2)}`);
+                    $('#split-error').text(`Over-allocated by ${currencySymbol}${Math.abs(remaining).toFixed(2)}`);
                 }
                 $('#split-remaining').addClass('red-text');
             } else {
