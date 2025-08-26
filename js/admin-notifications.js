@@ -24,6 +24,20 @@ $(document).ready(function() {
     $('#test-notification').on('click', function() {
         testNotification();
     });
+    
+    // Manual subscription button
+    $('#subscribe-push').on('click', function() {
+        if (window.pushManager) {
+            window.pushManager.subscribeUser();
+        } else {
+            M.toast({html: 'Push manager not available'});
+        }
+    });
+    
+    // Check subscription status
+    $('#check-subscription').on('click', function() {
+        checkSubscriptionStatus();
+    });
 });
 
 function sendPushNotification() {
@@ -130,4 +144,28 @@ function loadNotificationHistory() {
         .fail(function() {
             console.error('Failed to load notification history');
         });
+}
+
+function checkSubscriptionStatus() {
+    console.log('Checking subscription status...');
+    
+    if (window.pushManager) {
+        window.pushManager.getSubscriptionStatus().then(function(status) {
+            console.log('Subscription status:', status);
+            
+            let message = `
+                Supported: ${status.supported}<br>
+                Subscribed: ${status.subscribed}<br>
+                Permission: ${status.permission}
+            `;
+            
+            if (status.error) {
+                message += `<br>Error: ${status.error}`;
+            }
+            
+            M.toast({html: message, displayLength: 6000});
+        });
+    } else {
+        M.toast({html: 'Push manager not available'});
+    }
 }

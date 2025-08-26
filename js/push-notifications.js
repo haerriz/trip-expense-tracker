@@ -12,11 +12,15 @@ class PushNotificationManager {
         }
 
         try {
+            console.log('Initializing push notifications...');
+            
             // Request notification permission on load
-            await this.requestPermission();
+            const permissionGranted = await this.requestPermission();
+            console.log('Permission granted:', permissionGranted);
             
             // Subscribe to push notifications if permission granted
             if (Notification.permission === 'granted') {
+                console.log('Subscribing user to push notifications...');
                 await this.subscribeUser();
             }
         } catch (error) {
@@ -37,11 +41,25 @@ class PushNotificationManager {
 
     async subscribeUser() {
         try {
+            console.log('Getting service worker registration...');
             const registration = await navigator.serviceWorker.ready;
+            console.log('Service worker ready:', registration);
+            
+            // Check if already subscribed
+            const existingSubscription = await registration.pushManager.getSubscription();
+            if (existingSubscription) {
+                console.log('User already subscribed:', existingSubscription);
+                await this.sendSubscriptionToServer(existingSubscription);
+                return;
+            }
+            
+            console.log('Creating new subscription...');
             const subscription = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
                 applicationServerKey: this.urlBase64ToUint8Array(this.vapidPublicKey)
             });
+            
+            console.log('New subscription created:', subscription);
 
             // Send subscription to server
             await this.sendSubscriptionToServer(subscription);
@@ -100,14 +118,32 @@ class PushNotificationManager {
 
     // Test notification (for admin)
     async sendTestNotification() {
+        console.log('sendTestNotification called');
+        console.log('Notification permission:', Notification.permission);
+        
         if (Notification.permission === 'granted') {
-            new Notification('Test Notification', {
+            console.log('Creating test notification');
+            const notification = new Notification('Test Notification', {
                 body: 'This is a test notification from Haerriz Expenses',
                 icon: '/favicon.svg',
-                badge: '/favicon.svg'
+                badge: '/favicon.svg',
+                tag: 'test-notification',
+                requireInteraction: false
             });
+            
+            notification.onclick = function() {
+                console.log('Test notification clicked');
+                window.focus();
+                notification.close();
+            };
+            
+            console.log('Test notification created:', notification);
+            
+            if (window.M && window.M.toast) {
+                M.toast({html: 'Test notification sent!'});
+            }
         } else {
-            console.log('Notification permission not granted');
+            console.log('Notification permission not granted:', Notification.permission);
             if (window.M && window.M.toast) {
                 M.toast({html: 'Please enable notifications first'});
             }
