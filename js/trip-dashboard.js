@@ -711,13 +711,19 @@ function loadExpenses(tripId) {
             expenses.forEach(function(expense) {
                 const isMasterAdmin = window.userEmail === 'haerriz@gmail.com';
                 const canModify = expense.paid_by == window.currentUserId || isMasterAdmin;
+                const expenseDate = new Date(expense.date).toLocaleDateString();
+                const avatar = expense.paid_by_picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(expense.paid_by_name)}&size=40&background=2196F3&color=fff`;
                 
                 html += `
                     <div class="expense-item">
+                        <img src="${avatar}" alt="${expense.paid_by_name}" class="expense-item__avatar">
                         <div class="expense-item__info">
-                            <h6>${expense.category}</h6>
-                            <p>${expense.description} - ${expense.date}</p>
-                            <small>Paid by ${expense.paid_by_name}</small>
+                            <div class="expense-item__category">${expense.category}</div>
+                            <div class="expense-item__description">${expense.description}</div>
+                            <div class="expense-item__meta">
+                                <span>${expenseDate}</span>
+                                <span>by ${expense.paid_by_name}</span>
+                            </div>
                         </div>
                         <div class="expense-item__amount">${currencySymbol}${parseFloat(expense.amount).toFixed(2)}</div>
                         <div class="expense-item__actions">
@@ -1203,6 +1209,36 @@ $('#amount').on('input change', function() {
         loadCustomSplitSection();
     }
 });
+
+function adjustBudget(action) {
+    const tripId = $('#current-trip').val();
+    if (!tripId) {
+        M.toast({html: 'Please select a trip first'});
+        return;
+    }
+    
+    const amount = prompt(`Enter amount to ${action} budget:`);
+    if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
+        return;
+    }
+    
+    $.post('api/adjust_budget.php', {
+        trip_id: tripId,
+        action: action,
+        amount: parseFloat(amount)
+    })
+    .done(function(data) {
+        if (data.success) {
+            loadTripSummary(tripId);
+            M.toast({html: data.message});
+        } else {
+            M.toast({html: data.message || 'Error adjusting budget'});
+        }
+    })
+    .fail(function() {
+        M.toast({html: 'Network error adjusting budget'});
+    });
+}
 
 function updateChatStatus(tripId) {
     $.get('api/typing_status.php', { trip_id: tripId })

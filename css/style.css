@@ -1102,6 +1102,11 @@ body {
         max-width: 80%;
         font-size: 0.85rem;
     }
+    
+    /* Center brand icon on mobile */
+    .brand-icon-wrapper {
+        text-align: center;
+    }
 }
 
 /* Large screen improvements */
@@ -1280,6 +1285,143 @@ body {
     background: #2196F3;
     border: none;
     color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.chat-window .chat-send-btn:hover {
+    background: #1976D2;
+}
+
+.chat-window .chat-send-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* Enhanced expense item UI */
+.expense-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #e0e0e0;
+    transition: background-color 0.2s ease;
+}
+
+.expense-item:hover {
+    background-color: #f8f9fa;
+}
+
+.expense-item:last-child {
+    border-bottom: none;
+}
+
+.expense-item__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.expense-item__info {
+    flex: 1;
+    min-width: 0;
+}
+
+.expense-item__category {
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+    color: #2196F3;
+}
+
+.expense-item__description {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 2px;
+}
+
+.expense-item__meta {
+    font-size: 0.75rem;
+    color: #999;
+    display: flex;
+    gap: 8px;
+}
+
+.expense-item__amount {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #333;
+    margin-right: 8px;
+}
+
+.expense-item__actions {
+    display: flex;
+    gap: 4px;
+}
+
+/* Budget adjustment buttons */
+.budget-actions {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+    justify-content: center;
+}
+
+.budget-adjust-btn {
+    background: none;
+    border: 1px solid #2196F3;
+    color: #2196F3;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.budget-adjust-btn:hover {
+    background: #2196F3;
+    color: white;
+}
+
+.budget-adjust-btn i {
+    font-size: 12px;
+    margin-right: 2px;
+}
+
+[data-theme="dark"] .expense-item:hover {
+    background-color: rgba(255,255,255,0.05);
+}
+
+[data-theme="dark"] .expense-item__amount {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .expense-item__description {
+    color: #aaa;
+}
+
+[data-theme="dark"] .expense-item__meta {
+    color: #888;
+}
+
+@media only screen and (max-width: 600px) {
+    .budget-actions {
+        flex-direction: column;
+        gap: 2px;
+    }
+    
+    .budget-adjust-btn {
+        font-size: 0.6rem;
+        padding: 2px 6px;
+    }
+}ite;
     width: 36px;
     height: 36px;
     border-radius: 50%;
