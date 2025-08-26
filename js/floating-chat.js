@@ -4,7 +4,7 @@ class FloatingChatManager {
         this.isOpen = false;
         this.unreadCount = 0;
         this.currentTripId = null;
-        this.lastMessageCount = 0;
+        this.messages = [];
         this.userScrolledUp = false;
         this.init();
     }
@@ -50,20 +50,24 @@ class FloatingChatManager {
             });
         }
 
-        // Track user scroll to detect if they scrolled up
+        // Track user scroll
         if (this.floatingMessages) {
             this.floatingMessages.addEventListener('scroll', () => {
                 const { scrollTop, scrollHeight, clientHeight } = this.floatingMessages;
-                this.userScrolledUp = scrollTop < scrollHeight - clientHeight - 50;
+                this.userScrolledUp = scrollTop < scrollHeight - clientHeight - 30;
             });
         }
     }
 
     setTripId(tripId) {
         this.currentTripId = tripId;
+        this.messages = []; // Reset messages when changing trip
         if (tripId) {
             this.showChatBubble();
-            this.loadMessages();
+            if (this.isOpen) {
+                this.renderAllMessages();
+                this.loadMessages();
+            }
         } else {
             this.hideChatBubble();
         }
@@ -75,7 +79,7 @@ class FloatingChatManager {
         $.get('api/get_chat.php', { trip_id: this.currentTripId })
             .done((response) => {
                 if (response.success) {
-                    this.renderMessages(response.messages);
+                    this.updateMessages(response.messages);
                 }
             })
             .fail(() => {
@@ -83,31 +87,41 @@ class FloatingChatManager {
             });
     }
 
-    renderMessages(messages) {
+    updateMessages(newMessages) {
         if (!this.floatingMessages) return;
         
-        const hasNewMessages = messages.length > this.lastMessageCount;
-        const shouldScrollToBottom = !this.userScrolledUp || hasNewMessages;
+        // Check if there are actually new messages
+        const hasNewMessages = newMessages.length > this.messages.length;
         
-        // Store current scroll position
-        const scrollTop = this.floatingMessages.scrollTop;
+        if (hasNewMessages) {
+            // Only add the new messages
+            const messagesToAdd = newMessages.slice(this.messages.length);
+            
+            messagesToAdd.forEach(message => {
+                const messageElement = this.createMessageElement(message);
+                this.floatingMessages.appendChild(messageElement);
+            });
+            
+            // Only scroll to bottom if user is near bottom or it's their own message
+            if (!this.userScrolledUp) {
+                this.scrollToBottom();
+            }
+        }
+        
+        this.messages = newMessages;
+    }
+
+    renderAllMessages() {
+        if (!this.floatingMessages) return;
         
         this.floatingMessages.innerHTML = '';
         
-        messages.forEach(message => {
+        this.messages.forEach(message => {
             const messageElement = this.createMessageElement(message);
             this.floatingMessages.appendChild(messageElement);
         });
         
-        // Only scroll to bottom if user hasn't scrolled up or there are new messages
-        if (shouldScrollToBottom) {
-            this.scrollToBottom();
-        } else {
-            // Restore scroll position
-            this.floatingMessages.scrollTop = scrollTop;
-        }
-        
-        this.lastMessageCount = messages.length;
+        this.scrollToBottom();
     }
 
     createMessageElement(message) {
@@ -145,12 +159,12 @@ class FloatingChatManager {
     }
 
     startMessageSync() {
-        // Sync messages every 5 seconds (reduced frequency)
+        // Sync messages every 3 seconds but only add new ones
         setInterval(() => {
             if (this.currentTripId && this.isOpen) {
                 this.loadMessages();
             }
-        }, 5000);
+        }, 3000);
     }
 
     showChatBubble() {
@@ -180,6 +194,9 @@ class FloatingChatManager {
             this.isOpen = true;
             this.userScrolledUp = false;
             this.updateUnreadCount(0);
+            
+            // Load all messages when opening
+            this.messages = [];
             this.loadMessages();
             
             if (this.floatingInput) {
@@ -221,8 +238,8 @@ class FloatingChatManager {
             if (response.success) {
                 this.floatingInput.value = '';
                 this.floatingSendBtn.disabled = true;
-                // Reload messages immediately
-                setTimeout(() => this.loadMessages(), 500);
+                // Load messages immediately after sending
+                setTimeout(() => this.loadMessages(), 200);
             }
         })
         .fail(() => {
