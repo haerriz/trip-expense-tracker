@@ -783,6 +783,11 @@ function loadExpenseChart(tripId) {
         .done(function(data) {
             const ctx = document.getElementById('expenseChart').getContext('2d');
             
+            // Get trip currency
+            const selectedOption = $('#current-trip option:selected');
+            const tripCurrency = selectedOption.data('currency') || 'USD';
+            const currencySymbol = getCurrencySymbol(tripCurrency);
+            
             // Destroy existing chart if it exists
             if (expenseChart) {
                 expenseChart.destroy();
@@ -881,12 +886,12 @@ function loadExpenseChart(tripId) {
                                     const value = context.parsed || 0;
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                     const percentage = ((value / total) * 100).toFixed(1);
-                                    return `${label}: $${value.toFixed(2)} (${percentage}%)`;
+                                    return `${label}: ${currencySymbol}${value.toFixed(2)} (${percentage}%)`;
                                 }
                             }
                         }
                     },
-                    cutout: '50%',
+                    cutout: '60%',
                     animation: {
                         animateRotate: true,
                         animateScale: true,
@@ -905,34 +910,23 @@ function loadExpenseChart(tripId) {
                         }
                     }
                 },
-                plugins: [{
-                    id: 'centerText',
-                    beforeDraw: function(chart) {
-                        const ctx = chart.ctx;
-                        const centerX = chart.chartArea.left + (chart.chartArea.right - chart.chartArea.left) / 2;
-                        const centerY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
-                        
-                        // Calculate total
-                        const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                        
-                        ctx.save();
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-                        
-                        // Draw total amount
-                        ctx.font = 'bold 24px Arial';
-                        ctx.fillStyle = '#2c3e50';
-                        ctx.fillText(`$${total.toFixed(0)}`, centerX, centerY - 10);
-                        
-                        // Draw label
-                        ctx.font = '14px Arial';
-                        ctx.fillStyle = '#7f8c8d';
-                        ctx.fillText('Total Spent', centerX, centerY + 15);
-                        
-                        ctx.restore();
-                    }
-                }]
+                plugins: []
             });
+            
+            // Add total display below chart
+            const total = (data.amounts || []).reduce((a, b) => a + b, 0);
+            const chartContainer = $('#expenseChart').closest('.card-content');
+            
+            // Remove existing total display
+            chartContainer.find('.chart-total-display').remove();
+            
+            // Add new total display
+            chartContainer.append(`
+                <div class="chart-total-display">
+                    <div class="chart-total-amount">${currencySymbol}${total.toFixed(2)}</div>
+                    <div class="chart-total-label">Total Spent</div>
+                </div>
+            `);
         });
 }
 
