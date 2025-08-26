@@ -1171,11 +1171,10 @@ body {
         display: none !important;
     }
     
+    .expense-form__split [type="radio"]:checked+span:before,
+    .expense-form__split [type="radio"]:not(:checked)+span:before,
+    .expense-form__split [type="radio"]:not(:checked)+span:after,
     .expense-form__split [type="radio"]:checked+span:after {
-        display: none !important;
-    }
-    
-    .expense-form__split [type="radio"]:not(:checked)+span:after {
         display: none !important;
     }
     
@@ -1228,11 +1227,10 @@ body {
         display: none !important;
     }
     
+    .split-mode-toggle [type="radio"]:checked+span:before,
+    .split-mode-toggle [type="radio"]:not(:checked)+span:before,
+    .split-mode-toggle [type="radio"]:not(:checked)+span:after,
     .split-mode-toggle [type="radio"]:checked+span:after {
-        display: none !important;
-    }
-    
-    .split-mode-toggle [type="radio"]:not(:checked)+span:after {
         display: none !important;
     }
 }
