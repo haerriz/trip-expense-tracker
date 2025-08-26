@@ -1131,6 +1131,7 @@ body {
         cursor: pointer;
         transition: all 0.2s ease;
         text-align: center;
+        display: block;
     }
     
     .split-option-btn.active {
@@ -1143,6 +1144,10 @@ body {
         border-color: #2196F3;
     }
     
+    .split-option-btn::after {
+        display: none !important;
+    }
+    
     /* Hide radio buttons on mobile */
     .expense-form__split input[type="radio"] {
         display: none;
@@ -1151,6 +1156,42 @@ body {
     .expense-form__split label {
         margin: 0;
         cursor: pointer;
+    }
+    
+    /* Fix custom split mode buttons */
+    .split-mode-toggle {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 12px;
+    }
+    
+    .split-mode-toggle p {
+        flex: 1;
+        margin: 0;
+    }
+    
+    .split-mode-toggle label {
+        width: 100%;
+        padding: 6px 8px;
+        border: 1px solid #e0e0e0;
+        background: white;
+        color: #666;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+        display: block;
+    }
+    
+    .split-mode-toggle label.active {
+        background: #2196F3 !important;
+        color: white !important;
+        border-color: #2196F3 !important;
+    }
+    
+    .split-mode-toggle input[type="radio"] {
+        display: none;
     }
 }
 
@@ -1467,6 +1508,11 @@ body {
     
     .budget-adjust-btn i {
         font-size: 12px;
+    }
+    
+    .split-mode-toggle label {
+        padding: 4px 6px;
+        font-size: 0.65rem;
     }
 }ite;
     width: 36px;

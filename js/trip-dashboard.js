@@ -115,6 +115,19 @@ $(document).ready(function() {
         $(this).find('input[type="radio"]').prop('checked', true).trigger('change');
     });
     
+    // Handle custom split mode toggle
+    $(document).on('change', 'input[name="split-mode"]', function() {
+        $('.split-mode-toggle label').removeClass('active');
+        $(this).closest('label').addClass('active');
+        loadCustomSplitSection();
+    });
+    
+    $(document).on('click', '.split-mode-toggle label', function() {
+        $('.split-mode-toggle label').removeClass('active');
+        $(this).addClass('active');
+        $(this).find('input[type="radio"]').prop('checked', true).trigger('change');
+    });
+    
     $(document).on('change', 'input[name="split-mode"]', function() {
         loadCustomSplitSection();
     });

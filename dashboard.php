@@ -313,14 +313,14 @@ requireLogin();
                                 <div id="custom-split-section" style="display:none;">
                                     <div class="split-mode-toggle">
                                         <p>
-                                            <label>
-                                                <input name="split-mode" type="radio" value="currency" checked />
+                                            <label for="split-mode-currency">
+                                                <input id="split-mode-currency" name="split-mode" type="radio" value="currency" checked />
                                                 <span>Currency Amount</span>
                                             </label>
                                         </p>
                                         <p>
-                                            <label>
-                                                <input name="split-mode" type="radio" value="percentage" />
+                                            <label for="split-mode-percentage">
+                                                <input id="split-mode-percentage" name="split-mode" type="radio" value="percentage" />
                                                 <span>Percentage</span>
                                             </label>
                                         </p>
