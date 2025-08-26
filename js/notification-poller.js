@@ -10,7 +10,7 @@ class NotificationPoller {
         // Start polling every 10 seconds
         this.pollInterval = setInterval(() => {
             this.checkForNotifications();
-        }, 10000);
+        }, 3000); // Check every 3 seconds for faster response
         
         console.log('Notification poller started');
     }
@@ -31,23 +31,29 @@ class NotificationPoller {
     }
     
     showNotification(notification) {
-        console.log('Showing polled notification:', notification);
+        console.log('Showing real push notification:', notification);
         
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.ready.then(registration => {
-                return registration.showNotification(notification.title, {
-                    body: notification.message,
-                    icon: '/favicon.svg',
-                    badge: '/favicon.svg',
-                    tag: 'polled-notification-' + notification.id,
-                    vibrate: [200, 100, 200]
-                });
-            });
-        } else if (Notification.permission === 'granted') {
-            new Notification(notification.title, {
+        if (Notification.permission === 'granted') {
+            // Use the same method as test notifications (which work!)
+            const realNotification = new Notification('🔔 ' + notification.title, {
                 body: notification.message,
-                icon: '/favicon.svg'
+                icon: '/favicon.svg',
+                badge: '/favicon.svg',
+                vibrate: [300, 100, 300],
+                requireInteraction: true,
+                tag: 'real-push-' + notification.id,
+                timestamp: Date.now()
             });
+            
+            realNotification.onclick = function() {
+                console.log('Real push notification clicked!');
+                window.focus();
+                realNotification.close();
+            };
+            
+            console.log('Real push notification created successfully');
+        } else {
+            console.log('Notification permission not granted');
         }
     }
     

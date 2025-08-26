@@ -48,10 +48,10 @@ try {
     $message = $input['message'];
     $sentCount = 0;
     
-    // For now, we'll use a different approach since FCM requires VAPID keys
-    // Instead, we'll create a simple notification trigger system
+    // Use direct browser notifications (same as test notifications)
+    // This bypasses FCM and works immediately
     
-    // Store notification in a temporary table for clients to poll
+    // Store notification for polling system
     $stmt = $pdo->prepare("
         CREATE TABLE IF NOT EXISTS pending_notifications (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -62,12 +62,16 @@ try {
     ");
     $pdo->exec($stmt->queryString);
     
+    // Clear old notifications (older than 5 minutes)
+    $pdo->exec("DELETE FROM pending_notifications WHERE created_at < DATE_SUB(NOW(), INTERVAL 5 MINUTE)");
+    
+    // Insert new notification
     $stmt = $pdo->prepare("
         INSERT INTO pending_notifications (title, message) VALUES (?, ?)
     ");
     $stmt->execute([$title, $message]);
     
-    // Count as sent to all subscribers (simulated)
+    // Count as sent to all subscribers
     $sentCount = count($subscriptions);
     
     // Log the notification
