@@ -331,6 +331,8 @@ class EnhancedChat {
     
     updateScrollButton() {
         const container = $('#chat-messages')[0];
+        if (!container) return; // Fix: Check if container exists
+        
         const isAtBottom = container.scrollHeight - container.clientHeight <= container.scrollTop + 50;
         
         if (isAtBottom) {

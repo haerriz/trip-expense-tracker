@@ -52,6 +52,19 @@ class FloatingChatManager {
         document.addEventListener('tripSelected', () => {
             this.showChatBubble();
         });
+        
+        // Also listen for global trip change events
+        if (window.enhancedChat) {
+            const originalSetTripId = window.enhancedChat.setTripId;
+            window.enhancedChat.setTripId = (tripId) => {
+                originalSetTripId.call(window.enhancedChat, tripId);
+                if (tripId) {
+                    this.showChatBubble();
+                } else {
+                    this.hideChatBubble();
+                }
+            };
+        }
 
         // Listen for new messages to update badge
         document.addEventListener('newChatMessage', (e) => {
@@ -89,6 +102,7 @@ class FloatingChatManager {
     showChatBubble() {
         if (this.chatBubble) {
             this.chatBubble.style.display = 'flex';
+            console.log('Chat bubble shown'); // Debug log
         }
     }
 
@@ -182,9 +196,26 @@ document.addEventListener('DOMContentLoaded', () => {
         currentTripSelect.addEventListener('change', () => {
             if (currentTripSelect.value) {
                 document.dispatchEvent(new CustomEvent('tripSelected'));
+                window.floatingChat.showChatBubble();
             } else {
                 window.floatingChat.hideChatBubble();
             }
         });
+    }
+    
+    // Monitor for trip dashboard visibility
+    const observer = new MutationObserver(() => {
+        const tripDashboard = document.getElementById('trip-dashboard');
+        if (tripDashboard && tripDashboard.style.display !== 'none') {
+            const tripSelect = document.getElementById('current-trip');
+            if (tripSelect && tripSelect.value) {
+                window.floatingChat.showChatBubble();
+            }
+        }
+    });
+    
+    const tripDashboard = document.getElementById('trip-dashboard');
+    if (tripDashboard) {
+        observer.observe(tripDashboard, { attributes: true, attributeFilter: ['style'] });
     }
 });
