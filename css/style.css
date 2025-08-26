@@ -1367,21 +1367,25 @@ body {
 }
 
 /* Budget adjustment buttons */
-.budget-actions {
+.budget-with-controls {
     display: flex;
-    gap: 4px;
-    margin-top: 8px;
+    align-items: center;
     justify-content: center;
+    gap: 8px;
+    margin-top: 4px;
 }
 
 .budget-adjust-btn {
-    background: none;
+    background: rgba(33, 150, 243, 0.1);
     border: 1px solid #2196F3;
     color: #2196F3;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.7rem;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.2s ease;
 }
 
@@ -1391,8 +1395,7 @@ body {
 }
 
 .budget-adjust-btn i {
-    font-size: 12px;
-    margin-right: 2px;
+    font-size: 14px;
 }
 
 [data-theme="dark"] .expense-item:hover {
@@ -1412,14 +1415,13 @@ body {
 }
 
 @media only screen and (max-width: 600px) {
-    .budget-actions {
-        flex-direction: column;
-        gap: 2px;
+    .budget-adjust-btn {
+        width: 20px;
+        height: 20px;
     }
     
-    .budget-adjust-btn {
-        font-size: 0.6rem;
-        padding: 2px 6px;
+    .budget-adjust-btn i {
+        font-size: 12px;
     }
 }ite;
     width: 36px;

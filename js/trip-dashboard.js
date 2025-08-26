@@ -558,12 +558,23 @@ function loadTripSummary(tripId) {
                 const currency = getCurrencySymbol(data.trip.currency || 'USD');
                 const budget = data.trip.budget;
                 
-                // Handle budget display
+                // Handle budget display with controls
                 if (budget === null || budget === undefined) {
-                    $('#trip-budget').text('No Budget');
+                    $('#budget-display').html('<h5 id="trip-budget" class="blue-text">No Budget</h5>');
                     $('#remaining-budget').text('Unlimited');
                 } else {
-                    $('#trip-budget').text(currency + parseFloat(budget).toFixed(2));
+                    const budgetAmount = currency + parseFloat(budget).toFixed(2);
+                    $('#budget-display').html(`
+                        <div class="budget-with-controls">
+                            <button class="budget-adjust-btn" onclick="adjustBudget('decrease'); event.stopPropagation();" title="Decrease budget">
+                                <i class="material-icons">remove</i>
+                            </button>
+                            <h5 id="trip-budget" class="blue-text" style="margin: 0;">${budgetAmount}</h5>
+                            <button class="budget-adjust-btn" onclick="adjustBudget('increase'); event.stopPropagation();" title="Increase budget">
+                                <i class="material-icons">add</i>
+                            </button>
+                        </div>
+                    `);
                     $('#remaining-budget').text(currency + parseFloat(data.remaining_budget || 0).toFixed(2));
                 }
                 
@@ -1230,6 +1241,7 @@ function adjustBudget(action) {
     .done(function(data) {
         if (data.success) {
             loadTripSummary(tripId);
+            loadExpenses(tripId); // Refresh expenses to show budget change
             M.toast({html: data.message});
         } else {
             M.toast({html: data.message || 'Error adjusting budget'});

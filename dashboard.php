@@ -219,16 +219,10 @@ requireLogin();
                         <div class="card-content center-align">
                             <i class="material-icons blue-text medium">account_balance_wallet</i>
                             <span class="card-title">Trip Budget</span>
-                            <h5 id="trip-budget" class="blue-text">$0.00</h5>
-                            <p class="grey-text"><small>Click to edit</small></p>
-                            <div class="budget-actions">
-                                <button class="budget-adjust-btn" onclick="adjustBudget('increase'); event.stopPropagation();">
-                                    <i class="material-icons">add</i>Increase
-                                </button>
-                                <button class="budget-adjust-btn" onclick="adjustBudget('decrease'); event.stopPropagation();">
-                                    <i class="material-icons">remove</i>Decrease
-                                </button>
+                            <div id="budget-display">
+                                <h5 id="trip-budget" class="blue-text">$0.00</h5>
                             </div>
+                            <p class="grey-text"><small>Click to edit</small></p>
                         </div>
                     </div>
                 </div>

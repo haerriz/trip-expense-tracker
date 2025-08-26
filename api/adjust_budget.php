@@ -66,6 +66,27 @@ try {
     $stmt = $pdo->prepare("UPDATE trips SET budget = ? WHERE id = ?");
     $stmt->execute([$newBudget, $trip_id]);
     
+    // Log budget change as expense entry
+    $description = $action === 'increase' ? 
+        "Budget increased by {$amount}" : 
+        "Budget decreased by {$amount}";
+    
+    $stmt = $pdo->prepare("
+        INSERT INTO expenses (trip_id, paid_by, category, subcategory, amount, description, date, created_at) 
+        VALUES (?, ?, 'Budget Adjustment', ?, ?, ?, CURDATE(), NOW())
+    ");
+    
+    $adjustmentAmount = $action === 'increase' ? $amount : -$amount;
+    $subcategory = $action === 'increase' ? 'Budget Increase' : 'Budget Decrease';
+    
+    $stmt->execute([
+        $trip_id, 
+        $_SESSION['user_id'], 
+        $subcategory,
+        $adjustmentAmount,
+        $description
+    ]);
+    
     $actionText = $action === 'increase' ? 'increased' : 'decreased';
     echo json_encode([
         'success' => true, 
