@@ -12,12 +12,12 @@ try {
         exit;
     }
     
-    // Get only active expenses
+    // Get all expenses
     $stmt = $pdo->prepare("
         SELECT e.*, u.name as paid_by_name 
         FROM expenses e 
         JOIN users u ON e.paid_by = u.id 
-        WHERE e.trip_id = ? AND COALESCE(e.is_active, 1) = 1
+        WHERE e.trip_id = ?
         ORDER BY e.date DESC, e.created_at DESC
     ");
     $stmt->execute([$tripId]);

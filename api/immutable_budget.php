@@ -84,7 +84,7 @@ function adjustBudget() {
         $subcategory = $adjustmentType === 'increase' ? 'Budget Increase' : 'Budget Decrease';
         $description = $reason ?: ($adjustmentType === 'increase' ? "Budget increased by $amount" : "Budget decreased by $amount");
         
-        $stmt = $pdo->prepare("INSERT INTO expenses (trip_id, category, subcategory, amount, description, date, paid_by, split_type, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, 'full', TRUE)");
+        $stmt = $pdo->prepare("INSERT INTO expenses (trip_id, category, subcategory, amount, description, date, paid_by, split_type) VALUES (?, ?, ?, ?, ?, ?, ?, 'full')");
         $stmt->execute([$tripId, $category, $subcategory, $amount, $description, date('Y-m-d'), $_SESSION['user_id']]);
         
         $expenseId = $pdo->lastInsertId();

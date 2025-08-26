@@ -61,8 +61,8 @@ function addExpense() {
     
     $pdo->beginTransaction();
     try {
-        // Insert expense (immutable)
-        $stmt = $pdo->prepare("INSERT INTO expenses (trip_id, category, subcategory, amount, description, date, paid_by, split_type, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE)");
+        // Insert expense
+        $stmt = $pdo->prepare("INSERT INTO expenses (trip_id, category, subcategory, amount, description, date, paid_by, split_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         
         if ($stmt->execute([$tripId, $category, $subcategory, $amount, $description, $date, $userId, $splitType])) {
             $expenseId = $pdo->lastInsertId();
@@ -100,12 +100,12 @@ function modifyExpense() {
     }
     
     // Get original expense
-    $stmt = $pdo->prepare("SELECT * FROM expenses WHERE id = ? AND is_active = TRUE");
+    $stmt = $pdo->prepare("SELECT * FROM expenses WHERE id = ?");
     $stmt->execute([$expenseId]);
     $originalExpense = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$originalExpense) {
-        echo json_encode(['success' => false, 'message' => 'Expense not found or already modified']);
+        echo json_encode(['success' => false, 'message' => 'Expense not found']);
         return;
     }
     
@@ -117,50 +117,19 @@ function modifyExpense() {
     
     $pdo->beginTransaction();
     try {
-        // Create history record
-        $stmt = $pdo->prepare("INSERT INTO expense_history (original_expense_id, trip_id, paid_by, category, subcategory, amount, description, date, split_type, change_reason, changed_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([
-            $expenseId,
-            $originalExpense['trip_id'],
-            $originalExpense['paid_by'],
-            $originalExpense['category'],
-            $originalExpense['subcategory'],
-            $originalExpense['amount'],
-            $originalExpense['description'],
-            $originalExpense['date'],
-            $originalExpense['split_type'],
-            $reason,
-            $userId
-        ]);
-        
-        // Create new expense
-        $stmt = $pdo->prepare("INSERT INTO expenses (trip_id, category, subcategory, amount, description, date, paid_by, split_type, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE)");
-        $stmt->execute([
-            $originalExpense['trip_id'],
-            $category,
-            $subcategory,
-            $amount,
-            $description,
-            $date,
-            $originalExpense['paid_by'],
-            $originalExpense['split_type']
-        ]);
-        
-        $newExpenseId = $pdo->lastInsertId();
-        
-        // Mark original as replaced
-        $stmt = $pdo->prepare("UPDATE expenses SET is_active = FALSE, replaced_by = ?, replacement_reason = ? WHERE id = ?");
-        $stmt->execute([$newExpenseId, $reason, $expenseId]);
+        // Update expense directly
+        $stmt = $pdo->prepare("UPDATE expenses SET category = ?, subcategory = ?, amount = ?, description = ?, date = ? WHERE id = ?");
+        $stmt->execute([$category, $subcategory, $amount, $description, $date, $expenseId]);
         
         // Delete old splits
         $stmt = $pdo->prepare("DELETE FROM expense_splits WHERE expense_id = ?");
         $stmt->execute([$expenseId]);
         
         // Handle new splits
-        handleExpenseSplits($newExpenseId, $originalExpense['trip_id'], $amount, $originalExpense['split_type'], $originalExpense['paid_by']);
+        handleExpenseSplits($expenseId, $originalExpense['trip_id'], $amount, $originalExpense['split_type'], $originalExpense['paid_by']);
         
         $pdo->commit();
-        echo json_encode(['success' => true, 'new_expense_id' => $newExpenseId, 'message' => 'Expense modified successfully']);
+        echo json_encode(['success' => true, 'message' => 'Expense updated successfully']);
     } catch (Exception $e) {
         $pdo->rollback();
         throw $e;
@@ -171,7 +140,7 @@ function deactivateExpense() {
     global $pdo;
     
     $expenseId = $_POST['expense_id'] ?? '';
-    $reason = $_POST['reason'] ?? 'Deactivated by user';
+    $reason = $_POST['reason'] ?? 'Deleted by user';
     $userId = $_SESSION['user_id'];
     
     if (empty($expenseId)) {
@@ -180,49 +149,33 @@ function deactivateExpense() {
     }
     
     // Get expense
-    $stmt = $pdo->prepare("SELECT * FROM expenses WHERE id = ? AND is_active = TRUE");
+    $stmt = $pdo->prepare("SELECT * FROM expenses WHERE id = ?");
     $stmt->execute([$expenseId]);
     $expense = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$expense) {
-        echo json_encode(['success' => false, 'message' => 'Expense not found or already deactivated']);
+        echo json_encode(['success' => false, 'message' => 'Expense not found']);
         return;
     }
     
     // Verify ownership
     if ($expense['paid_by'] != $userId && $_SESSION['user_email'] !== 'haerriz@gmail.com') {
-        echo json_encode(['success' => false, 'message' => 'Only expense owner can deactivate expenses']);
+        echo json_encode(['success' => false, 'message' => 'Only expense owner can delete expenses']);
         return;
     }
     
     $pdo->beginTransaction();
     try {
-        // Create history record
-        $stmt = $pdo->prepare("INSERT INTO expense_history (original_expense_id, trip_id, paid_by, category, subcategory, amount, description, date, split_type, change_reason, changed_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([
-            $expenseId,
-            $expense['trip_id'],
-            $expense['paid_by'],
-            $expense['category'],
-            $expense['subcategory'],
-            $expense['amount'],
-            $expense['description'],
-            $expense['date'],
-            $expense['split_type'],
-            $reason,
-            $userId
-        ]);
-        
-        // Mark as inactive
-        $stmt = $pdo->prepare("UPDATE expenses SET is_active = FALSE, replacement_reason = ? WHERE id = ?");
-        $stmt->execute([$reason, $expenseId]);
+        // Delete expense
+        $stmt = $pdo->prepare("DELETE FROM expenses WHERE id = ?");
+        $stmt->execute([$expenseId]);
         
         // Remove splits
         $stmt = $pdo->prepare("DELETE FROM expense_splits WHERE expense_id = ?");
         $stmt->execute([$expenseId]);
         
         $pdo->commit();
-        echo json_encode(['success' => true, 'message' => 'Expense deactivated successfully']);
+        echo json_encode(['success' => true, 'message' => 'Expense deleted successfully']);
     } catch (Exception $e) {
         $pdo->rollback();
         throw $e;
