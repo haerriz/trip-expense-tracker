@@ -116,6 +116,22 @@ requireLogin();
                 <span>Dark Mode</span>
             </button>
         </li>
+        <li><a id="mobile-invitations-btn"><i class="material-icons">mail</i>Invitations <span id="mobile-invitation-count" class="new badge orange" data-badge-caption="">0</span></a></li>
+        <li>
+            <ul class="collapsible mobile-accordion">
+                <li>
+                    <div class="collapsible-header"><i class="material-icons">assessment</i>Reports</div>
+                    <div class="collapsible-body">
+                        <div class="collection">
+                            <a id="mobile-export-pdf" class="collection-item"><i class="material-icons left">picture_as_pdf</i>Export PDF</a>
+                            <a id="mobile-export-xlsx" class="collection-item"><i class="material-icons left">description</i>Export XLSX</a>
+                            <a id="mobile-export-csv" class="collection-item"><i class="material-icons left">table_chart</i>Export CSV</a>
+                            <a id="mobile-email-report" class="collection-item"><i class="material-icons left">email</i>Email Report</a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </li>
         <?php if ($_SESSION['user_email'] === 'haerriz@gmail.com'): ?>
             <li><a href="admin.php"><i class="material-icons">admin_panel_settings</i>Admin</a></li>
         <?php endif; ?>
@@ -124,7 +140,25 @@ requireLogin();
     </ul>
 
     <div class="container" style="margin-top: 20px;">
-        <div class="row">
+        <!-- Mobile Layout -->
+        <div class="mobile-trip-row hide-on-med-and-up">
+            <div class="mobile-trip-select">
+                <div class="input-field">
+                    <select id="current-trip-mobile">
+                        <option value="">Select a Trip</option>
+                    </select>
+                    <label>Choose Trip</label>
+                </div>
+            </div>
+            <div class="mobile-new-trip">
+                <a id="new-trip-btn-mobile" class="btn waves-effect waves-light blue">
+                    <i class="material-icons left">add</i>New Trip
+                </a>
+            </div>
+        </div>
+        
+        <!-- Desktop Layout -->
+        <div class="row hide-on-small-only">
             <div class="col s12 m5 l4">
                 <div class="input-field">
                     <select id="current-trip">
@@ -510,11 +544,48 @@ requireLogin();
             // Initialize tabs
             $('.tabs').tabs();
             
+            // Initialize collapsible for mobile accordion
+            $('.collapsible').collapsible();
+            
             // Update text fields
             M.updateTextFields();
         });
     </script>
     <script src="js/trip-dashboard.js?v=<?php echo time(); ?>"></script>
+    <script>
+        // Sync mobile and desktop trip selectors
+        $(document).ready(function() {
+            $('#current-trip, #current-trip-mobile').on('change', function() {
+                const value = $(this).val();
+                $('#current-trip, #current-trip-mobile').val(value);
+                $('select').formSelect();
+            });
+            
+            // Sync mobile and desktop new trip buttons
+            $('#new-trip-btn-mobile').on('click', function() {
+                $('#new-trip-btn').click();
+            });
+            
+            // Sync mobile invitations button
+            $('#mobile-invitations-btn').on('click', function() {
+                $('#invitations-btn').click();
+            });
+            
+            // Sync mobile export buttons
+            $('#mobile-export-pdf').on('click', function() {
+                $('#export-pdf').click();
+            });
+            $('#mobile-export-xlsx').on('click', function() {
+                $('#export-xlsx').click();
+            });
+            $('#mobile-export-csv').on('click', function() {
+                $('#export-excel').click();
+            });
+            $('#mobile-email-report').on('click', function() {
+                $('#email-report').click();
+            });
+        });
+    </script>
     <script src="js/enhanced-chat.js?v=<?php echo time(); ?>"></script>
     <script src="js/pwa-install.js?v=<?php echo time(); ?>"></script>
     <script src="js/dark-mode.js?v=<?php echo time(); ?>"></script>

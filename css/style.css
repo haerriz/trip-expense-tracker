@@ -1031,18 +1031,30 @@ body {
         color: #666;
     }
     
-    /* Trip actions for mobile */
-    .trip-actions-container {
-        text-align: center;
+    /* Mobile trip selection layout */
+    .mobile-trip-row {
+        display: flex;
+        gap: 8px;
+        align-items: flex-end;
+        margin-bottom: 16px;
     }
     
-    .primary-actions,
-    .export-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px;
-        justify-content: center;
-        margin-bottom: 8px;
+    .mobile-trip-select {
+        flex: 1;
+    }
+    
+    .mobile-new-trip {
+        flex-shrink: 0;
+    }
+    
+    /* Hide desktop trip actions on mobile */
+    .trip-actions-container {
+        display: none;
+    }
+    
+    /* Hide invitations button on mobile (moved to hamburger) */
+    #invitations-btn {
+        display: none;
     }
     
     /* Smaller buttons with text on mobile */
@@ -1092,6 +1104,15 @@ body {
     
     .equal-height {
         height: 160px;
+    }
+    
+    /* Hide mobile-specific elements on desktop */
+    .mobile-trip-row {
+        display: none;
+    }
+    
+    .mobile-accordion {
+        display: none;
     }
 }
 
@@ -1303,4 +1324,46 @@ body {
 
 .chat-window .trip-chat__messages::-webkit-scrollbar-thumb:hover {
     background: #a1a1a1;
+}
+
+/* Mobile hamburger menu accordion styles */
+.mobile-accordion {
+    border: none;
+    box-shadow: none;
+}
+
+.mobile-accordion .collapsible-header {
+    padding: 16px 32px;
+    border-bottom: none;
+    background: transparent;
+    color: rgba(0,0,0,0.87);
+}
+
+.mobile-accordion .collapsible-body {
+    padding: 0;
+    border-bottom: none;
+}
+
+.mobile-accordion .collapsible-body .collection {
+    margin: 0;
+    border: none;
+}
+
+.mobile-accordion .collection-item {
+    padding: 12px 48px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.mobile-accordion .collection-item:last-child {
+    border-bottom: none;
+}
+
+[data-theme="dark"] .mobile-accordion .collapsible-header {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .mobile-accordion .collection-item {
+    background: var(--card-bg);
+    color: var(--text-color);
+    border-bottom-color: var(--border-color);
 }
