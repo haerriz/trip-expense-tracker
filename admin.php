@@ -181,6 +181,9 @@ requireMasterAdmin();
                                 <button type="button" id="sw-push-test" class="btn-flat waves-effect">
                                     <i class="material-icons left">push_pin</i>SW Push Test
                                 </button>
+                                <button type="button" id="direct-system-notification" class="btn-flat waves-effect">
+                                    <i class="material-icons left">notifications_active</i>Direct System Test
+                                </button>
                             </form>
                         </div>
                     </div>

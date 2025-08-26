@@ -53,6 +53,11 @@ $(document).ready(function() {
     $('#sw-push-test').on('click', function() {
         serviceWorkerPushTest();
     });
+    
+    // Direct system notification test
+    $('#direct-system-notification').on('click', function() {
+        directSystemNotificationTest();
+    });
 });
 
 function sendPushNotification() {
@@ -273,5 +278,35 @@ function serviceWorkerPushTest() {
         });
     } else {
         M.toast({html: 'Service worker not supported'});
+    }
+}
+
+function directSystemNotificationTest() {
+    console.log('Direct system notification test...');
+    
+    if (Notification.permission === 'granted') {
+        // This should definitely show in Android notification panel
+        const notification = new Notification('🔔 SYSTEM TEST', {
+            body: 'This should appear in your Android notification panel! Pull down to see it.',
+            icon: '/favicon.svg',
+            badge: '/favicon.svg',
+            vibrate: [300, 100, 300],
+            requireInteraction: true,
+            tag: 'system-test',
+            timestamp: Date.now()
+        });
+        
+        notification.onclick = function() {
+            console.log('System notification clicked!');
+            window.focus();
+            notification.close();
+        };
+        
+        console.log('Direct system notification created:', notification);
+        M.toast({html: 'System notification sent! Check your notification panel.'});
+        
+    } else {
+        console.log('Notification permission:', Notification.permission);
+        M.toast({html: 'Notification permission not granted: ' + Notification.permission});
     }
 }
