@@ -17,11 +17,15 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$input = json_decode(file_get_contents('php://input'), true);
+$rawInput = file_get_contents('php://input');
+error_log('Raw input: ' . $rawInput);
 
-if (!isset($input['title']) || !isset($input['message'])) {
+$input = json_decode($rawInput, true);
+error_log('Decoded input: ' . print_r($input, true));
+
+if (!$input || !isset($input['title']) || !isset($input['message'])) {
     http_response_code(400);
-    echo json_encode(['error' => 'Title and message required']);
+    echo json_encode(['error' => 'Title and message required', 'received' => $input]);
     exit;
 }
 

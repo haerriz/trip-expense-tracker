@@ -1,5 +1,16 @@
 // Admin Push Notifications Handler
 $(document).ready(function() {
+    console.log('Admin notifications loaded');
+    
+    // Test API connectivity
+    $.get('api/test_notification.php')
+        .done(function(data) {
+            console.log('API test successful:', data);
+        })
+        .fail(function(xhr, status, error) {
+            console.error('API test failed:', {xhr, status, error});
+        });
+    
     loadNotificationStats();
     loadNotificationHistory();
     
@@ -24,11 +35,19 @@ function sendPushNotification() {
         return;
     }
     
-    $.post('api/send_push_notification.php', {
-        title: title,
-        message: message
+    console.log('Sending notification:', {title, message});
+    
+    $.ajax({
+        url: 'api/send_push_notification.php',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            title: title,
+            message: message
+        })
     })
     .done(function(data) {
+        console.log('Response:', data);
         if (data.success) {
             M.toast({html: data.message});
             $('#notification-form')[0].reset();
@@ -39,16 +58,37 @@ function sendPushNotification() {
             M.toast({html: data.error || 'Failed to send notification'});
         }
     })
-    .fail(function() {
-        M.toast({html: 'Network error sending notification'});
+    .fail(function(xhr, status, error) {
+        console.error('AJAX Error:', {xhr, status, error});
+        console.error('Response text:', xhr.responseText);
+        M.toast({html: 'Network error: ' + error});
     });
 }
 
 function testNotification() {
+    console.log('Test notification clicked');
+    console.log('Push manager available:', !!window.pushManager);
+    
     if (window.pushManager) {
+        console.log('Calling sendTestNotification');
         window.pushManager.sendTestNotification();
     } else {
+        console.log('Push manager not available');
         M.toast({html: 'Push manager not available'});
+        
+        // Fallback: try direct browser notification
+        if ('Notification' in window) {
+            if (Notification.permission === 'granted') {
+                new Notification('Test Notification', {
+                    body: 'This is a test notification from admin panel',
+                    icon: '/favicon.svg'
+                });
+            } else {
+                M.toast({html: 'Notification permission not granted'});
+            }
+        } else {
+            M.toast({html: 'Notifications not supported'});
+        }
     }
 }
 
