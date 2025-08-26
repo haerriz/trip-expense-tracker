@@ -3,6 +3,7 @@ class FloatingChatManager {
     constructor() {
         this.isOpen = false;
         this.unreadCount = 0;
+        this.currentTripId = null;
         this.init();
     }
 
@@ -15,9 +16,8 @@ class FloatingChatManager {
         this.floatingInput = document.getElementById('chat-message-floating');
         this.floatingSendBtn = document.getElementById('send-message-floating');
 
-        // Show chat bubble when trip is selected
         this.setupEventListeners();
-        this.syncWithOriginalChat();
+        this.startMessageSync();
     }
 
     setupEventListeners() {
@@ -47,62 +47,85 @@ class FloatingChatManager {
                 this.floatingSendBtn.disabled = !this.floatingInput.value.trim();
             });
         }
-
-        // Listen for trip selection to show/hide chat bubble
-        document.addEventListener('tripSelected', () => {
-            this.showChatBubble();
-        });
-        
-        // Also listen for global trip change events
-        if (window.enhancedChat) {
-            const originalSetTripId = window.enhancedChat.setTripId;
-            window.enhancedChat.setTripId = (tripId) => {
-                originalSetTripId.call(window.enhancedChat, tripId);
-                if (tripId) {
-                    this.showChatBubble();
-                } else {
-                    this.hideChatBubble();
-                }
-            };
-        }
-
-        // Listen for new messages to update badge
-        document.addEventListener('newChatMessage', (e) => {
-            if (!this.isOpen) {
-                this.updateUnreadCount(this.unreadCount + 1);
-            }
-        });
     }
 
-    syncWithOriginalChat() {
-        // Sync messages from original chat system
-        const originalMessages = document.getElementById('chat-messages');
-        if (originalMessages) {
-            // Copy existing messages
-            this.floatingMessages.innerHTML = originalMessages.innerHTML;
-            
-            // Set up mutation observer to sync new messages
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    if (mutation.type === 'childList') {
-                        this.floatingMessages.innerHTML = originalMessages.innerHTML;
-                        this.scrollToBottom();
-                        
-                        if (!this.isOpen) {
-                            this.updateUnreadCount(this.unreadCount + 1);
-                        }
-                    }
-                });
-            });
-
-            observer.observe(originalMessages, { childList: true, subtree: true });
+    setTripId(tripId) {
+        this.currentTripId = tripId;
+        if (tripId) {
+            this.showChatBubble();
+            this.loadMessages();
+        } else {
+            this.hideChatBubble();
         }
+    }
+
+    loadMessages() {
+        if (!this.currentTripId) return;
+        
+        $.get('api/get_chat.php', { trip_id: this.currentTripId })
+            .done((response) => {
+                if (response.success) {
+                    this.renderMessages(response.messages);
+                }
+            })
+            .fail(() => {
+                console.log('Failed to load chat messages');
+            });
+    }
+
+    renderMessages(messages) {
+        if (!this.floatingMessages) return;
+        
+        this.floatingMessages.innerHTML = '';
+        
+        messages.forEach(message => {
+            const messageElement = this.createMessageElement(message);
+            this.floatingMessages.appendChild(messageElement);
+        });
+        
+        this.scrollToBottom();
+    }
+
+    createMessageElement(message) {
+        const div = document.createElement('div');
+        const isOwn = message.user_id == window.currentUserId;
+        const messageClass = isOwn ? 'chat-message--own' : 'chat-message--other';
+        
+        const messageDate = new Date(message.created_at);
+        const time = messageDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        div.className = `chat-message ${messageClass}`;
+        div.innerHTML = `
+            <div class="chat-message__bubble">
+                ${!isOwn ? `
+                    <div class="chat-message__header">
+                        <span class="chat-message__sender">${message.sender_name}</span>
+                        <span class="chat-message__time">${time}</span>
+                    </div>
+                ` : `
+                    <div class="chat-message__header">
+                        <span class="chat-message__time">${time}</span>
+                    </div>
+                `}
+                <div class="chat-message__text">${message.message}</div>
+            </div>
+        `;
+        
+        return div;
+    }
+
+    startMessageSync() {
+        // Sync messages every 3 seconds
+        setInterval(() => {
+            if (this.currentTripId && this.isOpen) {
+                this.loadMessages();
+            }
+        }, 3000);
     }
 
     showChatBubble() {
         if (this.chatBubble) {
             this.chatBubble.style.display = 'flex';
-            console.log('Chat bubble shown'); // Debug log
         }
     }
 
@@ -126,9 +149,8 @@ class FloatingChatManager {
             this.chatWindow.style.display = 'flex';
             this.isOpen = true;
             this.updateUnreadCount(0);
-            this.scrollToBottom();
+            this.loadMessages();
             
-            // Focus input
             if (this.floatingInput) {
                 setTimeout(() => this.floatingInput.focus(), 100);
             }
@@ -156,25 +178,25 @@ class FloatingChatManager {
 
     sendMessage() {
         const message = this.floatingInput.value.trim();
-        if (!message) return;
+        if (!message || !this.currentTripId) return;
 
-        // Use the existing chat system's send function
-        if (window.sendChatMessage) {
-            window.sendChatMessage(message);
-            this.floatingInput.value = '';
-            this.floatingSendBtn.disabled = true;
-        } else {
-            // Fallback: trigger the original send button
-            const originalInput = document.getElementById('chat-message');
-            const originalSendBtn = document.getElementById('send-message');
-            
-            if (originalInput && originalSendBtn) {
-                originalInput.value = message;
-                originalSendBtn.click();
+        this.floatingSendBtn.disabled = true;
+        
+        $.post('api/send_chat.php', {
+            trip_id: this.currentTripId,
+            message: message
+        })
+        .done((response) => {
+            if (response.success) {
                 this.floatingInput.value = '';
                 this.floatingSendBtn.disabled = true;
+                // Reload messages immediately
+                setTimeout(() => this.loadMessages(), 500);
             }
-        }
+        })
+        .fail(() => {
+            this.floatingSendBtn.disabled = false;
+        });
     }
 
     scrollToBottom() {
@@ -195,27 +217,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentTripSelect) {
         currentTripSelect.addEventListener('change', () => {
             if (currentTripSelect.value) {
-                document.dispatchEvent(new CustomEvent('tripSelected'));
-                window.floatingChat.showChatBubble();
+                window.floatingChat.setTripId(currentTripSelect.value);
             } else {
                 window.floatingChat.hideChatBubble();
             }
         });
     }
     
-    // Monitor for trip dashboard visibility
-    const observer = new MutationObserver(() => {
-        const tripDashboard = document.getElementById('trip-dashboard');
-        if (tripDashboard && tripDashboard.style.display !== 'none') {
-            const tripSelect = document.getElementById('current-trip');
-            if (tripSelect && tripSelect.value) {
-                window.floatingChat.showChatBubble();
-            }
+    // Hook into enhanced chat system
+    setTimeout(() => {
+        if (window.enhancedChat) {
+            const originalSetTripId = window.enhancedChat.setTripId;
+            window.enhancedChat.setTripId = function(tripId) {
+                originalSetTripId.call(this, tripId);
+                window.floatingChat.setTripId(tripId);
+            };
         }
-    });
-    
-    const tripDashboard = document.getElementById('trip-dashboard');
-    if (tripDashboard) {
-        observer.observe(tripDashboard, { attributes: true, attributeFilter: ['style'] });
-    }
+    }, 1000);
 });

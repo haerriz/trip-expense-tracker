@@ -317,7 +317,9 @@ class EnhancedChat {
     
     scrollToBottom() {
         const container = $('#chat-messages');
-        container.animate({ scrollTop: container[0].scrollHeight }, 300);
+        if (container.length && container[0]) {
+            container.animate({ scrollTop: container[0].scrollHeight }, 300);
+        }
         this.autoScrollEnabled = true;
         this.updateScrollButton();
     }
