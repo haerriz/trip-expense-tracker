@@ -4,6 +4,8 @@ class FloatingChatManager {
         this.isOpen = false;
         this.unreadCount = 0;
         this.currentTripId = null;
+        this.lastMessageCount = 0;
+        this.userScrolledUp = false;
         this.init();
     }
 
@@ -47,6 +49,14 @@ class FloatingChatManager {
                 this.floatingSendBtn.disabled = !this.floatingInput.value.trim();
             });
         }
+
+        // Track user scroll to detect if they scrolled up
+        if (this.floatingMessages) {
+            this.floatingMessages.addEventListener('scroll', () => {
+                const { scrollTop, scrollHeight, clientHeight } = this.floatingMessages;
+                this.userScrolledUp = scrollTop < scrollHeight - clientHeight - 50;
+            });
+        }
     }
 
     setTripId(tripId) {
@@ -76,6 +86,12 @@ class FloatingChatManager {
     renderMessages(messages) {
         if (!this.floatingMessages) return;
         
+        const hasNewMessages = messages.length > this.lastMessageCount;
+        const shouldScrollToBottom = !this.userScrolledUp || hasNewMessages;
+        
+        // Store current scroll position
+        const scrollTop = this.floatingMessages.scrollTop;
+        
         this.floatingMessages.innerHTML = '';
         
         messages.forEach(message => {
@@ -83,7 +99,15 @@ class FloatingChatManager {
             this.floatingMessages.appendChild(messageElement);
         });
         
-        this.scrollToBottom();
+        // Only scroll to bottom if user hasn't scrolled up or there are new messages
+        if (shouldScrollToBottom) {
+            this.scrollToBottom();
+        } else {
+            // Restore scroll position
+            this.floatingMessages.scrollTop = scrollTop;
+        }
+        
+        this.lastMessageCount = messages.length;
     }
 
     createMessageElement(message) {
@@ -121,12 +145,12 @@ class FloatingChatManager {
     }
 
     startMessageSync() {
-        // Sync messages every 3 seconds
+        // Sync messages every 5 seconds (reduced frequency)
         setInterval(() => {
             if (this.currentTripId && this.isOpen) {
                 this.loadMessages();
             }
-        }, 3000);
+        }, 5000);
     }
 
     showChatBubble() {
@@ -154,6 +178,7 @@ class FloatingChatManager {
         if (this.chatWindow) {
             this.chatWindow.style.display = 'flex';
             this.isOpen = true;
+            this.userScrolledUp = false;
             this.updateUnreadCount(0);
             this.loadMessages();
             
@@ -207,9 +232,8 @@ class FloatingChatManager {
 
     scrollToBottom() {
         if (this.floatingMessages) {
-            setTimeout(() => {
-                this.floatingMessages.scrollTop = this.floatingMessages.scrollHeight;
-            }, 100);
+            this.floatingMessages.scrollTop = this.floatingMessages.scrollHeight;
+            this.userScrolledUp = false;
         }
     }
 }
