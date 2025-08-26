@@ -1083,7 +1083,7 @@ body {
     }
     
     .equal-height {
-        height: 140px;
+        height: 130px;
     }
     
     .equal-height .card-content h5 {
@@ -1091,7 +1091,7 @@ body {
     }
     
     .equal-height .card-content .material-icons {
-        font-size: 1.8rem !important;
+        font-size: 1rem !important;
     }
     
     .card-title {
