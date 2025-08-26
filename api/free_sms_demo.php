@@ -18,7 +18,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['otp_time'] = time();
     
     // Log OTP for demo (in production, this would be sent via SMS)
-    error_log("OTP for $phone: $otp");
     
     // Return OTP directly for demo
     echo json_encode([

@@ -1,14 +1,11 @@
 // Admin Push Notifications Handler
 $(document).ready(function() {
-    console.log('Admin notifications loaded');
     
     // Test API connectivity
     $.get('api/test_notification.php')
         .done(function(data) {
-            console.log('API test successful:', data);
         })
         .fail(function(xhr, status, error) {
-            console.error('API test failed:', {xhr, status, error});
         });
     
     loadNotificationStats();
@@ -69,7 +66,6 @@ function sendPushNotification() {
         return;
     }
     
-    console.log('Sending notification:', {title, message});
     
     $.ajax({
         url: 'api/send_push_notification.php',
@@ -81,7 +77,6 @@ function sendPushNotification() {
         })
     })
     .done(function(data) {
-        console.log('Response:', data);
         if (data.success) {
             M.toast({html: data.message});
             $('#notification-form')[0].reset();
@@ -93,21 +88,15 @@ function sendPushNotification() {
         }
     })
     .fail(function(xhr, status, error) {
-        console.error('AJAX Error:', {xhr, status, error});
-        console.error('Response text:', xhr.responseText);
         M.toast({html: 'Network error: ' + error});
     });
 }
 
 function testNotification() {
-    console.log('Test notification clicked');
-    console.log('Push manager available:', !!window.pushManager);
     
     if (window.pushManager) {
-        console.log('Calling sendTestNotification');
         window.pushManager.sendTestNotification();
     } else {
-        console.log('Push manager not available');
         M.toast({html: 'Push manager not available'});
         
         // Fallback: try direct browser notification
@@ -135,7 +124,6 @@ function loadNotificationStats() {
             }
         })
         .fail(function() {
-            console.error('Failed to load notification stats');
         });
 }
 
@@ -162,16 +150,13 @@ function loadNotificationHistory() {
             }
         })
         .fail(function() {
-            console.error('Failed to load notification history');
         });
 }
 
 function checkSubscriptionStatus() {
-    console.log('Checking subscription status...');
     
     if (window.pushManager) {
         window.pushManager.getSubscriptionStatus().then(function(status) {
-            console.log('Subscription status:', status);
             
             let message = `
                 Supported: ${status.supported}<br>
@@ -191,11 +176,9 @@ function checkSubscriptionStatus() {
 }
 
 function debugSubscriptions() {
-    console.log('Debugging subscriptions...');
     
     $.get('api/debug_subscriptions.php')
         .done(function(data) {
-            console.log('Debug data:', data);
             
             if (data.success) {
                 let message = `
@@ -213,17 +196,14 @@ function debugSubscriptions() {
             }
         })
         .fail(function(xhr, status, error) {
-            console.error('Debug failed:', {xhr, status, error});
             M.toast({html: 'Debug request failed'});
         });
 }
 
 function forceNotificationTest() {
-    console.log('Force notification test...');
     
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.ready.then(function(registration) {
-            console.log('Triggering service worker notification...');
             
             return registration.showNotification('Force Test Notification', {
                 body: 'This is a forced test notification bypassing push service',
@@ -234,10 +214,8 @@ function forceNotificationTest() {
                 tag: 'force-test'
             });
         }).then(function() {
-            console.log('Force notification sent successfully');
             M.toast({html: 'Force notification sent!'});
         }).catch(function(error) {
-            console.error('Force notification failed:', error);
             M.toast({html: 'Force notification failed: ' + error.message});
         });
     } else {
@@ -246,11 +224,9 @@ function forceNotificationTest() {
 }
 
 function serviceWorkerPushTest() {
-    console.log('Service worker push test...');
     
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.ready.then(function(registration) {
-            console.log('Simulating push event...');
             
             // Create a fake push event
             const pushData = {
@@ -266,14 +242,11 @@ function serviceWorkerPushTest() {
                     data: pushData
                 });
                 
-                console.log('Push simulation message sent to SW');
                 M.toast({html: 'Push simulation sent to service worker!'});
             } else {
-                console.error('No active service worker');
                 M.toast({html: 'No active service worker found'});
             }
         }).catch(function(error) {
-            console.error('SW push test failed:', error);
             M.toast({html: 'SW push test failed: ' + error.message});
         });
     } else {
@@ -282,7 +255,6 @@ function serviceWorkerPushTest() {
 }
 
 function directSystemNotificationTest() {
-    console.log('Direct system notification test...');
     
     if (Notification.permission === 'granted') {
         // This should definitely show in Android notification panel
@@ -297,16 +269,13 @@ function directSystemNotificationTest() {
         });
         
         notification.onclick = function() {
-            console.log('System notification clicked!');
             window.focus();
             notification.close();
         };
         
-        console.log('Direct system notification created:', notification);
         M.toast({html: 'System notification sent! Check your notification panel.'});
         
     } else {
-        console.log('Notification permission:', Notification.permission);
         M.toast({html: 'Notification permission not granted: ' + Notification.permission});
     }
 }

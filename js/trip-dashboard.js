@@ -592,7 +592,7 @@ function showEmptyState() {
 function loadTripSummary(tripId) {
     $.get('api/get_trip_summary.php', { trip_id: tripId })
         .done(function(data) {
-            console.log('Trip summary data:', data);
+
             if (data.success && data.trip) {
                 const currency = getCurrencySymbol(data.trip.currency || 'USD');
                 const budget = data.trip.budget;
@@ -627,14 +627,9 @@ function loadTripSummary(tripId) {
                 
                 $('#total-spent').text(currency + parseFloat(data.total_expenses || 0).toFixed(2));
                 $('#my-share').text(currency + parseFloat(data.per_person_share || 0).toFixed(2));
-            } else {
-                console.error('Trip summary API error:', data);
-                M.toast({html: 'Error: ' + (data.error || data.message || 'Failed to load trip summary')});
             }
         })
-        .fail(function(xhr, status, error) {
-            console.error('Trip summary API failed:', xhr.responseText);
-            M.toast({html: 'Network error loading trip summary'});
+        .fail(function() {
         });
 }
 

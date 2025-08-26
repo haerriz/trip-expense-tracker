@@ -4,7 +4,6 @@ let installButton;
 
 // Listen for the beforeinstallprompt event
 window.addEventListener('beforeinstallprompt', (e) => {
-    console.log('PWA install prompt available');
     
     // Prevent the mini-infobar from appearing on mobile
     e.preventDefault();
@@ -47,7 +46,6 @@ function showInstallButton() {
 // Install PWA
 async function installPWA() {
     if (!deferredPrompt) {
-        console.log('No install prompt available');
         return;
     }
     
@@ -57,10 +55,8 @@ async function installPWA() {
     // Wait for the user to respond to the prompt
     const { outcome } = await deferredPrompt.userChoice;
     
-    console.log(`User response to the install prompt: ${outcome}`);
     
     if (outcome === 'accepted') {
-        console.log('User accepted the install prompt');
         // Hide the install button
         hideInstallButton();
     }
@@ -82,7 +78,6 @@ function hideInstallButton() {
 
 // Listen for app installed event
 window.addEventListener('appinstalled', (evt) => {
-    console.log('PWA was installed');
     hideInstallButton();
     
     // Show success message
@@ -104,7 +99,6 @@ function isAppInstalled() {
 
 // Hide install button if app is already installed
 if (isAppInstalled()) {
-    console.log('App is already installed');
 } else {
     // Show install button after a delay if prompt hasn't appeared
     setTimeout(() => {
@@ -174,10 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js')
             .then((registration) => {
-                console.log('Service Worker registered successfully:', registration);
             })
             .catch((error) => {
-                console.log('Service Worker registration failed:', error);
             });
     }
 });

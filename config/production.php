@@ -13,7 +13,6 @@ $production_config = [
 // Production settings
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
-ini_set('error_log', '/path/to/error.log');
 
 // Security headers for production
 header('X-Content-Type-Options: nosniff');
@@ -38,7 +37,6 @@ if ($_SERVER['HTTP_HOST'] === 'expenses.haerriz.com') {
             PDO::ATTR_EMULATE_PREPARES => false,
         ]);
     } catch (PDOException $e) {
-        error_log("Database connection failed: " . $e->getMessage());
         die("Database connection failed");
     }
 }

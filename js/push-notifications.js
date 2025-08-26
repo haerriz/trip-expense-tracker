@@ -7,65 +7,51 @@ class PushNotificationManager {
 
     async init() {
         if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-            console.log('Push messaging is not supported');
             return;
         }
 
         try {
-            console.log('Initializing push notifications...');
             
             // Request notification permission on load
             const permissionGranted = await this.requestPermission();
-            console.log('Permission granted:', permissionGranted);
             
             // Subscribe to push notifications if permission granted
             if (Notification.permission === 'granted') {
-                console.log('Subscribing user to push notifications...');
                 await this.subscribeUser();
             }
         } catch (error) {
-            console.error('Push notification init failed:', error);
         }
     }
 
     async requestPermission() {
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
-            console.log('Notification permission granted');
             return true;
         } else {
-            console.log('Notification permission denied');
             return false;
         }
     }
 
     async subscribeUser() {
         try {
-            console.log('Getting service worker registration...');
             const registration = await navigator.serviceWorker.ready;
-            console.log('Service worker ready:', registration);
             
             // Check if already subscribed
             const existingSubscription = await registration.pushManager.getSubscription();
             if (existingSubscription) {
-                console.log('User already subscribed:', existingSubscription);
                 await this.sendSubscriptionToServer(existingSubscription);
                 return;
             }
             
-            console.log('Creating new subscription...');
             const subscription = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
                 applicationServerKey: this.urlBase64ToUint8Array(this.vapidPublicKey)
             });
             
-            console.log('New subscription created:', subscription);
 
             // Send subscription to server
             await this.sendSubscriptionToServer(subscription);
-            console.log('User subscribed to push notifications');
         } catch (error) {
-            console.error('Failed to subscribe user:', error);
         }
     }
 
@@ -84,20 +70,17 @@ class PushNotificationManager {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error('Server error:', errorText);
                 return;
             }
             
             const result = await response.json();
             if (result.success) {
-                console.log('Subscription saved successfully');
                 // Show success message
                 if (window.M && window.M.toast) {
                     M.toast({html: 'Push notifications enabled!'});
                 }
             }
         } catch (error) {
-            console.error('Error saving subscription:', error);
         }
     }
 
@@ -118,11 +101,8 @@ class PushNotificationManager {
 
     // Test notification (for admin)
     async sendTestNotification() {
-        console.log('sendTestNotification called');
-        console.log('Notification permission:', Notification.permission);
         
         if (Notification.permission === 'granted') {
-            console.log('Creating test notification');
             
             // Try service worker notification first
             if ('serviceWorker' in navigator) {
@@ -136,7 +116,6 @@ class PushNotificationManager {
                         vibrate: [200, 100, 200]
                     });
                 }).catch(function(error) {
-                    console.error('Service worker notification failed:', error);
                     // Fallback to regular notification
                     createRegularNotification();
                 });
@@ -154,12 +133,10 @@ class PushNotificationManager {
                 });
                 
                 notification.onclick = function() {
-                    console.log('Test notification clicked');
                     window.focus();
                     notification.close();
                 };
                 
-                console.log('Regular notification created:', notification);
             }
 
             
@@ -167,7 +144,6 @@ class PushNotificationManager {
                 M.toast({html: 'Test notification sent!'});
             }
         } else {
-            console.log('Notification permission not granted:', Notification.permission);
             if (window.M && window.M.toast) {
                 M.toast({html: 'Please enable notifications first'});
             }
@@ -189,7 +165,6 @@ class PushNotificationManager {
                 permission: Notification.permission
             };
         } catch (error) {
-            console.error('Error checking subscription:', error);
             return { supported: true, subscribed: false, error: error.message };
         }
     }

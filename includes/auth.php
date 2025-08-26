@@ -55,7 +55,6 @@ function loginUser($googleData) {
         
         return true;
     } catch (Exception $e) {
-        error_log("Login error: " . $e->getMessage());
         return false;
     }
 }

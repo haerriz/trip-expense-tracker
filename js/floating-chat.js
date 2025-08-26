@@ -83,7 +83,6 @@ class FloatingChatManager {
                 }
             })
             .fail(() => {
-                console.log('Failed to load chat messages');
             });
     }
 

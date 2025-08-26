@@ -18,10 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $rawInput = file_get_contents('php://input');
-error_log('Raw input: ' . $rawInput);
 
 $input = json_decode($rawInput, true);
-error_log('Decoded input: ' . print_r($input, true));
 
 if (!$input || !isset($input['title']) || !isset($input['message'])) {
     http_response_code(400);
@@ -34,9 +32,7 @@ try {
     $stmt = $pdo->query("SELECT * FROM push_subscriptions WHERE endpoint IS NOT NULL AND endpoint != ''");
     $subscriptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    error_log('Found subscriptions: ' . count($subscriptions));
     foreach ($subscriptions as $sub) {
-        error_log('Subscription endpoint: ' . substr($sub['endpoint'], 0, 50) . '...');
     }
     
     if (empty($subscriptions)) {

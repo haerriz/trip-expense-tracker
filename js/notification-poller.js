@@ -12,7 +12,6 @@ class NotificationPoller {
             this.checkForNotifications();
         }, 3000); // Check every 3 seconds for faster response
         
-        console.log('Notification poller started');
     }
     
     async checkForNotifications() {
@@ -20,15 +19,12 @@ class NotificationPoller {
             const response = await fetch('api/check_notifications.php');
             const data = await response.json();
             
-            console.log('Polling check result:', data);
             
             if (data.success && data.notifications && data.notifications.length > 0) {
-                console.log('Found notifications:', data.notifications.length);
                 data.notifications.forEach(notification => {
                     // Only show notifications we haven't seen before
                     const notificationTime = new Date(notification.created_at).getTime();
                     if (notificationTime > this.lastCheck) {
-                        console.log('Showing new notification:', notification);
                         this.showNotification(notification);
                     }
                 });
@@ -36,12 +32,10 @@ class NotificationPoller {
                 this.lastCheck = Date.now();
             }
         } catch (error) {
-            console.error('Notification polling error:', error);
         }
     }
     
     showNotification(notification) {
-        console.log('Showing real push notification:', notification);
         
         if (Notification.permission === 'granted') {
             // Use the same method as test notifications (which work!)
@@ -56,21 +50,17 @@ class NotificationPoller {
             });
             
             realNotification.onclick = function() {
-                console.log('Real push notification clicked!');
                 window.focus();
                 realNotification.close();
             };
             
-            console.log('Real push notification created successfully');
         } else {
-            console.log('Notification permission not granted');
         }
     }
     
     stop() {
         if (this.pollInterval) {
             clearInterval(this.pollInterval);
-            console.log('Notification poller stopped');
         }
     }
 }

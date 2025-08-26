@@ -49,7 +49,6 @@ try {
         echo json_encode(['success' => false, 'message' => 'Invalid request method']);
     }
 } catch (Exception $e) {
-    error_log("Signup error: " . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Server error occurred']);
 }
 ?>

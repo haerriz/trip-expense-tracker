@@ -45,7 +45,6 @@ try {
     ]);
     
 } catch (Exception $e) {
-    error_log('Notification stats error: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => 'Failed to get stats']);
 }

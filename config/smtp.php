@@ -45,7 +45,6 @@ function trySendEmail($to, $subject, $body, $config, $attachments) {
         return mail($to, $subject, $body, implode("\r\n", $headers));
         
     } catch (Exception $e) {
-        error_log("Email sending failed: " . $e->getMessage());
         return false;
     }
 }

@@ -54,7 +54,6 @@ try {
             $cleanedCount++;
         } catch (Exception $e) {
             $pdo->rollback();
-            error_log("Failed to cleanup trip {$trip['id']}: " . $e->getMessage());
         }
     }
     
