@@ -1480,6 +1480,11 @@ function viewExpenseHistory(expenseId) {
                     html += '<h6>Expense Modification History</h6>';
                     history.forEach(function(record) {
                         const changeDate = new Date(record.created_at).toLocaleString();
+                        // Get trip currency
+                        const selectedOption = $('#current-trip option:selected');
+                        const tripCurrency = selectedOption.data('currency') || 'USD';
+                        const currencySymbol = getCurrencySymbol(tripCurrency);
+                        
                         html += `
                             <div class="history-record">
                                 <div class="history-header">
@@ -1492,7 +1497,7 @@ function viewExpenseHistory(expenseId) {
                                     <ul>
                                         <li>Category: ${record.category}</li>
                                         <li>Subcategory: ${record.subcategory}</li>
-                                        <li>Amount: $${parseFloat(record.amount).toFixed(2)}</li>
+                                        <li>Amount: ${currencySymbol}${parseFloat(record.amount).toFixed(2)}</li>
                                         <li>Description: ${record.description}</li>
                                         <li>Date: ${record.date}</li>
                                     </ul>
@@ -1551,19 +1556,24 @@ function viewBudgetHistory() {
                     html += '<p>No budget change history for this trip.</p>';
                 } else {
                     html += '<h6>Budget Change History</h6>';
+                    // Get trip currency
+                    const selectedOption = $('#current-trip option:selected');
+                    const tripCurrency = selectedOption.data('currency') || 'USD';
+                    const currencySymbol = getCurrencySymbol(tripCurrency);
+                    
                     history.forEach(function(record) {
                         const changeDate = new Date(record.created_at).toLocaleString();
                         const changeType = record.adjustment_type.charAt(0).toUpperCase() + record.adjustment_type.slice(1);
                         html += `
                             <div class="history-record">
                                 <div class="history-header">
-                                    <strong>${changeType}: $${parseFloat(record.adjustment_amount).toFixed(2)}</strong>
+                                    <strong>${changeType}: ${currencySymbol}${parseFloat(record.adjustment_amount).toFixed(2)}</strong>
                                     <span class="history-date">${changeDate}</span>
                                 </div>
                                 <div class="history-details">
                                     <p><strong>Changed by:</strong> ${record.adjusted_by_name}</p>
-                                    <p><strong>Previous budget:</strong> $${parseFloat(record.previous_budget || 0).toFixed(2)}</p>
-                                    <p><strong>New budget:</strong> $${parseFloat(record.new_budget || 0).toFixed(2)}</p>
+                                    <p><strong>Previous budget:</strong> ${currencySymbol}${parseFloat(record.previous_budget || 0).toFixed(2)}</p>
+                                    <p><strong>New budget:</strong> ${currencySymbol}${parseFloat(record.new_budget || 0).toFixed(2)}</p>
                                     ${record.reason ? `<p><strong>Reason:</strong> ${record.reason}</p>` : ''}
                                 </div>
                             </div>
