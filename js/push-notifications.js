@@ -123,21 +123,45 @@ class PushNotificationManager {
         
         if (Notification.permission === 'granted') {
             console.log('Creating test notification');
-            const notification = new Notification('Test Notification', {
-                body: 'This is a test notification from Haerriz Expenses',
-                icon: '/favicon.svg',
-                badge: '/favicon.svg',
-                tag: 'test-notification',
-                requireInteraction: false
-            });
             
-            notification.onclick = function() {
-                console.log('Test notification clicked');
-                window.focus();
-                notification.close();
-            };
+            // Try service worker notification first
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(function(registration) {
+                    return registration.showNotification('Test Notification', {
+                        body: 'This is a test notification from Haerriz Expenses',
+                        icon: '/favicon.svg',
+                        badge: '/favicon.svg',
+                        tag: 'test-notification',
+                        requireInteraction: false,
+                        vibrate: [200, 100, 200]
+                    });
+                }).catch(function(error) {
+                    console.error('Service worker notification failed:', error);
+                    // Fallback to regular notification
+                    createRegularNotification();
+                });
+            } else {
+                createRegularNotification();
+            }
             
-            console.log('Test notification created:', notification);
+            function createRegularNotification() {
+                const notification = new Notification('Test Notification', {
+                    body: 'This is a test notification from Haerriz Expenses',
+                    icon: '/favicon.svg',
+                    badge: '/favicon.svg',
+                    tag: 'test-notification',
+                    requireInteraction: false
+                });
+                
+                notification.onclick = function() {
+                    console.log('Test notification clicked');
+                    window.focus();
+                    notification.close();
+                };
+                
+                console.log('Regular notification created:', notification);
+            }
+
             
             if (window.M && window.M.toast) {
                 M.toast({html: 'Test notification sent!'});

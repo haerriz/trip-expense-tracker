@@ -31,8 +31,13 @@ if (!$input || !isset($input['title']) || !isset($input['message'])) {
 
 try {
     // Get all push subscriptions
-    $stmt = $pdo->query("SELECT * FROM push_subscriptions WHERE endpoint IS NOT NULL");
+    $stmt = $pdo->query("SELECT * FROM push_subscriptions WHERE endpoint IS NOT NULL AND endpoint != ''");
     $subscriptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    error_log('Found subscriptions: ' . count($subscriptions));
+    foreach ($subscriptions as $sub) {
+        error_log('Subscription endpoint: ' . substr($sub['endpoint'], 0, 50) . '...');
+    }
     
     if (empty($subscriptions)) {
         echo json_encode(['success' => true, 'sent' => 0, 'message' => 'No subscribers found']);

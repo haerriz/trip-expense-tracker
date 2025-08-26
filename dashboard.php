@@ -117,6 +117,7 @@ requireLogin();
             </button>
         </li>
         <li><a id="mobile-invitations-btn"><i class="material-icons">mail</i>Invitations <span id="mobile-invitation-count" class="new badge orange" data-badge-caption="">0</span></a></li>
+        <li><a id="mobile-notifications-btn"><i class="material-icons">notifications</i>Enable Notifications</a></li>
         <li>
             <ul class="collapsible mobile-accordion">
                 <li>
@@ -596,6 +597,22 @@ requireLogin();
             });
             $('#mobile-email-report').on('click', function() {
                 $('#email-report').click();
+            });
+            
+            // Mobile notifications button
+            $('#mobile-notifications-btn').on('click', function() {
+                if (window.pushManager) {
+                    window.pushManager.requestPermission().then(function(granted) {
+                        if (granted) {
+                            window.pushManager.subscribeUser();
+                            M.toast({html: 'Notifications enabled!'});
+                        } else {
+                            M.toast({html: 'Notification permission denied'});
+                        }
+                    });
+                } else {
+                    M.toast({html: 'Notifications not supported'});
+                }
             });
         });
     </script>
