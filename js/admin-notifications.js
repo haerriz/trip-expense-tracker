@@ -38,6 +38,11 @@ $(document).ready(function() {
     $('#check-subscription').on('click', function() {
         checkSubscriptionStatus();
     });
+    
+    // Debug subscriptions
+    $('#debug-subscriptions').on('click', function() {
+        debugSubscriptions();
+    });
 });
 
 function sendPushNotification() {
@@ -168,4 +173,32 @@ function checkSubscriptionStatus() {
     } else {
         M.toast({html: 'Push manager not available'});
     }
+}
+
+function debugSubscriptions() {
+    console.log('Debugging subscriptions...');
+    
+    $.get('api/debug_subscriptions.php')
+        .done(function(data) {
+            console.log('Debug data:', data);
+            
+            if (data.success) {
+                let message = `
+                    Total DB entries: ${data.counts.total}<br>
+                    Valid subscriptions: ${data.counts.valid}<br>
+                `;
+                
+                if (data.valid_subscriptions.length > 0) {
+                    message += `<br>Sample endpoint: ${data.valid_subscriptions[0].endpoint.substring(0, 50)}...`;
+                }
+                
+                M.toast({html: message, displayLength: 8000});
+            } else {
+                M.toast({html: 'Debug failed: ' + data.error});
+            }
+        })
+        .fail(function(xhr, status, error) {
+            console.error('Debug failed:', {xhr, status, error});
+            M.toast({html: 'Debug request failed'});
+        });
 }

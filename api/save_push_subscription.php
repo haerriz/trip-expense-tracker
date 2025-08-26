@@ -33,10 +33,13 @@ try {
     
     $pdo->exec($createTable);
     
-    // Save subscription (use REPLACE to handle duplicates)
+    // Save subscription (use INSERT ... ON DUPLICATE KEY UPDATE)
     $stmt = $pdo->prepare("
-        REPLACE INTO push_subscriptions (user_id, endpoint, p256dh_key, auth_key) 
+        INSERT INTO push_subscriptions (user_id, endpoint, p256dh_key, auth_key) 
         VALUES (?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE 
+        p256dh_key = VALUES(p256dh_key), 
+        auth_key = VALUES(auth_key)
     ");
     
     $stmt->execute([

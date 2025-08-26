@@ -172,6 +172,9 @@ requireMasterAdmin();
                                 <button type="button" id="check-subscription" class="btn-flat waves-effect">
                                     <i class="material-icons left">info</i>Check Status
                                 </button>
+                                <button type="button" id="debug-subscriptions" class="btn-flat waves-effect">
+                                    <i class="material-icons left">bug_report</i>Debug DB
+                                </button>
                             </form>
                         </div>
                     </div>
