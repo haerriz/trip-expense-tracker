@@ -218,8 +218,12 @@ requireLogin();
                 <div class="col s6 m6 l3">
                     <div class="card blue lighten-4 hoverable equal-height" onclick="editBudget()" style="cursor: pointer;">
                         <div class="card-content center-align">
-                            <i class="material-icons blue-text medium">account_balance_wallet</i>
-                            <span class="card-title">Trip Budget</span>
+                            <div class="card-title-row hide-on-med-and-up">
+                                <i class="material-icons blue-text medium">account_balance_wallet</i>
+                                <span class="card-title">Trip Budget</span>
+                            </div>
+                            <i class="material-icons blue-text medium hide-on-small-only">account_balance_wallet</i>
+                            <span class="card-title hide-on-small-only">Trip Budget</span>
                             <div id="budget-display">
                                 <h5 id="trip-budget" class="blue-text">$0.00</h5>
                             </div>
@@ -230,8 +234,12 @@ requireLogin();
                 <div class="col s6 m6 l3">
                     <div class="card red lighten-4 equal-height">
                         <div class="card-content center-align">
-                            <i class="material-icons red-text medium">trending_up</i>
-                            <span class="card-title">Total Spent</span>
+                            <div class="card-title-row hide-on-med-and-up">
+                                <i class="material-icons red-text medium">trending_up</i>
+                                <span class="card-title">Total Spent</span>
+                            </div>
+                            <i class="material-icons red-text medium hide-on-small-only">trending_up</i>
+                            <span class="card-title hide-on-small-only">Total Spent</span>
                             <h5 id="total-spent" class="red-text">$0.00</h5>
                             <p class="grey-text"><small>&nbsp;</small></p>
                         </div>
@@ -240,8 +248,12 @@ requireLogin();
                 <div class="col s6 m6 l3">
                     <div class="card green lighten-4 equal-height">
                         <div class="card-content center-align">
-                            <i class="material-icons green-text medium">savings</i>
-                            <span class="card-title">Remaining</span>
+                            <div class="card-title-row hide-on-med-and-up">
+                                <i class="material-icons green-text medium">savings</i>
+                                <span class="card-title">Remaining</span>
+                            </div>
+                            <i class="material-icons green-text medium hide-on-small-only">savings</i>
+                            <span class="card-title hide-on-small-only">Remaining</span>
                             <h5 id="remaining-budget" class="green-text">$0.00</h5>
                             <p class="grey-text"><small>&nbsp;</small></p>
                         </div>
@@ -250,8 +262,12 @@ requireLogin();
                 <div class="col s6 m6 l3">
                     <div class="card orange lighten-4 equal-height">
                         <div class="card-content center-align">
-                            <i class="material-icons orange-text medium">person</i>
-                            <span class="card-title">My Share</span>
+                            <div class="card-title-row hide-on-med-and-up">
+                                <i class="material-icons orange-text medium">person</i>
+                                <span class="card-title">My Share</span>
+                            </div>
+                            <i class="material-icons orange-text medium hide-on-small-only">person</i>
+                            <span class="card-title hide-on-small-only">My Share</span>
                             <h5 id="my-share" class="orange-text">$0.00</h5>
                             <p class="grey-text"><small>&nbsp;</small></p>
                         </div>
