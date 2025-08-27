@@ -16,8 +16,17 @@ try {
         }
     }
     
-    echo json_encode(['success' => true, 'categories' => $categories]);
+    echo json_encode([
+        'success' => true, 
+        'categories' => $categories,
+        'count' => count($categories),
+        'debug' => 'Categories loaded successfully'
+    ]);
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    echo json_encode([
+        'success' => false, 
+        'error' => $e->getMessage(),
+        'debug' => 'Exception occurred'
+    ]);
 }
 ?>

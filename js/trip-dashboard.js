@@ -584,31 +584,41 @@ function loadTrips() {
 }
 
 function loadCategories() {
+    console.log('Loading categories...');
     // Add cache busting parameter
     $.get('api/get_categories.php?t=' + Date.now())
         .done(function(data) {
-            const categories = data.categories || [];
+            console.log('Categories API response:', data);
             
-            // Store categories data globally for subcategory loading
-            window.categoriesData = categories;
-            
-            let options = '<option value="">Select Category</option>';
-            
-            categories.forEach(function(category) {
-                options += `<option value="${category.name}">${category.name}</option>`;
-            });
-            
-            $('#category').html(options);
-            $('#category').formSelect();
-            
-            // Also populate edit modal categories
-            $('#edit-category').html(options);
-            $('#edit-category').formSelect();
-            
-            console.log('Categories loaded:', categories.length, 'categories');
-            console.log('Sample category:', categories[0]);
+            if (data.success) {
+                const categories = data.categories || [];
+                
+                // Store categories data globally for subcategory loading
+                window.categoriesData = categories;
+                
+                let options = '<option value="">Select Category</option>';
+                
+                categories.forEach(function(category) {
+                    options += `<option value="${category.name}">${category.name}</option>`;
+                });
+                
+                $('#category').html(options);
+                $('#category').formSelect();
+                
+                // Also populate edit modal categories
+                $('#edit-category').html(options);
+                $('#edit-category').formSelect();
+                
+                console.log('Categories loaded:', categories.length, 'categories');
+                console.log('Sample category:', categories[0]);
+            } else {
+                console.error('Categories API error:', data.error);
+                M.toast({html: 'Error loading categories: ' + (data.error || 'Unknown error')});
+            }
         })
-        .fail(function() {
+        .fail(function(xhr, status, error) {
+            console.error('Categories API failed:', {xhr, status, error});
+            console.error('Response text:', xhr.responseText);
             M.toast({html: 'Failed to load categories'});
         });
 }
