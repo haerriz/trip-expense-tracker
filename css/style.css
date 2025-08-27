@@ -1980,6 +1980,74 @@ body {
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
+/* Enhanced Theme Toggle */
+.theme-toggle {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.theme-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.theme-toggle:active {
+    transform: scale(0.95);
+}
+
+.theme-toggle svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover svg {
+    transform: rotate(15deg);
+}
+
+/* Mobile sidenav theme toggle */
+.sidenav .theme-toggle {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 16px 32px;
+    border-radius: 0;
+    gap: 32px;
+}
+
+.sidenav .theme-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    transform: none;
+}
+
+.sidenav .theme-toggle svg {
+    width: 24px;
+    height: 24px;
+}
+
+.sidenav .theme-toggle span {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .theme-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .sidenav .theme-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
 .expense-chart .card-title i {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;

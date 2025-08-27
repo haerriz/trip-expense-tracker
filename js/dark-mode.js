@@ -5,9 +5,20 @@ class DarkModeToggle {
     }
 
     init() {
-        // Check for saved theme preference or default to light mode
-        const savedTheme = localStorage.getItem('theme') || 'light';
+        // Check for saved theme preference or default to system
+        const savedTheme = localStorage.getItem('theme') || 'system';
+        this.currentMode = savedTheme;
         this.setTheme(savedTheme);
+        
+        // Listen for system theme changes
+        if (window.matchMedia) {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            mediaQuery.addListener(() => {
+                if (this.currentMode === 'system') {
+                    this.applySystemTheme();
+                }
+            });
+        }
         
         // Add event listener to toggle button
         document.addEventListener('click', (e) => {
@@ -17,12 +28,21 @@ class DarkModeToggle {
         });
     }
 
-    setTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
+    setTheme(mode) {
+        this.currentMode = mode;
+        localStorage.setItem('theme', mode);
+        
+        let actualTheme;
+        if (mode === 'system') {
+            actualTheme = this.getSystemTheme();
+        } else {
+            actualTheme = mode;
+        }
+        
+        document.documentElement.setAttribute('data-theme', actualTheme);
         
         // Force body background update
-        if (theme === 'dark') {
+        if (actualTheme === 'dark') {
             document.body.style.backgroundColor = '#121212';
             document.body.style.color = '#ffffff';
         } else {
@@ -31,30 +51,64 @@ class DarkModeToggle {
         }
         
         // Update toggle button icon
-        this.updateToggleIcon(theme);
+        this.updateToggleIcon(mode, actualTheme);
     }
 
     toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        this.setTheme(newTheme);
+        const modes = ['light', 'system', 'dark'];
+        const currentIndex = modes.indexOf(this.currentMode);
+        const nextIndex = (currentIndex + 1) % modes.length;
+        this.setTheme(modes[nextIndex]);
+    }
+    
+    getSystemTheme() {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return 'dark';
+        }
+        return 'light';
+    }
+    
+    applySystemTheme() {
+        if (this.currentMode === 'system') {
+            this.setTheme('system');
+        }
     }
 
-    updateToggleIcon(theme) {
+    updateToggleIcon(mode, actualTheme) {
         const toggleBtns = document.querySelectorAll('.theme-toggle');
         
         const sunIcon = `<svg viewBox="0 0 24 24"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></svg>`;
         
         const moonIcon = `<svg viewBox="0 0 24 24"><path d="M12.34 2.02C6.59 1.82 2 6.42 2 12c0 5.52 4.48 10 10 10 3.71 0 6.93-2.02 8.66-5.02-7.51-.25-13.64-6.42-13.64-13.96 0-.34.02-.67.05-1z"/></svg>`;
         
+        const systemIcon = `<svg viewBox="0 0 24 24"><path d="M20 3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h3l-1 1v2h12v-2l-1-1h3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 13H4V5h16v11z"/></svg>`;
+        
+        let icon, text;
+        
+        switch(mode) {
+            case 'light':
+                icon = sunIcon;
+                text = 'Light Mode';
+                break;
+            case 'dark':
+                icon = moonIcon;
+                text = 'Dark Mode';
+                break;
+            case 'system':
+                icon = systemIcon;
+                text = `System (${actualTheme})`;
+                break;
+        }
+        
         toggleBtns.forEach(btn => {
             const isSidenav = btn.closest('.sidenav');
             if (isSidenav) {
                 // Mobile sidenav version with text
-                btn.innerHTML = (theme === 'dark' ? sunIcon : moonIcon) + '<span>Dark Mode</span>';
+                btn.innerHTML = icon + `<span>${text}</span>`;
             } else {
                 // Desktop version icon only
-                btn.innerHTML = theme === 'dark' ? sunIcon : moonIcon;
+                btn.innerHTML = icon;
+                btn.title = text;
             }
         });
     }
