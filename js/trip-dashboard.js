@@ -785,13 +785,13 @@ function loadExpenses(tripId) {
             budgetHistory.forEach(function(tx) {
                 let label = '';
                 let color = '';
-                if (tx.change_type === 'initial') {
+                if (tx.adjustment_type === 'Initial Budget') {
                     label = 'Initial Budget';
                     color = 'blue-text';
-                } else if (tx.change_type === 'increase') {
+                } else if (tx.adjustment_type === 'Budget Increase') {
                     label = 'Budget Increased';
                     color = 'green-text';
-                } else if (tx.change_type === 'decrease') {
+                } else if (tx.adjustment_type === 'Budget Decrease') {
                     label = 'Budget Decreased';
                     color = 'red-text';
                 }
@@ -806,7 +806,7 @@ function loadExpenses(tripId) {
                             </div>
                         </div>
                         <div class="expense-item__amount ${color}">
-                            ${tx.change_type === 'decrease' ? '-' : '+'}${currencySymbol}${parseFloat(tx.amount).toFixed(2)}
+                            ${tx.adjustment_type === 'Budget Decrease' ? '-' : '+'}${currencySymbol}${parseFloat(tx.adjustment_amount || 0).toFixed(2)}
                         </div>
                         <div class="expense-item__actions"></div>
                     </div>
@@ -1606,13 +1606,13 @@ function viewBudgetHistory() {
                 budgetHistory.forEach(function(tx) {
                     let label = '';
                     let color = '';
-                    if (tx.change_type === 'initial') {
+                    if (tx.adjustment_type === 'Initial Budget') {
                         label = 'Initial Budget';
                         color = 'blue-text';
-                    } else if (tx.change_type === 'increase') {
+                    } else if (tx.adjustment_type === 'Budget Increase') {
                         label = 'Budget Increased';
                         color = 'green-text';
-                    } else if (tx.change_type === 'decrease') {
+                    } else if (tx.adjustment_type === 'Budget Decrease') {
                         label = 'Budget Decreased';
                         color = 'red-text';
                     }
@@ -1624,8 +1624,7 @@ function viewBudgetHistory() {
                             </div>
                             <div class="history-details">
                                 <p><strong>Changed by:</strong> ${tx.user_name}</p>
-                                <p><strong>Amount:</strong> ${tx.change_type === 'decrease' ? '-' : '+'}${currencySymbol}${parseFloat(tx.amount).toFixed(2)}</p>
-                                <p><strong>New Budget:</strong> ${currencySymbol}${parseFloat(tx.new_budget).toFixed(2)}</p>
+                                <p><strong>Amount:</strong> ${tx.adjustment_type === 'Budget Decrease' ? '-' : '+'}${currencySymbol}${parseFloat(tx.adjustment_amount || 0).toFixed(2)}</p>
                                 <p><strong>Reason:</strong> ${tx.reason || ''}</p>
                             </div>
                         </div>
