@@ -214,7 +214,7 @@ requireLogin();
         </div>
 
         <div id="trip-dashboard" style="display:none;">
-            <div class="row">
+            <div class="row first-row-dashboard">
                 <div class="col s6 m6 l3">
                     <div class="card blue lighten-4 hoverable equal-height" onclick="editBudget()" style="cursor: pointer;">
                         <div class="card-content center-align">
