@@ -2348,7 +2348,8 @@ body {
 
 .split-input {
     margin: 0 !important;
-    flex: 1;
+    max-width: 120px;
+    min-width: 80px;
 }
 
 .split-input input {
@@ -2357,8 +2358,11 @@ body {
     border-radius: 6px;
     border: 1px solid #e0e0e0 !important;
     background: #f8f9fa !important;
-    padding: 8px !important;
+    padding: 6px 8px !important;
     margin: 0 !important;
+    font-size: 0.9rem !important;
+    height: 36px !important;
+    box-sizing: border-box !important;
 }
 
 .split-input input:focus {
@@ -2367,10 +2371,20 @@ body {
     box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1) !important;
 }
 
+.split-input input:invalid {
+    border-color: #f44336 !important;
+    background: rgba(244, 67, 54, 0.05) !important;
+}
+
+.split-input input:valid {
+    border-color: #4caf50 !important;
+}
+
 .split-input label {
-    font-size: 0.75rem !important;
+    font-size: 0.7rem !important;
     color: #666 !important;
     font-weight: 500 !important;
+    white-space: nowrap !important;
 }
 
 .split-display {
@@ -2475,6 +2489,31 @@ body {
     background: rgba(100, 181, 246, 0.15);
 }
 
+[data-theme="dark"] .split-input input {
+    background: rgba(255,255,255,0.1) !important;
+    border-color: rgba(255,255,255,0.2) !important;
+    color: rgba(255,255,255,0.9) !important;
+}
+
+[data-theme="dark"] .split-input input:focus {
+    border-color: #64B5F6 !important;
+    background: rgba(255,255,255,0.15) !important;
+    box-shadow: 0 0 0 2px rgba(100, 181, 246, 0.2) !important;
+}
+
+[data-theme="dark"] .split-input input:invalid {
+    border-color: #ff6b6b !important;
+    background: rgba(255, 107, 107, 0.1) !important;
+}
+
+[data-theme="dark"] .split-input input:valid {
+    border-color: #66bb6a !important;
+}
+
+[data-theme="dark"] .split-input label {
+    color: rgba(255,255,255,0.7) !important;
+}
+
 /* Mobile Responsive */
 @media only screen and (max-width: 600px) {
     #custom-split-section {
@@ -2508,12 +2547,23 @@ body {
     
     .split-input {
         order: 2;
+        max-width: 100px;
+        min-width: 70px;
+        justify-self: center;
+    }
+    
+    .split-input input {
+        font-size: 0.85rem !important;
+        height: 32px !important;
+        padding: 4px 6px !important;
     }
     
     .split-display {
         order: 3;
         justify-self: center;
         min-width: 60px;
+        font-size: 0.8rem;
+        padding: 4px 8px;
     }
     
     .split-info {
