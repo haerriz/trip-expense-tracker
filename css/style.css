@@ -2048,6 +2048,28 @@ body {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
+/* Dark mode for expense form split options */
+[data-theme="dark"] .expense-form__split label {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+[data-theme="dark"] .expense-form__split label span {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+[data-theme="dark"] .expense-form__split [type="radio"]:checked+span:before,
+[data-theme="dark"] .expense-form__split [type="radio"]:not(:checked)+span:before {
+    border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+[data-theme="dark"] .expense-form__split [type="radio"]:checked+span:after {
+    background-color: #64B5F6 !important;
+}
+
+[data-theme="dark"] .expense-form__split label:hover span {
+    color: rgba(255, 255, 255, 1) !important;
+}
+
 .expense-chart .card-title i {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
