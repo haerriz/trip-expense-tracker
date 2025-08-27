@@ -11,9 +11,14 @@ $(document).ready(function() {
     // Load last selected trip from localStorage
     const lastTripId = localStorage.getItem('selectedTripId');
     
-    $('#current-trip').on('change', function() {
+    $('#current-trip, #current-trip-mobile').on('change', function() {
         const tripId = $(this).val();
         localStorage.setItem('selectedTripId', tripId);
+        
+        // Sync both selectors
+        $('#current-trip, #current-trip-mobile').val(tripId);
+        $('#current-trip, #current-trip-mobile').formSelect();
+        
         if (tripId) {
             loadTripDashboard(tripId);
         } else {
