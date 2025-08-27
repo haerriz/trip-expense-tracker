@@ -2219,6 +2219,321 @@ body {
     color: var(--text-color);
 }
 
+/* Custom Split Section UI Improvements */
+#custom-split-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 16px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.custom-split-header {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.custom-split-header h6 {
+    color: #2196F3;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.custom-split-header h6:before {
+    content: '💰';
+    font-size: 18px;
+}
+
+.split-amount-info {
+    background: rgba(33, 150, 243, 0.1);
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    text-align: center;
+    font-weight: 500;
+    color: #1976D2;
+}
+
+.split-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.split-info span {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.split-info strong {
+    color: #2196F3;
+    font-weight: 600;
+}
+
+.split-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.split-actions button {
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
+}
+
+.split-actions button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(33, 150, 243, 0.4);
+}
+
+.custom-split-members {
+    display: grid;
+    gap: 12px;
+}
+
+.split-member-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    transition: all 0.2s ease;
+}
+
+.split-member-row:hover {
+    border-color: #2196F3;
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.1);
+}
+
+.member-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 120px;
+}
+
+.split-avatar {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50%;
+    border: 2px solid #2196F3;
+}
+
+.member-name {
+    font-weight: 500;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.split-input {
+    margin: 0 !important;
+    flex: 1;
+}
+
+.split-input input {
+    text-align: center;
+    font-weight: 600;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0 !important;
+    background: #f8f9fa !important;
+    padding: 8px !important;
+    margin: 0 !important;
+}
+
+.split-input input:focus {
+    border-color: #2196F3 !important;
+    background: #ffffff !important;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1) !important;
+}
+
+.split-input label {
+    font-size: 0.75rem !important;
+    color: #666 !important;
+    font-weight: 500 !important;
+}
+
+.split-display {
+    min-width: 80px;
+    text-align: center;
+    font-weight: 600;
+    color: #2196F3;
+    background: rgba(33, 150, 243, 0.1);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
+.split-validation {
+    margin-top: 16px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.split-validation .card-panel {
+    margin: 0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Dark Mode */
+[data-theme="dark"] #custom-split-section {
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+    border-color: rgba(255,255,255,0.1);
+}
+
+[data-theme="dark"] .custom-split-header {
+    border-bottom-color: rgba(255,255,255,0.1);
+}
+
+[data-theme="dark"] .custom-split-header h6 {
+    color: #64B5F6;
+}
+
+[data-theme="dark"] .split-amount-info {
+    background: rgba(100, 181, 246, 0.15);
+    color: #64B5F6;
+}
+
+[data-theme="dark"] .split-info {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.1);
+}
+
+[data-theme="dark"] .split-info span {
+    color: rgba(255,255,255,0.7);
+}
+
+[data-theme="dark"] .split-info strong {
+    color: #64B5F6;
+}
+
+[data-theme="dark"] .split-actions button {
+    background: linear-gradient(135deg, #64B5F6, #42A5F5);
+    color: #000;
+}
+
+[data-theme="dark"] .split-member-row {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.1);
+}
+
+[data-theme="dark"] .split-member-row:hover {
+    border-color: #64B5F6;
+    box-shadow: 0 2px 8px rgba(100, 181, 246, 0.2);
+}
+
+[data-theme="dark"] .member-name {
+    color: rgba(255,255,255,0.9);
+}
+
+[data-theme="dark"] .split-avatar {
+    border-color: #64B5F6;
+}
+
+[data-theme="dark"] .split-input input {
+    background: rgba(255,255,255,0.1) !important;
+    border-color: rgba(255,255,255,0.2) !important;
+    color: rgba(255,255,255,0.9) !important;
+}
+
+[data-theme="dark"] .split-input input:focus {
+    border-color: #64B5F6 !important;
+    background: rgba(255,255,255,0.15) !important;
+    box-shadow: 0 0 0 2px rgba(100, 181, 246, 0.2) !important;
+}
+
+[data-theme="dark"] .split-input label {
+    color: rgba(255,255,255,0.7) !important;
+}
+
+[data-theme="dark"] .split-display {
+    color: #64B5F6;
+    background: rgba(100, 181, 246, 0.15);
+}
+
+/* Mobile Responsive */
+@media only screen and (max-width: 600px) {
+    #custom-split-section {
+        padding: 16px;
+        margin-top: 12px;
+    }
+    
+    .custom-split-header h6 {
+        font-size: 1rem;
+    }
+    
+    .split-actions {
+        gap: 6px;
+    }
+    
+    .split-actions button {
+        font-size: 0.75rem;
+        padding: 5px 10px;
+    }
+    
+    .split-member-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 12px;
+    }
+    
+    .member-info {
+        justify-content: center;
+        min-width: auto;
+    }
+    
+    .split-input {
+        order: 2;
+    }
+    
+    .split-display {
+        order: 3;
+        justify-self: center;
+        min-width: 60px;
+    }
+    
+    .split-info {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
+}
+
+/* Tablet Responsive */
+@media only screen and (min-width: 601px) and (max-width: 992px) {
+    .split-member-row {
+        grid-template-columns: 140px 1fr 90px;
+    }
+    
+    .split-actions button {
+        font-size: 0.8rem;
+    }
+}
+
 .expense-chart .card-title i {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
