@@ -2048,26 +2048,65 @@ body {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Dark mode for expense form split options */
-[data-theme="dark"] .expense-form__split label {
-    color: rgba(255, 255, 255, 0.9) !important;
+/* Desktop Dark Mode - Expense Form Split Options */
+@media only screen and (min-width: 993px) {
+    [data-theme="dark"] .expense-form__split {
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 8px;
+        padding: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    [data-theme="dark"] .expense-form__split label {
+        color: rgba(255, 255, 255, 0.9) !important;
+        transition: all 0.2s ease;
+    }
+    
+    [data-theme="dark"] .expense-form__split label:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+        padding: 4px 8px;
+        margin: -4px -8px;
+    }
+    
+    [data-theme="dark"] .expense-form__split [type="radio"]:checked+span:before {
+        border-color: #64B5F6 !important;
+        background: rgba(100, 181, 246, 0.1);
+    }
+    
+    [data-theme="dark"] .expense-form__split [type="radio"]:not(:checked)+span:before {
+        border-color: rgba(255, 255, 255, 0.3) !important;
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    [data-theme="dark"] .expense-form__split [type="radio"]:checked+span:after {
+        background-color: #64B5F6 !important;
+        box-shadow: 0 0 8px rgba(100, 181, 246, 0.3);
+    }
 }
 
-[data-theme="dark"] .expense-form__split label span {
-    color: rgba(255, 255, 255, 0.9) !important;
-}
-
-[data-theme="dark"] .expense-form__split [type="radio"]:checked+span:before,
-[data-theme="dark"] .expense-form__split [type="radio"]:not(:checked)+span:before {
-    border-color: rgba(255, 255, 255, 0.5) !important;
-}
-
-[data-theme="dark"] .expense-form__split [type="radio"]:checked+span:after {
-    background-color: #64B5F6 !important;
-}
-
-[data-theme="dark"] .expense-form__split label:hover span {
-    color: rgba(255, 255, 255, 1) !important;
+/* Mobile/Tablet Dark Mode - Expense Form Split Options */
+@media only screen and (max-width: 992px) {
+    [data-theme="dark"] .expense-form__split label {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    [data-theme="dark"] .expense-form__split label span {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    [data-theme="dark"] .expense-form__split [type="radio"]:checked+span:before,
+    [data-theme="dark"] .expense-form__split [type="radio"]:not(:checked)+span:before {
+        border-color: rgba(255, 255, 255, 0.5) !important;
+    }
+    
+    [data-theme="dark"] .expense-form__split [type="radio"]:checked+span:after {
+        background-color: #64B5F6 !important;
+    }
+    
+    [data-theme="dark"] .expense-form__split label:hover span {
+        color: rgba(255, 255, 255, 1) !important;
+    }
 }
 
 /* Dark mode for split option buttons */
