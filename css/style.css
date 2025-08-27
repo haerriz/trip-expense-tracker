@@ -2202,6 +2202,23 @@ body {
     color: rgba(255, 255, 255, 1) !important;
 }
 
+/* Paid By Dropdown Styling */
+.input-field select#paid-by,
+.input-field select#edit-paid-by {
+    background-color: var(--input-bg);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .input-field select#paid-by,
+[data-theme="dark"] .input-field select#edit-paid-by {
+    background-color: var(--input-bg);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .dropdown-content li > span {
+    color: var(--text-color);
+}
+
 .expense-chart .card-title i {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;

@@ -316,6 +316,8 @@ function editExpense(expenseId) {
                     $('#edit-amount').val(expense.amount);
                     $('#edit-description').val(expense.description);
                     $('#edit-date').val(expense.date);
+                    $('#edit-paid-by').val(expense.paid_by);
+                    $('#edit-paid-by').formSelect();
                     
                     M.updateTextFields();
                 }, 200);
@@ -381,7 +383,8 @@ function updateExpense() {
         subcategory: subcategory,
         amount: amount,
         description: description,
-        date: date
+        date: date,
+        paid_by: $('#edit-paid-by').val()
     };
     
     $.post('api/edit_expense.php', formData)
@@ -760,8 +763,21 @@ function loadTripMembers(tripId) {
     $.get('api/get_trip_members.php', { trip_id: tripId })
         .done(function(data) {
             const members = data.members || [];
-            const currentUserId = getCurrentUserId(); // We'll need to get this
+            const currentUserId = getCurrentUserId();
             let html = '';
+            
+            // Store members globally for paid by dropdown
+            window.tripMembers = members;
+            
+            // Update paid by dropdowns
+            let paidByOptions = '<option value="">Who paid?</option>';
+            members.forEach(function(member) {
+                const selected = member.id == currentUserId ? 'selected' : '';
+                paidByOptions += `<option value="${member.id}" ${selected}>${member.name}${member.id == currentUserId ? ' (You)' : ''}</option>`;
+            });
+            $('#paid-by').html(paidByOptions);
+            $('#edit-paid-by').html(paidByOptions);
+            $('#paid-by, #edit-paid-by').formSelect();
             
             members.forEach(function(member) {
                 const isCurrentUser = member.id == currentUserId;
@@ -1397,6 +1413,7 @@ function addExpense() {
         amount: $('#amount').val(),
         description: $('#description').val(),
         date: $('#date').val(),
+        paid_by: $('#paid-by').val(),
         split_type: splitType
     };
     

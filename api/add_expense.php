@@ -13,6 +13,7 @@ try {
         $description = $_POST['description'] ?? '';
         $date = $_POST['date'] ?? '';
         $splitType = $_POST['split_type'] ?? 'equal';
+        $paidBy = $_POST['paid_by'] ?? $_SESSION['user_id'];
         $userId = $_SESSION['user_id'];
         
         if (empty($tripId) || empty($category) || empty($amount)) {
@@ -48,7 +49,7 @@ try {
         // Insert expense
         $stmt = $pdo->prepare("INSERT INTO expenses (trip_id, category, subcategory, amount, description, date, paid_by, split_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         
-        if ($stmt->execute([$tripId, $category, $subcategory, $amount, $description, $date, $userId, $splitType])) {
+        if ($stmt->execute([$tripId, $category, $subcategory, $amount, $description, $date, $paidBy, $splitType])) {
             $expenseId = $pdo->lastInsertId();
             
             // Handle splits
@@ -72,7 +73,7 @@ try {
             } else if ($splitType === 'full') {
                 // Full expense on the person who paid
                 $stmt = $pdo->prepare("INSERT INTO expense_splits (expense_id, user_id, amount) VALUES (?, ?, ?)");
-                $stmt->execute([$expenseId, $userId, $amount]);
+                $stmt->execute([$expenseId, $paidBy, $amount]);
             } else if ($splitType === 'custom') {
                 // Handle custom splits
                 foreach ($_POST as $key => $value) {

@@ -307,6 +307,12 @@ requireLogin();
                                     <input type="date" id="date" class="validate" required>
                                     <label for="date">Date</label>
                                 </div>
+                                <div class="input-field">
+                                    <select id="paid-by" class="validate" required>
+                                        <option value="">Who paid?</option>
+                                    </select>
+                                    <label>Paid By</label>
+                                </div>
                                 <div class="expense-form__split">
                                     <p>
                                         <label class="split-option-btn active" for="split-equal">
@@ -544,6 +550,12 @@ requireLogin();
                 <div class="input-field">
                     <input type="date" id="edit-date" required>
                     <label for="edit-date">Date</label>
+                </div>
+                <div class="input-field">
+                    <select id="edit-paid-by" required>
+                        <option value="">Who paid?</option>
+                    </select>
+                    <label>Paid By</label>
                 </div>
             </form>
         </div>

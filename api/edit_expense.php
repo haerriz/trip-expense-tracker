@@ -33,9 +33,10 @@ try {
         $amount = floatval($_POST['amount'] ?? 0);
         $description = trim($_POST['description'] ?? '');
         $date = $_POST['date'] ?? '';
+        $paidBy = $_POST['paid_by'] ?? '';
         $userId = $_SESSION['user_id'];
         
-        if (empty($expenseId) || empty($category) || empty($description) || $amount <= 0) {
+        if (empty($expenseId) || empty($category) || empty($description) || $amount <= 0 || empty($paidBy)) {
             echo json_encode(['success' => false, 'message' => 'All fields are required and amount must be positive']);
             exit;
         }
@@ -51,11 +52,11 @@ try {
         // Update expense
         $stmt = $pdo->prepare("
             UPDATE expenses 
-            SET category = ?, subcategory = ?, amount = ?, description = ?, date = ?
+            SET category = ?, subcategory = ?, amount = ?, description = ?, date = ?, paid_by = ?
             WHERE id = ? AND paid_by = ?
         ");
         
-        if ($stmt->execute([$category, $subcategory, $amount, $description, $date, $expenseId, $userId])) {
+        if ($stmt->execute([$category, $subcategory, $amount, $description, $date, $paidBy, $expenseId, $userId])) {
             echo json_encode(['success' => true, 'message' => 'Expense updated successfully']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to update expense']);
