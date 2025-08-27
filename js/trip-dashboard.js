@@ -1470,12 +1470,10 @@ function adjustBudget(action) {
     
     const reason = prompt('Reason for budget adjustment (optional):') || `Budget ${action}d by user`;
     
-    $.post('api/immutable_budget.php', {
-        action: 'adjust',
+    $.post('api/adjust_budget.php', {
         trip_id: tripId,
-        adjustment_type: action,
-        amount: parseFloat(amount),
-        reason: reason
+        action: action,
+        amount: parseFloat(amount)
     })
     .done(function(data) {
         if (data.success) {
