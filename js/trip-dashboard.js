@@ -755,26 +755,37 @@ function removeMember(tripId, memberId) {
 }
 
 function loadExpenses(tripId) {
-    $.get('api/get_expenses.php', { trip_id: tripId })
+    $.get('api/get_trip_expenses.php', { trip_id: tripId })
         .done(function(data) {
             const expenses = data.expenses || [];
-            
+            const budget = data.budget;
+            const totalSpent = data.total_spent;
             // Get trip currency from the selected option
             const selectedOption = $('#current-trip option:selected');
             const tripCurrency = selectedOption.data('currency') || 'USD';
             const currencySymbol = getCurrencySymbol(tripCurrency);
-            
+
+            let budgetHtml = '';
+            if (budget) {
+                const percent = budget > 0 ? Math.round((totalSpent / budget) * 100) : 0;
+                budgetHtml = `
+                    <div class="budget-tracking">
+                        <span class="budget-label"><i class="material-icons left">account_balance_wallet</i>Budget:</span>
+                        <span class="budget-amount">${currencySymbol}${budget.toFixed(2)}</span>
+                        <span class="budget-used">Used: ${currencySymbol}${totalSpent.toFixed(2)} (${percent}%)</span>
+                        <span class="budget-remaining">Remaining: ${currencySymbol}${(budget-totalSpent).toFixed(2)}</span>
+                    </div>
+                `;
+            }
+
             let html = '';
-            
             expenses.forEach(function(expense) {
                 const isMasterAdmin = window.userEmail === 'haerriz@gmail.com';
                 const canModify = expense.paid_by == window.currentUserId || isMasterAdmin;
                 const expenseDate = new Date(expense.date).toLocaleDateString();
                 const avatar = expense.paid_by_picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(expense.paid_by_name)}&size=40&background=2196F3&color=fff`;
-                
                 const isReplaced = expense.replaced_by ? ' (Modified)' : '';
                 const statusClass = expense.replaced_by ? 'expense-item--replaced' : '';
-                
                 html += `
                     <div class="expense-item ${statusClass}">
                         <img src="${avatar}" alt="${expense.paid_by_name}" class="expense-item__avatar">
@@ -795,9 +806,10 @@ function loadExpenses(tripId) {
                     </div>
                 `;
             });
-            
-            $('#expenses-list').html(html || '<p>No expenses yet</p>');
-            $('#expenses-list-mobile').html(html || '<p>No expenses yet</p>');
+
+            // Show budget tracking above expenses
+            $('#expenses-list').html((budgetHtml ? budgetHtml : '') + (html || '<p>No expenses yet</p>'));
+            $('#expenses-list-mobile').html((budgetHtml ? budgetHtml : '') + (html || '<p>No expenses yet</p>'));
         })
         .fail(function() {
         });
