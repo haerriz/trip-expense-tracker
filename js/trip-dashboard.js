@@ -1476,16 +1476,20 @@ function adjustBudget(action) {
         amount: parseFloat(amount)
     })
     .done(function(data) {
+        console.log('Budget adjustment response:', data);
         if (data.success) {
             loadTripSummary(tripId);
             loadExpenses(tripId); // Refresh expenses to show budget adjustment record
             M.toast({html: data.message});
         } else {
-            M.toast({html: data.message || 'Error adjusting budget'});
+            console.error('Budget adjustment error:', data.error);
+            M.toast({html: data.error || data.message || 'Error adjusting budget'});
         }
     })
-    .fail(function() {
-        M.toast({html: 'Network error adjusting budget'});
+    .fail(function(xhr, status, error) {
+        console.error('Budget adjustment network error:', {xhr, status, error});
+        console.error('Response text:', xhr.responseText);
+        M.toast({html: 'Network error: ' + error});
     });
 }
 

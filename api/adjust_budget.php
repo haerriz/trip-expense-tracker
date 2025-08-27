@@ -50,6 +50,14 @@ try {
     $stmt = $pdo->prepare("UPDATE trips SET budget = ? WHERE id = ?");
     $stmt->execute([$newBudget, $tripId]);
     
+    // Ensure Budget category exists
+    $stmt = $pdo->prepare("SELECT id FROM categories WHERE name = 'Budget'");
+    $stmt->execute();
+    if (!$stmt->fetch()) {
+        $stmt = $pdo->prepare("INSERT INTO categories (name, subcategories) VALUES ('Budget', 'Initial Budget,Budget Increase,Budget Decrease')");
+        $stmt->execute();
+    }
+    
     // Create budget adjustment expense record
     $subcategory = $action === 'increase' ? 'Budget Increase' : 'Budget Decrease';
     $description = $action === 'increase' ? 
