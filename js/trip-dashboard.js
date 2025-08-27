@@ -1031,11 +1031,8 @@ function loadExpenses(tripId, sortBy = 'date_desc', filterBy = 'all') {
             allExpenses = sortExpenses(allExpenses, sortBy);
             allExpenses = filterExpenses(allExpenses, filterBy);
             
-            // Rebuild HTML with sorted/filtered data
+            // Rebuild HTML with sorted/filtered data - expenses first, budget tracking at bottom
             let finalHtml = '';
-            if (budgetHtml && (filterBy === 'all' || filterBy === 'budget')) {
-                finalHtml += budgetHtml;
-            }
             
             allExpenses.forEach(function(item) {
                 if (item.adjustment_type) {
@@ -1050,6 +1047,11 @@ function loadExpenses(tripId, sortBy = 'date_desc', filterBy = 'all') {
                     }
                 }
             });
+            
+            // Add budget tracking at the bottom
+            if (budgetHtml && (filterBy === 'all' || filterBy === 'budget')) {
+                finalHtml += budgetHtml;
+            }
             
             $('#expenses-list').html(finalHtml || '<p>No expenses match your criteria</p>');
             $('#expenses-list-mobile').html(finalHtml || '<p>No expenses match your criteria</p>');
