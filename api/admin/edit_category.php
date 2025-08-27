@@ -44,6 +44,47 @@ try {
             exit;
         }
         
+        // Get current category data
+        $stmt = $pdo->prepare("SELECT name, subcategories FROM categories WHERE id = ?");
+        $stmt->execute([$categoryId]);
+        $currentCategory = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Check if name is changing and if old name is used in expenses
+        if ($currentCategory['name'] !== $name) {
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM expenses WHERE category = ?");
+            $stmt->execute([$currentCategory['name']]);
+            $expenseCount = $stmt->fetchColumn();
+            
+            if ($expenseCount > 0) {
+                echo json_encode([
+                    'success' => false, 
+                    'message' => "Cannot rename category '{$currentCategory['name']}' - it has {$expenseCount} existing expenses. Create a new category instead."
+                ]);
+                exit;
+            }
+        }
+        
+        // Check if subcategories are being removed that are used in expenses
+        $oldSubcats = array_filter(array_map('trim', explode(',', $currentCategory['subcategories'] ?? '')));
+        $newSubcats = array_filter(array_map('trim', explode(',', $subcategories)));
+        $removedSubcats = array_diff($oldSubcats, $newSubcats);
+        
+        if (!empty($removedSubcats)) {
+            foreach ($removedSubcats as $removedSubcat) {
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM expenses WHERE category = ? AND subcategory = ?");
+                $stmt->execute([$currentCategory['name'], $removedSubcat]);
+                $subExpenseCount = $stmt->fetchColumn();
+                
+                if ($subExpenseCount > 0) {
+                    echo json_encode([
+                        'success' => false, 
+                        'message' => "Cannot remove subcategory '{$removedSubcat}' - it has {$subExpenseCount} existing expenses."
+                    ]);
+                    exit;
+                }
+            }
+        }
+        
         // Update category
         $stmt = $pdo->prepare("UPDATE categories SET name = ?, subcategories = ? WHERE id = ?");
         
