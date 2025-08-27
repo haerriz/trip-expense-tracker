@@ -285,38 +285,56 @@ function updateBudget() {
 }
 
 function editExpense(expenseId) {
+    // Ensure categories are loaded first
+    if (!window.categoriesData || window.categoriesData.length === 0) {
+        loadCategories();
+        setTimeout(() => editExpense(expenseId), 500);
+        return;
+    }
+    
     $.get('api/edit_expense.php', { expense_id: expenseId })
         .done(function(data) {
             if (data.success) {
                 const expense = data.expense;
                 $('#edit-expense-id').val(expense.id);
                 
-                // Set category and reinitialize
-                $('#edit-category').val(expense.category);
-                $('#edit-category').formSelect();
+                // Populate categories first
+                populateEditCategories();
                 
-                // Load subcategories and set selected value
-                loadSubcategoriesForEdit(expense.category, expense.subcategory);
-                
-                $('#edit-amount').val(expense.amount);
-                $('#edit-description').val(expense.description);
-                $('#edit-date').val(expense.date);
-                
-                // Update all form elements
-                M.updateTextFields();
-                
-                // Small delay to ensure selects are properly initialized
+                // Set values after a delay
                 setTimeout(() => {
+                    $('#edit-category').val(expense.category);
                     $('#edit-category').formSelect();
-                    $('#edit-subcategory').formSelect();
+                    
+                    loadSubcategoriesForEdit(expense.category, expense.subcategory);
+                    
+                    $('#edit-amount').val(expense.amount);
+                    $('#edit-description').val(expense.description);
+                    $('#edit-date').val(expense.date);
+                    
                     M.updateTextFields();
-                }, 100);
+                }, 200);
                 
                 $('#edit-expense-modal').modal('open');
             } else {
                 M.toast({html: data.message || 'Error loading expense'});
             }
+        })
+        .fail(function() {
+            M.toast({html: 'Network error loading expense'});
         });
+}
+
+function populateEditCategories() {
+    const categories = window.categoriesData || [];
+    let options = '<option value="">Select Category</option>';
+    
+    categories.forEach(function(category) {
+        options += `<option value="${category.name}">${category.name}</option>`;
+    });
+    
+    $('#edit-category').html(options);
+    $('#edit-category').formSelect();
 }
 
 function updateExpense() {
@@ -586,6 +604,9 @@ function loadCategories() {
             // Also populate edit modal categories
             $('#edit-category').html(options);
             $('#edit-category').formSelect();
+            
+            console.log('Categories loaded:', categories.length, 'categories');
+            console.log('Sample category:', categories[0]);
         })
         .fail(function() {
             M.toast({html: 'Failed to load categories'});
