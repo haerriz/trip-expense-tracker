@@ -10,9 +10,9 @@ $tripId = $_GET['trip_id'];
 
 // Get budget history (initial, increase, decrease)
 $stmt = $pdo->prepare("
-    SELECT bh.id, bh.change_type, bh.amount, bh.new_budget, bh.reason, bh.created_at, u.name as user_name
+    SELECT bh.id, bh.adjustment_type, bh.adjustment_amount, bh.new_budget, bh.reason, bh.created_at, u.name as user_name
     FROM budget_history bh
-    JOIN users u ON bh.user_id = u.id
+    JOIN users u ON bh.adjusted_by = u.id
     WHERE bh.trip_id = ?
     ORDER BY bh.created_at ASC
 ");
