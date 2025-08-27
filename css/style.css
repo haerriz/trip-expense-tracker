@@ -2048,40 +2048,91 @@ body {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Desktop Dark Mode - Expense Form Split Options */
+/* Desktop Expense Form Split Options - Inline Layout */
 @media only screen and (min-width: 993px) {
+    .expense-form__split {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 16px;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.02);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .expense-form__split p {
+        flex: 1;
+        margin: 0;
+    }
+    
+    .expense-form__split label {
+        display: block;
+        width: 100%;
+        padding: 8px 16px;
+        border: 1px solid #e0e0e0;
+        background: white;
+        color: #333;
+        border-radius: 6px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+    
+    .expense-form__split label:hover {
+        border-color: #2196F3;
+        background: rgba(33, 150, 243, 0.05);
+    }
+    
+    .expense-form__split [type="radio"] {
+        width: 0 !important;
+        height: 0 !important;
+        opacity: 0 !important;
+        position: absolute !important;
+        left: -9999px !important;
+    }
+    
+    .expense-form__split [type="radio"]:before,
+    .expense-form__split [type="radio"]:after {
+        display: none !important;
+    }
+    
+    .expense-form__split label:before,
+    .expense-form__split label:after {
+        display: none !important;
+    }
+    
+    .expense-form__split [type="radio"]:checked + span {
+        background: #2196F3 !important;
+        color: white !important;
+        border-color: #2196F3 !important;
+    }
+    
+    .expense-form__split label span {
+        padding-left: 0 !important;
+    }
+    
+    /* Dark Mode */
     [data-theme="dark"] .expense-form__split {
         background: rgba(255, 255, 255, 0.02);
-        border-radius: 8px;
-        padding: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.1);
     }
     
     [data-theme="dark"] .expense-form__split label {
-        color: rgba(255, 255, 255, 0.9) !important;
-        transition: all 0.2s ease;
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.9);
+        border-color: rgba(255, 255, 255, 0.2);
     }
     
     [data-theme="dark"] .expense-form__split label:hover {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 4px;
-        padding: 4px 8px;
-        margin: -4px -8px;
-    }
-    
-    [data-theme="dark"] .expense-form__split [type="radio"]:checked+span:before {
-        border-color: #64B5F6 !important;
+        border-color: #64B5F6;
         background: rgba(100, 181, 246, 0.1);
     }
     
-    [data-theme="dark"] .expense-form__split [type="radio"]:not(:checked)+span:before {
-        border-color: rgba(255, 255, 255, 0.3) !important;
-        background: rgba(255, 255, 255, 0.05);
-    }
-    
-    [data-theme="dark"] .expense-form__split [type="radio"]:checked+span:after {
-        background-color: #64B5F6 !important;
-        box-shadow: 0 0 8px rgba(100, 181, 246, 0.3);
+    [data-theme="dark"] .expense-form__split [type="radio"]:checked + span {
+        background: #64B5F6 !important;
+        color: #000 !important;
+        border-color: #64B5F6 !important;
     }
 }
 
