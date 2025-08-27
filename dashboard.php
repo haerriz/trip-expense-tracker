@@ -519,16 +519,16 @@ requireLogin();
     <div id="edit-expense-modal" class="modal">
         <div class="modal-content">
             <h4>Edit Expense</h4>
-            <form id="edit-expense-form">
+            <form id="edit-expense-form" novalidate>
                 <input type="hidden" id="edit-expense-id">
                 <div class="input-field">
-                    <select id="edit-category" name="edit-category" required>
+                    <select id="edit-category" name="edit-category">
                         <option value="">Select Category</option>
                     </select>
                     <label>Category</label>
                 </div>
                 <div class="input-field">
-                    <select id="edit-subcategory" name="edit-subcategory" required>
+                    <select id="edit-subcategory" name="edit-subcategory">
                         <option value="">Select Subcategory</option>
                     </select>
                     <label>Subcategory</label>

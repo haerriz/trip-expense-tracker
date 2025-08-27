@@ -170,7 +170,9 @@ $(document).ready(function() {
     
     $('#edit-expense-form').on('submit', function(e) {
         e.preventDefault();
+        e.stopPropagation();
         updateExpense();
+        return false;
     });
     
     $('#edit-category').on('change', function() {
@@ -318,29 +320,60 @@ function editExpense(expenseId) {
 }
 
 function updateExpense() {
-    const reason = prompt('Reason for modification (optional):') || 'Modified by user';
+    // Validate required fields
+    const category = $('#edit-category').val();
+    const subcategory = $('#edit-subcategory').val();
+    const amount = $('#edit-amount').val();
+    const description = $('#edit-description').val();
+    const date = $('#edit-date').val();
+    
+    if (!category) {
+        M.toast({html: 'Please select a category'});
+        return;
+    }
+    
+    if (!subcategory) {
+        M.toast({html: 'Please select a subcategory'});
+        return;
+    }
+    
+    if (!amount || parseFloat(amount) <= 0) {
+        M.toast({html: 'Please enter a valid amount'});
+        return;
+    }
+    
+    if (!description.trim()) {
+        M.toast({html: 'Please enter a description'});
+        return;
+    }
+    
+    if (!date) {
+        M.toast({html: 'Please select a date'});
+        return;
+    }
     
     const formData = {
-        action: 'modify',
         expense_id: $('#edit-expense-id').val(),
-        category: $('#edit-category').val(),
-        subcategory: $('#edit-subcategory').val(),
-        amount: $('#edit-amount').val(),
-        description: $('#edit-description').val(),
-        date: $('#edit-date').val(),
-        reason: reason
+        category: category,
+        subcategory: subcategory,
+        amount: amount,
+        description: description,
+        date: date
     };
     
-    $.post('api/immutable_expense.php', formData)
+    $.post('api/edit_expense.php', formData)
         .done(function(data) {
             if (data.success) {
                 $('#edit-expense-modal').modal('close');
                 const tripId = $('#current-trip').val();
                 loadTripDashboard(tripId);
-                M.toast({html: 'Expense modified successfully (new record created)'});
+                M.toast({html: 'Expense updated successfully'});
             } else {
-                M.toast({html: data.message || 'Error modifying expense'});
+                M.toast({html: data.message || 'Error updating expense'});
             }
+        })
+        .fail(function() {
+            M.toast({html: 'Network error updating expense'});
         });
 }
 
