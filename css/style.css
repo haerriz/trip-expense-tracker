@@ -1403,6 +1403,107 @@ body {
 .budget-adjust-btn .material-icons {
     font-size: 18px;
 }
+
+/* Budget History UI */
+.budget-history-record {
+    margin-bottom: 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.budget-history-record:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.budget-history-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.budget-history-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.8);
+}
+
+.budget-history-info {
+    flex: 1;
+}
+
+.budget-history-amount {
+    text-align: right;
+}
+
+.budget-history-details {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+.budget-history-user {
+    display: flex;
+    align-items: center;
+}
+
+/* Budget Transaction Styling */
+.expense-item.budget-tx {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-left: 4px solid #2196F3;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.expense-item.budget-tx .expense-item__category {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+}
+
+.expense-item.budget-tx .expense-item__category .material-icons {
+    font-size: 16px;
+}
+
+/* Dark Mode Support */
+[data-theme="dark"] .budget-history-record {
+    background: rgba(255,255,255,0.05) !important;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+[data-theme="dark"] .budget-history-icon {
+    background: rgba(0,0,0,0.3);
+}
+
+[data-theme="dark"] .budget-history-details {
+    border-top-color: rgba(255,255,255,0.1);
+}
+
+[data-theme="dark"] .expense-item.budget-tx {
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+    border-left-color: #64B5F6;
+}
+
+[data-theme="dark"] .grey-text {
+    color: rgba(255,255,255,0.7) !important;
+}
+
+[data-theme="dark"] .grey-text.text-darken-1 {
+    color: rgba(255,255,255,0.8) !important;
+}
+
+[data-theme="dark"] .grey-text.text-darken-2 {
+    color: rgba(255,255,255,0.9) !important;
+}
     align-items: center;
     gap: 12px;
 }

@@ -785,20 +785,31 @@ function loadExpenses(tripId) {
             budgetHistory.forEach(function(tx) {
                 let label = '';
                 let color = '';
+                let icon = '';
                 if (tx.adjustment_type === 'Initial Budget') {
                     label = 'Initial Budget';
                     color = 'blue-text';
+                    icon = 'account_balance_wallet';
                 } else if (tx.adjustment_type === 'Budget Increase') {
                     label = 'Budget Increased';
                     color = 'green-text';
+                    icon = 'trending_up';
                 } else if (tx.adjustment_type === 'Budget Decrease') {
                     label = 'Budget Decreased';
                     color = 'red-text';
+                    icon = 'trending_down';
                 }
+                
+                const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(tx.user_name)}&size=40&background=2196F3&color=fff`;
+                
                 budgetTxHtml += `
                     <div class="expense-item budget-tx">
+                        <img src="${avatar}" alt="${tx.user_name}" class="expense-item__avatar">
                         <div class="expense-item__info">
-                            <div class="expense-item__category ${color}">${label}</div>
+                            <div class="expense-item__category ${color}">
+                                <i class="material-icons tiny">${icon}</i>
+                                ${label}
+                            </div>
                             <div class="expense-item__description">${tx.reason || ''}</div>
                             <div class="expense-item__meta">
                                 <span>${new Date(tx.created_at).toLocaleDateString()}</span>
@@ -808,7 +819,9 @@ function loadExpenses(tripId) {
                         <div class="expense-item__amount ${color}">
                             ${tx.adjustment_type === 'Budget Decrease' ? '-' : '+'}${currencySymbol}${parseFloat(tx.adjustment_amount || 0).toFixed(2)}
                         </div>
-                        <div class="expense-item__actions"></div>
+                        <div class="expense-item__actions">
+                            <i class="material-icons grey-text">history</i>
+                        </div>
                     </div>
                 `;
             });
@@ -1606,26 +1619,45 @@ function viewBudgetHistory() {
                 budgetHistory.forEach(function(tx) {
                     let label = '';
                     let color = '';
+                    let icon = '';
                     if (tx.adjustment_type === 'Initial Budget') {
                         label = 'Initial Budget';
-                        color = 'blue-text';
+                        color = 'blue';
+                        icon = 'account_balance_wallet';
                     } else if (tx.adjustment_type === 'Budget Increase') {
                         label = 'Budget Increased';
-                        color = 'green-text';
+                        color = 'green';
+                        icon = 'trending_up';
                     } else if (tx.adjustment_type === 'Budget Decrease') {
                         label = 'Budget Decreased';
-                        color = 'red-text';
+                        color = 'red';
+                        icon = 'trending_down';
                     }
+                    
+                    const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(tx.user_name)}&size=32&background=2196F3&color=fff`;
+                    
                     html += `
-                        <div class="history-record">
-                            <div class="history-header">
-                                <strong class="${color}">${label}</strong>
-                                <span class="history-date">${new Date(tx.created_at).toLocaleString()}</span>
+                        <div class="budget-history-record card-panel ${color} lighten-5">
+                            <div class="budget-history-header">
+                                <div class="budget-history-icon">
+                                    <i class="material-icons ${color}-text">${icon}</i>
+                                </div>
+                                <div class="budget-history-info">
+                                    <h6 class="${color}-text" style="margin: 0;">${label}</h6>
+                                    <span class="grey-text text-darken-1">${new Date(tx.created_at).toLocaleString()}</span>
+                                </div>
+                                <div class="budget-history-amount">
+                                    <span class="${color}-text" style="font-size: 1.2rem; font-weight: bold;">
+                                        ${tx.adjustment_type === 'Budget Decrease' ? '-' : '+'}${currencySymbol}${parseFloat(tx.adjustment_amount || 0).toFixed(2)}
+                                    </span>
+                                </div>
                             </div>
-                            <div class="history-details">
-                                <p><strong>Changed by:</strong> ${tx.user_name}</p>
-                                <p><strong>Amount:</strong> ${tx.adjustment_type === 'Budget Decrease' ? '-' : '+'}${currencySymbol}${parseFloat(tx.adjustment_amount || 0).toFixed(2)}</p>
-                                <p><strong>Reason:</strong> ${tx.reason || ''}</p>
+                            <div class="budget-history-details">
+                                <div class="budget-history-user">
+                                    <img src="${avatar}" alt="${tx.user_name}" class="circle" style="width: 24px; height: 24px; margin-right: 8px;">
+                                    <span class="grey-text text-darken-2">${tx.user_name}</span>
+                                </div>
+                                ${tx.reason ? `<p class="grey-text" style="margin: 8px 0 0 0; font-style: italic;">${tx.reason}</p>` : ''}
                             </div>
                         </div>
                     `;
