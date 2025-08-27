@@ -2285,6 +2285,7 @@ body {
     gap: 8px;
     flex-wrap: wrap;
     justify-content: center;
+    align-items: center;
 }
 
 .split-actions button {
