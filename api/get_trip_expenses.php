@@ -15,7 +15,7 @@ try {
     // Get budget history from expenses table
     $stmt = $pdo->prepare("
         SELECT e.id, e.subcategory as adjustment_type, e.amount as adjustment_amount, 
-               e.description as reason, e.created_at, u.name as user_name
+               e.description as reason, e.created_at, u.name as user_name, u.picture as user_picture
         FROM expenses e
         JOIN users u ON e.paid_by = u.id
         WHERE e.trip_id = ? AND e.category = 'Budget'

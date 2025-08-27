@@ -800,7 +800,9 @@ function loadExpenses(tripId) {
                     icon = 'trending_down';
                 }
                 
-                const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(tx.user_name)}&size=40&background=2196F3&color=fff`;
+                const avatar = tx.user_picture && !tx.user_picture.includes('placeholder') ? 
+                    tx.user_picture : 
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(tx.user_name)}&size=40&background=2196F3&color=fff`;
                 
                 budgetTxHtml += `
                     <div class="expense-item budget-tx">
@@ -1634,7 +1636,9 @@ function viewBudgetHistory() {
                         icon = 'trending_down';
                     }
                     
-                    const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(tx.user_name)}&size=32&background=2196F3&color=fff`;
+                    const avatar = tx.user_picture && !tx.user_picture.includes('placeholder') ? 
+                        tx.user_picture : 
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(tx.user_name)}&size=32&background=2196F3&color=fff`;
                     
                     html += `
                         <div class="budget-history-record card-panel ${color} lighten-5">
