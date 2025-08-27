@@ -5,8 +5,8 @@ requireLogin();
 header('Content-Type: application/json');
 
 try {
-    // Only show non-archived categories to users
-    $stmt = $pdo->query("SELECT * FROM categories WHERE archived IS NULL OR archived = FALSE ORDER BY name");
+    // Get all categories (archived column may not exist on all servers)
+    $stmt = $pdo->query("SELECT * FROM categories ORDER BY name");
     $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Ensure subcategories field exists for each category
