@@ -174,7 +174,13 @@ $(document).ready(function() {
     });
     
     $('#edit-category').on('change', function() {
-        loadSubcategoriesForEdit($(this).val());
+        const selectedCategory = $(this).val();
+        if (selectedCategory) {
+            loadSubcategoriesForEdit(selectedCategory);
+        } else {
+            $('#edit-subcategory').html('<option value="">Select Subcategory</option>');
+            $('#edit-subcategory').formSelect();
+        }
     });
     
     $('#edit-budget-form').on('submit', function(e) {
@@ -282,14 +288,28 @@ function editExpense(expenseId) {
             if (data.success) {
                 const expense = data.expense;
                 $('#edit-expense-id').val(expense.id);
+                
+                // Set category and reinitialize
                 $('#edit-category').val(expense.category);
                 $('#edit-category').formSelect();
+                
+                // Load subcategories and set selected value
                 loadSubcategoriesForEdit(expense.category, expense.subcategory);
+                
                 $('#edit-amount').val(expense.amount);
                 $('#edit-description').val(expense.description);
                 $('#edit-date').val(expense.date);
                 
+                // Update all form elements
                 M.updateTextFields();
+                
+                // Small delay to ensure selects are properly initialized
+                setTimeout(() => {
+                    $('#edit-category').formSelect();
+                    $('#edit-subcategory').formSelect();
+                    M.updateTextFields();
+                }, 100);
+                
                 $('#edit-expense-modal').modal('open');
             } else {
                 M.toast({html: data.message || 'Error loading expense'});
@@ -361,8 +381,17 @@ function loadSubcategoriesForEdit(category, selectedSub = '') {
             options += `<option value="${sub}" ${selected}>${sub}</option>`;
         });
     }
+    
     $('#edit-subcategory').html(options);
-    $('#edit-subcategory').formSelect();
+    
+    // Reinitialize the select with a small delay
+    setTimeout(() => {
+        $('#edit-subcategory').formSelect();
+        if (selectedSub) {
+            $('#edit-subcategory').val(selectedSub);
+            $('#edit-subcategory').formSelect();
+        }
+    }, 50);
 }
 
 function loadInvitations() {

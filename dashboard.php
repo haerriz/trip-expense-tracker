@@ -522,13 +522,13 @@ requireLogin();
             <form id="edit-expense-form">
                 <input type="hidden" id="edit-expense-id">
                 <div class="input-field">
-                    <select id="edit-category" required>
+                    <select id="edit-category" name="edit-category" required>
                         <option value="">Select Category</option>
                     </select>
                     <label>Category</label>
                 </div>
                 <div class="input-field">
-                    <select id="edit-subcategory" required>
+                    <select id="edit-subcategory" name="edit-subcategory" required>
                         <option value="">Select Subcategory</option>
                     </select>
                     <label>Subcategory</label>
