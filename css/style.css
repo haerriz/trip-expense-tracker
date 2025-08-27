@@ -2070,6 +2070,24 @@ body {
     color: rgba(255, 255, 255, 1) !important;
 }
 
+/* Dark mode for split option buttons */
+[data-theme="dark"] .split-option-btn {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+[data-theme="dark"] .split-option-btn.active {
+    background: #64B5F6 !important;
+    color: #000 !important;
+    border-color: #64B5F6 !important;
+}
+
+[data-theme="dark"] .split-option-btn:hover {
+    border-color: #64B5F6 !important;
+    color: rgba(255, 255, 255, 1) !important;
+}
+
 .expense-chart .card-title i {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
