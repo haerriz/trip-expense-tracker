@@ -7,6 +7,18 @@ header('Content-Type: application/json');
 
 $tripId = $_GET['trip_id'];
 
+
+// Get budget history (initial, increase, decrease)
+$stmt = $pdo->prepare("
+    SELECT bh.id, bh.change_type, bh.amount, bh.new_budget, bh.reason, bh.created_at, u.name as user_name
+    FROM budget_history bh
+    JOIN users u ON bh.user_id = u.id
+    WHERE bh.trip_id = ?
+    ORDER BY bh.created_at ASC
+");
+$stmt->execute([$tripId]);
+$budgetHistory = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 // Get recent expenses
 $stmt = $pdo->prepare("
     SELECT e.*, u.name as paid_by_name 
@@ -32,6 +44,7 @@ $totalSpent = floatval($stmt->fetchColumn());
 
 echo json_encode([
     'expenses' => $expenses,
+    'budget_history' => $budgetHistory,
     'budget' => $budget,
     'total_spent' => $totalSpent
 ]);

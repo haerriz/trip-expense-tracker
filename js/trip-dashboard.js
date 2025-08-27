@@ -760,6 +760,7 @@ function loadExpenses(tripId) {
             const expenses = data.expenses || [];
             const budget = data.budget;
             const totalSpent = data.total_spent;
+            const budgetHistory = data.budget_history || [];
             // Get trip currency from the selected option
             const selectedOption = $('#current-trip option:selected');
             const tripCurrency = selectedOption.data('currency') || 'USD';
@@ -774,9 +775,43 @@ function loadExpenses(tripId) {
                         <span class="budget-amount">${currencySymbol}${budget.toFixed(2)}</span>
                         <span class="budget-used">Used: ${currencySymbol}${totalSpent.toFixed(2)} (${percent}%)</span>
                         <span class="budget-remaining">Remaining: ${currencySymbol}${(budget-totalSpent).toFixed(2)}</span>
+                        <button class="btn-small waves-effect waves-light" onclick="viewBudgetHistory()" style="margin-left:8px;"><i class="material-icons left">history</i>Budget History</button>
                     </div>
                 `;
             }
+
+            // Show budget history transactions as pseudo-expenses
+            let budgetTxHtml = '';
+            budgetHistory.forEach(function(tx) {
+                let label = '';
+                let color = '';
+                if (tx.change_type === 'initial') {
+                    label = 'Initial Budget';
+                    color = 'blue-text';
+                } else if (tx.change_type === 'increase') {
+                    label = 'Budget Increased';
+                    color = 'green-text';
+                } else if (tx.change_type === 'decrease') {
+                    label = 'Budget Decreased';
+                    color = 'red-text';
+                }
+                budgetTxHtml += `
+                    <div class="expense-item budget-tx">
+                        <div class="expense-item__info">
+                            <div class="expense-item__category ${color}">${label}</div>
+                            <div class="expense-item__description">${tx.reason || ''}</div>
+                            <div class="expense-item__meta">
+                                <span>${new Date(tx.created_at).toLocaleDateString()}</span>
+                                <span>by ${tx.user_name}</span>
+                            </div>
+                        </div>
+                        <div class="expense-item__amount ${color}">
+                            ${tx.change_type === 'decrease' ? '-' : '+'}${currencySymbol}${parseFloat(tx.amount).toFixed(2)}
+                        </div>
+                        <div class="expense-item__actions"></div>
+                    </div>
+                `;
+            });
 
             let html = '';
             expenses.forEach(function(expense) {
@@ -807,9 +842,9 @@ function loadExpenses(tripId) {
                 `;
             });
 
-            // Show budget tracking above expenses
-            $('#expenses-list').html((budgetHtml ? budgetHtml : '') + (html || '<p>No expenses yet</p>'));
-            $('#expenses-list-mobile').html((budgetHtml ? budgetHtml : '') + (html || '<p>No expenses yet</p>'));
+            // Show budget tracking above expenses, then budget transactions, then expenses
+            $('#expenses-list').html((budgetHtml ? budgetHtml : '') + (budgetTxHtml ? budgetTxHtml : '') + (html || '<p>No expenses yet</p>'));
+            $('#expenses-list-mobile').html((budgetHtml ? budgetHtml : '') + (budgetTxHtml ? budgetTxHtml : '') + (html || '<p>No expenses yet</p>'));
         })
         .fail(function() {
         });
@@ -1553,5 +1588,64 @@ function viewExpenseHistory(expenseId) {
 }
 
 function viewBudgetHistory() {
-    M.toast({html: 'Budget history feature coming soon'});
+    const tripId = $('#current-trip').val();
+    if (!tripId) return;
+    $.get('api/get_trip_expenses.php', { trip_id: tripId })
+        .done(function(data) {
+            const budgetHistory = data.budget_history || [];
+            const selectedOption = $('#current-trip option:selected');
+            const tripCurrency = selectedOption.data('currency') || 'USD';
+            const currencySymbol = getCurrencySymbol(tripCurrency);
+            let html = '<div class="budget-history">';
+            if (budgetHistory.length === 0) {
+                html += '<p>No budget history for this trip.</p>';
+            } else {
+                html += '<h6>Budget History</h6>';
+                budgetHistory.forEach(function(tx) {
+                    let label = '';
+                    let color = '';
+                    if (tx.change_type === 'initial') {
+                        label = 'Initial Budget';
+                        color = 'blue-text';
+                    } else if (tx.change_type === 'increase') {
+                        label = 'Budget Increased';
+                        color = 'green-text';
+                    } else if (tx.change_type === 'decrease') {
+                        label = 'Budget Decreased';
+                        color = 'red-text';
+                    }
+                    html += `
+                        <div class="history-record">
+                            <div class="history-header">
+                                <strong class="${color}">${label}</strong>
+                                <span class="history-date">${new Date(tx.created_at).toLocaleString()}</span>
+                            </div>
+                            <div class="history-details">
+                                <p><strong>Changed by:</strong> ${tx.user_name}</p>
+                                <p><strong>Amount:</strong> ${tx.change_type === 'decrease' ? '-' : '+'}${currencySymbol}${parseFloat(tx.amount).toFixed(2)}</p>
+                                <p><strong>New Budget:</strong> ${currencySymbol}${parseFloat(tx.new_budget).toFixed(2)}</p>
+                                <p><strong>Reason:</strong> ${tx.reason || ''}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            html += '</div>';
+            // Show in a modal
+            const modal = $(`
+                <div class="modal" id="budget-history-modal">
+                    <div class="modal-content">
+                        <h4><i class="material-icons left">history</i>Budget History</h4>
+                        ${html}
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#" class="modal-close waves-effect waves-green btn-flat">Close</a>
+                    </div>
+                </div>
+            `);
+            $('body').append(modal);
+            modal.modal();
+            modal.modal('open');
+            modal.on('modal:close', function() { modal.remove(); });
+        });
 }

@@ -67,7 +67,13 @@ function adjustBudget() {
     // Update budget
     $stmt = $pdo->prepare("UPDATE trips SET budget = ? WHERE id = ?");
     $stmt->execute([$newBudget, $tripId]);
-    
+
+    // Log adjustment in budget_history
+    $userId = $_SESSION['user_id'];
+    $reason = $_POST['reason'] ?? ("Budget {$adjustmentType}d");
+    $stmt = $pdo->prepare("INSERT INTO budget_history (trip_id, user_id, change_type, amount, new_budget, reason) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$tripId, $userId, $adjustmentType, $amount, $newBudget, $reason]);
+
     echo json_encode([
         'success' => true,
         'message' => "Budget {$adjustmentType}d successfully",
@@ -108,7 +114,18 @@ function setBudget() {
     // Update budget
     $stmt = $pdo->prepare("UPDATE trips SET budget = ? WHERE id = ?");
     $stmt->execute([$newBudget, $tripId]);
-    
+
+    // Log initial budget if not already present
+    $userId = $_SESSION['user_id'];
+    $reason = $_POST['reason'] ?? 'Initial budget set';
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM budget_history WHERE trip_id = ? AND change_type = 'initial'");
+    $stmt->execute([$tripId]);
+    $hasInitial = $stmt->fetchColumn();
+    if (!$hasInitial && $newBudget > 0) {
+        $stmt = $pdo->prepare("INSERT INTO budget_history (trip_id, user_id, change_type, amount, new_budget, reason) VALUES (?, ?, 'initial', ?, ?, ?)");
+        $stmt->execute([$tripId, $userId, $newBudget, $newBudget, $reason]);
+    }
+
     echo json_encode([
         'success' => true,
         'message' => 'Budget updated successfully',
