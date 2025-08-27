@@ -894,13 +894,57 @@ function loadExpenses(tripId, sortBy = 'date_desc', filterBy = 'all') {
             let budgetHtml = '';
             if (budget) {
                 const percent = budget > 0 ? Math.round((totalSpent / budget) * 100) : 0;
+                const remaining = budget - totalSpent;
+                const isOverBudget = remaining < 0;
+                const progressPercent = Math.min((totalSpent / budget) * 100, 100);
+                
                 budgetHtml = `
-                    <div class="budget-tracking">
-                        <span class="budget-label"><i class="material-icons left">account_balance_wallet</i>Budget:</span>
-                        <span class="budget-amount">${currencySymbol}${budget.toFixed(2)}</span>
-                        <span class="budget-used">Used: ${currencySymbol}${totalSpent.toFixed(2)} (${percent}%)</span>
-                        <span class="budget-remaining">Remaining: ${currencySymbol}${(budget-totalSpent).toFixed(2)}</span>
-                        <button class="btn-small waves-effect waves-light" onclick="viewBudgetHistory()" style="margin-left:8px;"><i class="material-icons left">history</i>Budget History</button>
+                    <div class="budget-tracking enhanced">
+                        <div class="budget-tracking-header">
+                            <div class="budget-tracking-title">
+                                <i class="material-icons">account_balance_wallet</i>
+                                <span>Budget Overview</span>
+                            </div>
+                            <button class="btn-small blue waves-effect" onclick="viewBudgetHistory()">
+                                <i class="material-icons left">history</i>History
+                            </button>
+                        </div>
+                        
+                        <div class="budget-tracking-content">
+                            <div class="budget-stats">
+                                <div class="budget-stat">
+                                    <div class="budget-stat-value">${currencySymbol}${budget.toFixed(2)}</div>
+                                    <div class="budget-stat-label">Total Budget</div>
+                                </div>
+                                <div class="budget-stat">
+                                    <div class="budget-stat-value ${isOverBudget ? 'red-text' : 'green-text'}">${currencySymbol}${totalSpent.toFixed(2)}</div>
+                                    <div class="budget-stat-label">Spent (${percent}%)</div>
+                                </div>
+                                <div class="budget-stat">
+                                    <div class="budget-stat-value ${isOverBudget ? 'red-text' : 'blue-text'}">${currencySymbol}${Math.abs(remaining).toFixed(2)}</div>
+                                    <div class="budget-stat-label">${isOverBudget ? 'Over Budget' : 'Remaining'}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="budget-progress">
+                                <div class="budget-progress-bar">
+                                    <div class="budget-progress-fill ${isOverBudget ? 'red' : progressPercent > 80 ? 'orange' : 'green'}" 
+                                         style="width: ${progressPercent}%"></div>
+                                </div>
+                                <div class="budget-progress-labels">
+                                    <span>0%</span>
+                                    <span class="${isOverBudget ? 'red-text' : ''}">${percent}%</span>
+                                    <span>100%</span>
+                                </div>
+                            </div>
+                            
+                            ${isOverBudget ? `
+                                <div class="budget-alert">
+                                    <i class="material-icons">warning</i>
+                                    <span>Budget exceeded by ${currencySymbol}${Math.abs(remaining).toFixed(2)}</span>
+                                </div>
+                            ` : ''}
+                        </div>
                     </div>
                 `;
             }

@@ -1591,6 +1591,186 @@ body {
 [data-theme="dark"] .expenses-loading {
     color: rgba(255,255,255,0.7);
 }
+
+/* Enhanced Budget Tracking UI */
+.budget-tracking.enhanced {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-left: 4px solid #2196F3;
+}
+
+.budget-tracking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.budget-tracking-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2196F3;
+}
+
+.budget-tracking-title .material-icons {
+    font-size: 20px;
+}
+
+.budget-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.budget-stat {
+    text-align: center;
+    padding: 12px;
+    background: rgba(255,255,255,0.8);
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.budget-stat-value {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.budget-stat-label {
+    font-size: 0.85rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.budget-progress {
+    margin-bottom: 12px;
+}
+
+.budget-progress-bar {
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.budget-progress-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+    border-radius: 4px;
+}
+
+.budget-progress-fill.green {
+    background: linear-gradient(90deg, #4CAF50, #66BB6A);
+}
+
+.budget-progress-fill.orange {
+    background: linear-gradient(90deg, #FF9800, #FFB74D);
+}
+
+.budget-progress-fill.red {
+    background: linear-gradient(90deg, #F44336, #EF5350);
+}
+
+.budget-progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.budget-alert {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: #ffebee;
+    border: 1px solid #ffcdd2;
+    border-radius: 8px;
+    color: #c62828;
+    font-weight: 500;
+}
+
+.budget-alert .material-icons {
+    font-size: 18px;
+}
+
+/* Mobile Responsive */
+@media only screen and (max-width: 600px) {
+    .budget-tracking.enhanced {
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+    
+    .budget-tracking-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+    
+    .budget-tracking-title {
+        justify-content: center;
+    }
+    
+    .budget-stats {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    
+    .budget-stat {
+        padding: 16px 12px;
+    }
+    
+    .budget-stat-value {
+        font-size: 1.5rem;
+    }
+    
+    .budget-stat-label {
+        font-size: 0.9rem;
+    }
+}
+
+/* Dark Mode */
+[data-theme="dark"] .budget-tracking.enhanced {
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+    border-left-color: #64B5F6;
+}
+
+[data-theme="dark"] .budget-stat {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.1);
+}
+
+[data-theme="dark"] .budget-stat-label {
+    color: rgba(255,255,255,0.7);
+}
+
+[data-theme="dark"] .budget-progress-bar {
+    background: rgba(255,255,255,0.1);
+}
+
+[data-theme="dark"] .budget-progress-labels {
+    color: rgba(255,255,255,0.7);
+}
+
+[data-theme="dark"] .budget-alert {
+    background: rgba(244,67,54,0.1);
+    border-color: rgba(244,67,54,0.3);
+    color: #ff6b6b;
+}
+
+[data-theme="dark"] .budget-tracking-title {
+    color: #64B5F6;
+}
     align-items: center;
     gap: 12px;
 }
