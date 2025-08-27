@@ -9,24 +9,51 @@ requireMasterAdmin();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Manage Categories & Users | Haerriz Trip Finance</title>
-    <meta name="description" content="Master admin panel for managing expense categories, users, trips, and system statistics. Administrative control for Haerriz Trip Finance.">
-    <meta name="robots" content="noindex, nofollow">
+    <title>Master Admin Panel - System Management | Haerriz Trip Finance</title>
+    <meta name="description" content="Comprehensive admin dashboard for managing expense categories, user accounts, trip data, push notifications, and system analytics. Secure administrative control panel.">
+    <meta name="keywords" content="admin panel, system management, expense categories, user management, trip analytics, push notifications, administrative dashboard">
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
     <meta name="theme-color" content="#f44336">
+    <meta name="author" content="Haerriz">
+    <meta name="security" content="admin-only">
     <link rel="canonical" href="https://expenses.haerriz.com/admin.php">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Master Admin Panel - Haerriz Trip Finance">
+    <meta property="og:description" content="Secure administrative control panel for system management">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://expenses.haerriz.com/admin.php">
+    <meta property="og:site_name" content="Haerriz Trip Finance">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Master Admin Panel - Haerriz Trip Finance">
+    <meta name="twitter:description" content="Secure administrative control panel for system management">
     
     <!-- Structured Data -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebPage",
-      "name": "Admin Panel",
-      "description": "Administrative control panel for managing categories, users, and system statistics.",
+      "name": "Master Admin Panel",
+      "description": "Comprehensive administrative control panel for managing expense categories, user accounts, trip data, push notifications, and system analytics.",
       "url": "https://expenses.haerriz.com/admin.php",
+      "accessMode": "admin",
+      "accessibilityFeature": ["administrativeInterface", "systemManagement"],
       "isPartOf": {
         "@type": "WebSite",
         "name": "Haerriz Trip Finance",
         "url": "https://expenses.haerriz.com"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Haerriz"
+      },
+      "mainEntity": {
+        "@type": "SoftwareApplication",
+        "name": "Admin Dashboard",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web"
       }
     }
     </script>
