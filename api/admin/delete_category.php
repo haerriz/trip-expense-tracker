@@ -38,8 +38,16 @@ try {
             exit;
         }
         
-        // Soft delete by marking as archived instead of hard delete
-        $stmt = $pdo->prepare("UPDATE categories SET name = CONCAT('[ARCHIVED] ', name), archived = 1 WHERE id = ?");
+        // Try soft delete first, fallback to hard delete
+        try {
+            // Check if archived column exists
+            $pdo->query("SELECT archived FROM categories LIMIT 1");
+            // Soft delete by marking as archived
+            $stmt = $pdo->prepare("UPDATE categories SET archived = 1 WHERE id = ?");
+        } catch (PDOException $e) {
+            // Archived column doesn't exist, use hard delete
+            $stmt = $pdo->prepare("DELETE FROM categories WHERE id = ?");
+        }
         
         if ($stmt->execute([$categoryId])) {
             echo json_encode(['success' => true, 'message' => 'Category deleted successfully']);

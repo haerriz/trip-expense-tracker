@@ -5,8 +5,16 @@ requireLogin();
 header('Content-Type: application/json');
 
 try {
-    // Get all categories (archived column may not exist on all servers)
-    $stmt = $pdo->query("SELECT * FROM categories ORDER BY name");
+    // Get categories, excluding archived ones if column exists
+    try {
+        // Check if archived column exists
+        $pdo->query("SELECT archived FROM categories LIMIT 1");
+        // Use archived column filter
+        $stmt = $pdo->query("SELECT * FROM categories WHERE archived = 0 OR archived IS NULL ORDER BY name");
+    } catch (PDOException $e) {
+        // Archived column doesn't exist, get all categories
+        $stmt = $pdo->query("SELECT * FROM categories ORDER BY name");
+    }
     $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Ensure subcategories field exists for each category
