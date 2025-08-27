@@ -74,8 +74,8 @@ try {
                 
                 // Add expense split for the creator
                 $stmt = $pdo->prepare("
-                    INSERT INTO expense_splits (expense_id, user_id, amount, created_at)
-                    VALUES (?, ?, ?, NOW())
+                    INSERT INTO expense_splits (expense_id, user_id, amount)
+                    VALUES (?, ?, ?)
                 ");
                 
                 $stmt->execute([$expenseId, $userId, $budget]);
