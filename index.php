@@ -170,7 +170,7 @@ if (isset($_SESSION['user_id'])) {
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body class="auth-page grey lighten-4">
-    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <a href="#main-content" style="display:none;" class="skip-link">Skip to main content</a>
     
     <header role="banner">
         <h1 class="visually-hidden" style="display:none;">Haerriz Trip Finance - Free Trip Expense Tracker</h1>
