@@ -21,6 +21,31 @@ $(document).ready(function() {
         }
     });
     
+    // Handle sort and filter changes
+    $('#expenses-sort, #expenses-sort-mobile').on('change', function() {
+        const tripId = $('#current-trip').val();
+        if (tripId) {
+            const sortBy = $(this).val();
+            const filterBy = $('#expenses-filter, #expenses-filter-mobile').val() || 'all';
+            // Sync both selectors
+            $('#expenses-sort, #expenses-sort-mobile').val(sortBy);
+            $('select').formSelect();
+            loadExpenses(tripId, sortBy, filterBy);
+        }
+    });
+    
+    $('#expenses-filter, #expenses-filter-mobile').on('change', function() {
+        const tripId = $('#current-trip').val();
+        if (tripId) {
+            const filterBy = $(this).val();
+            const sortBy = $('#expenses-sort, #expenses-sort-mobile').val() || 'date_desc';
+            // Sync both selectors
+            $('#expenses-filter, #expenses-filter-mobile').val(filterBy);
+            $('select').formSelect();
+            loadExpenses(tripId, sortBy, filterBy);
+        }
+    });
+    
     $('#category').on('change', function() {
         loadSubcategories($(this).val());
     });
@@ -754,8 +779,15 @@ function removeMember(tripId, memberId) {
         });
 }
 
-function loadExpenses(tripId) {
-    $.get('api/get_trip_expenses.php', { trip_id: tripId })
+function loadExpenses(tripId, sortBy = 'date_desc', filterBy = 'all') {
+    // Show loading state
+    $('#expenses-list, #expenses-list-mobile').html('<div class="expenses-loading"><i class="material-icons">refresh</i><br>Loading expenses...</div>');
+    
+    $.get('api/get_trip_expenses.php', { 
+        trip_id: tripId,
+        sort: sortBy,
+        filter: filterBy
+    })
         .done(function(data) {
             const expenses = data.expenses || [];
             const budget = data.budget;
@@ -857,12 +889,139 @@ function loadExpenses(tripId) {
                 `;
             });
 
-            // Show budget tracking above expenses, then budget transactions, then expenses
-            $('#expenses-list').html((budgetHtml ? budgetHtml : '') + (budgetTxHtml ? budgetTxHtml : '') + (html || '<p>No expenses yet</p>'));
-            $('#expenses-list-mobile').html((budgetHtml ? budgetHtml : '') + (budgetTxHtml ? budgetTxHtml : '') + (html || '<p>No expenses yet</p>'));
+            // Apply sorting and filtering
+            let allExpenses = [...budgetHistory, ...expenses];
+            allExpenses = sortExpenses(allExpenses, sortBy);
+            allExpenses = filterExpenses(allExpenses, filterBy);
+            
+            // Rebuild HTML with sorted/filtered data
+            let finalHtml = '';
+            if (budgetHtml && (filterBy === 'all' || filterBy === 'budget')) {
+                finalHtml += budgetHtml;
+            }
+            
+            allExpenses.forEach(function(item) {
+                if (item.adjustment_type) {
+                    // Budget transaction
+                    if (filterBy === 'all' || filterBy === 'budget') {
+                        finalHtml += generateBudgetTransactionHtml(item, currencySymbol);
+                    }
+                } else {
+                    // Regular expense
+                    if (filterBy === 'all' || filterBy === 'regular' || (filterBy === 'my_expenses' && item.paid_by == window.currentUserId)) {
+                        finalHtml += generateExpenseHtml(item, currencySymbol);
+                    }
+                }
+            });
+            
+            $('#expenses-list').html(finalHtml || '<p>No expenses match your criteria</p>');
+            $('#expenses-list-mobile').html(finalHtml || '<p>No expenses match your criteria</p>');
         })
         .fail(function() {
         });
+}
+
+// Helper functions for expenses
+function sortExpenses(expenses, sortBy) {
+    return expenses.sort((a, b) => {
+        switch (sortBy) {
+            case 'date_desc':
+                return new Date(b.date || b.created_at) - new Date(a.date || a.created_at);
+            case 'date_asc':
+                return new Date(a.date || a.created_at) - new Date(b.date || b.created_at);
+            case 'amount_desc':
+                return parseFloat(b.amount || b.adjustment_amount || 0) - parseFloat(a.amount || a.adjustment_amount || 0);
+            case 'amount_asc':
+                return parseFloat(a.amount || a.adjustment_amount || 0) - parseFloat(b.amount || b.adjustment_amount || 0);
+            case 'category':
+                return (a.category || '').localeCompare(b.category || '');
+            default:
+                return 0;
+        }
+    });
+}
+
+function filterExpenses(expenses, filterBy) {
+    return expenses.filter(expense => {
+        switch (filterBy) {
+            case 'budget':
+                return expense.category === 'Budget' || expense.adjustment_type;
+            case 'regular':
+                return expense.category !== 'Budget' && !expense.adjustment_type;
+            case 'my_expenses':
+                return expense.paid_by == window.currentUserId;
+            case 'all':
+            default:
+                return true;
+        }
+    });
+}
+
+function generateBudgetTransactionHtml(tx, currencySymbol) {
+    let label = '', color = '', icon = '';
+    if (tx.adjustment_type === 'Initial Budget') {
+        label = 'Initial Budget'; color = 'blue-text'; icon = 'account_balance_wallet';
+    } else if (tx.adjustment_type === 'Budget Increase') {
+        label = 'Budget Increased'; color = 'green-text'; icon = 'trending_up';
+    } else if (tx.adjustment_type === 'Budget Decrease') {
+        label = 'Budget Decreased'; color = 'red-text'; icon = 'trending_down';
+    }
+    
+    const avatar = tx.user_picture && !tx.user_picture.includes('placeholder') ? 
+        tx.user_picture : 
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(tx.user_name)}&size=40&background=2196F3&color=fff`;
+    
+    return `
+        <div class="expense-item budget-tx">
+            <img src="${avatar}" alt="${tx.user_name}" class="expense-item__avatar">
+            <div class="expense-item__info">
+                <div class="expense-item__category ${color}">
+                    <i class="material-icons tiny">${icon}</i>
+                    ${label}
+                </div>
+                <div class="expense-item__description">${tx.reason || ''}</div>
+                <div class="expense-item__meta">
+                    <span>${new Date(tx.created_at).toLocaleDateString()}</span>
+                    <span>by ${tx.user_name}</span>
+                </div>
+            </div>
+            <div class="expense-item__amount ${color}">
+                ${tx.adjustment_type === 'Budget Decrease' ? '-' : '+'}${currencySymbol}${parseFloat(tx.adjustment_amount || 0).toFixed(2)}
+            </div>
+            <div class="expense-item__actions">
+                <i class="material-icons grey-text">history</i>
+            </div>
+        </div>
+    `;
+}
+
+function generateExpenseHtml(expense, currencySymbol) {
+    const isMasterAdmin = window.userEmail === 'haerriz@gmail.com';
+    const canModify = expense.paid_by == window.currentUserId || isMasterAdmin;
+    const expenseDate = new Date(expense.date).toLocaleDateString();
+    const avatar = expense.paid_by_picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(expense.paid_by_name)}&size=40&background=2196F3&color=fff`;
+    const isReplaced = expense.replaced_by ? ' (Modified)' : '';
+    const statusClass = expense.replaced_by ? 'expense-item--replaced' : '';
+    
+    return `
+        <div class="expense-item ${statusClass}">
+            <img src="${avatar}" alt="${expense.paid_by_name}" class="expense-item__avatar">
+            <div class="expense-item__info">
+                <div class="expense-item__category">${expense.category}${isReplaced}</div>
+                <div class="expense-item__description">${expense.description}</div>
+                <div class="expense-item__meta">
+                    <span>${expenseDate}</span>
+                    <span>by ${expense.paid_by_name}</span>
+                </div>
+            </div>
+            <div class="expense-item__amount">${currencySymbol}${parseFloat(expense.amount).toFixed(2)}</div>
+            <div class="expense-item__actions">
+                ${canModify ? `<button class="btn-small blue" onclick="editExpense(${expense.id})" title="Modify expense (creates new record)"><i class="material-icons">edit</i></button>` : ''}
+                ${canModify ? `<button class="btn-small orange" onclick="viewExpenseHistory(${expense.id})" title="View expense history"><i class="material-icons">history</i></button>` : ''}
+                ${canModify ? `<button class="btn-small red" onclick="deleteExpense(${expense.id})" title="Deactivate expense"><i class="material-icons">visibility_off</i></button>` : ''}
+            </div>
+        </div>
+    `;
 }
 
 let expenseChart = null;

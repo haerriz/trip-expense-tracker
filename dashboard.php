@@ -341,6 +341,29 @@ requireLogin();
                             <span class="card-title">
                                 <i class="material-icons left">receipt</i>Recent Expenses
                             </span>
+                            <div class="expenses-controls">
+                                <div class="expenses-controls-row">
+                                    <div class="input-field expenses-sort">
+                                        <select id="expenses-sort-mobile">
+                                            <option value="date_desc">Newest First</option>
+                                            <option value="date_asc">Oldest First</option>
+                                            <option value="amount_desc">Highest Amount</option>
+                                            <option value="amount_asc">Lowest Amount</option>
+                                            <option value="category">By Category</option>
+                                        </select>
+                                        <label>Sort</label>
+                                    </div>
+                                    <div class="input-field expenses-filter">
+                                        <select id="expenses-filter-mobile">
+                                            <option value="all">All Expenses</option>
+                                            <option value="budget">Budget Only</option>
+                                            <option value="regular">Regular Only</option>
+                                            <option value="my_expenses">My Expenses</option>
+                                        </select>
+                                        <label>Filter</label>
+                                    </div>
+                                </div>
+                            </div>
                             <div id="expenses-list-mobile" class="recent-expenses__list"></div>
                         </div>
                     </div>
@@ -380,6 +403,29 @@ requireLogin();
                             <span class="card-title">
                                 <i class="material-icons left">receipt</i>Recent Expenses
                             </span>
+                            <div class="expenses-controls">
+                                <div class="expenses-controls-row">
+                                    <div class="input-field expenses-sort">
+                                        <select id="expenses-sort">
+                                            <option value="date_desc">Newest First</option>
+                                            <option value="date_asc">Oldest First</option>
+                                            <option value="amount_desc">Highest Amount</option>
+                                            <option value="amount_asc">Lowest Amount</option>
+                                            <option value="category">By Category</option>
+                                        </select>
+                                        <label>Sort</label>
+                                    </div>
+                                    <div class="input-field expenses-filter">
+                                        <select id="expenses-filter">
+                                            <option value="all">All Expenses</option>
+                                            <option value="budget">Budget Only</option>
+                                            <option value="regular">Regular Only</option>
+                                            <option value="my_expenses">My Expenses</option>
+                                        </select>
+                                        <label>Filter</label>
+                                    </div>
+                                </div>
+                            </div>
                             <div id="expenses-list" class="recent-expenses__list"></div>
                         </div>
                     </div>
