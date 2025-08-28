@@ -268,7 +268,7 @@ if (isset($_SESSION['user_id'])) {
                         </div>
                         <div class="input-field modern-input">
                             <i class="material-icons prefix">lock</i>
-                            <input type="password" id="signupPassword" class="validate" required>
+                            <input type="password" id="signupPassword" class="validate" required autocomplete="new-password">
                             <label for="signupPassword">Create Password</label>
                         </div>
                         
