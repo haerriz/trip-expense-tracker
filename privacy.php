@@ -15,13 +15,20 @@
     <link rel="manifest" href="/manifest.json">
 </head>
 <body class="grey lighten-4">
-    <nav class="blue darken-1">
+    <nav class="blue">
         <div class="nav-wrapper">
-            <a href="index.php" class="brand-logo left">
-                <i class="material-icons left">flight_takeoff</i>Trip Finance
+            <a href="index.php" class="brand-logo">
+                <i class="material-icons left">flight_takeoff</i>Haerriz Trip Finance
             </a>
             <ul class="right">
-                <li><a href="index.php" class="btn blue waves-effect waves-light">Back to Login</a></li>
+                <li>
+                    <button class="theme-toggle" title="Toggle dark mode">
+                        <svg viewBox="0 0 24 24"><path d="M12.34 2.02C6.59 1.82 2 6.42 2 12c0 5.52 4.48 10 10 10 3.71 0 6.93-2.02 8.66-5.02-7.51-.25-13.64-6.42-13.64-13.96 0-.34.02-.67.05-1z"/></svg>
+                    </button>
+                </li>
+                <li><a href="about.php">About</a></li>
+                <li><a href="features.php">Features</a></li>
+                <li><a href="index.php" class="btn white blue-text">Login</a></li>
             </ul>
         </div>
     </nav>
@@ -120,6 +127,22 @@
             </div>
         </div>
     </div>
+
+    <footer class="blue darken-1 white-text">
+        <div class="container">
+            <div class="row">
+                <div class="col s12 center-align">
+                    <p>&copy; 2024 Haerriz Trip Finance. Built for travelers, by travelers.</p>
+                    <p>
+                        <a href="privacy.php" class="white-text">Privacy Policy</a> | 
+                        <a href="about.php" class="white-text">About</a> | 
+                        <a href="features.php" class="white-text">Features</a> | 
+                        <a href="index.php" class="white-text">Login</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="js/dark-mode.js"></script>

@@ -4,54 +4,99 @@
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
     
-    <!-- Main Pages -->
+    <!-- Main Landing Page -->
     <url>
         <loc>https://expenses.haerriz.com/</loc>
-        <lastmod>2024-01-15</lastmod>
+        <lastmod>2024-12-19</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
     
+    <!-- Primary Pages -->
     <url>
         <loc>https://expenses.haerriz.com/index.php</loc>
-        <lastmod>2024-01-15</lastmod>
+        <lastmod>2024-12-19</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
     
-    <!-- Public Authentication Pages -->
     <url>
-        <loc>https://expenses.haerriz.com/manual-signup.php</loc>
-        <lastmod>2024-01-15</lastmod>
+        <loc>https://expenses.haerriz.com/about.php</loc>
+        <lastmod>2024-12-19</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     
     <url>
-        <loc>https://expenses.haerriz.com/manual-login.php</loc>
-        <lastmod>2024-01-15</lastmod>
+        <loc>https://expenses.haerriz.com/features.php</loc>
+        <lastmod>2024-12-19</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    
+    <url>
+        <loc>https://expenses.haerriz.com/privacy.php</loc>
+        <lastmod>2024-12-19</lastmod>
+        <changefreq>quarterly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    
+    <!-- Authentication Pages -->
+    <url>
+        <loc>https://expenses.haerriz.com/manual-signup.php</loc>
+        <lastmod>2024-12-19</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     
-    <!-- Error Pages -->
+    <url>
+        <loc>https://expenses.haerriz.com/manual-login.php</loc>
+        <lastmod>2024-12-19</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    
+    <url>
+        <loc>https://expenses.haerriz.com/google-auth.php</loc>
+        <lastmod>2024-12-19</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    
+    <!-- System Pages -->
     <url>
         <loc>https://expenses.haerriz.com/404.php</loc>
-        <lastmod>2024-01-15</lastmod>
+        <lastmod>2024-12-19</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.3</priority>
     </url>
     
     <url>
         <loc>https://expenses.haerriz.com/unauthorized.php</loc>
-        <lastmod>2024-01-15</lastmod>
+        <lastmod>2024-12-19</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.3</priority>
     </url>
     
-    <!-- Private pages excluded from sitemap -->
-    <!-- /dashboard.php - requires login -->
-    <!-- /profile.php - requires login -->
-    <!-- /admin.php - requires admin access -->
+    <url>
+        <loc>https://expenses.haerriz.com/logout.php</loc>
+        <lastmod>2024-12-19</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.2</priority>
+    </url>
+    
+    <!-- PWA Files -->
+    <url>
+        <loc>https://expenses.haerriz.com/manifest.json</loc>
+        <lastmod>2024-12-19</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.4</priority>
+    </url>
+    
+    <!-- Private/Protected Pages (excluded from indexing) -->
+    <!-- /dashboard.php - requires authentication -->
+    <!-- /profile.php - requires authentication -->
+    <!-- /admin.php - requires master admin access -->
+    <!-- /api/* - API endpoints, not for indexing -->
     
 </urlset>
