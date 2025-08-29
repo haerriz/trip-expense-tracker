@@ -1,10 +1,16 @@
 User-agent: *
 Allow: /
 Allow: /index.php
+Allow: /about.php
+Allow: /features.php
+Allow: /privacy.php
 Allow: /manual-signup.php
 Allow: /manual-login.php
+Allow: /google-auth.php
 Allow: /404.php
 Allow: /unauthorized.php
+Allow: /logout.php
+Allow: /manifest.json
 
 # Block private pages
 Disallow: /dashboard.php
