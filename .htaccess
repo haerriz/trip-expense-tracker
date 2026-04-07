@@ -1,5 +1,11 @@
 # FORCE .php extensions + Custom Error Pages
 
+# Block access to sensitive files
+<FilesMatch "^\.env$|^\.env\.|composer\.(json|lock)$|package(-lock)?\.json$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
 # Custom Error Pages
 ErrorDocument 404 /404.php
 ErrorDocument 401 /unauthorized.php
