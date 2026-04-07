@@ -16,6 +16,7 @@ function jsonError(string $message) {
 
 function suggestExpenses(PDO $pdo, array $trip): array {
     $tripId = $trip['id'];
+    $userId = $_SESSION['user_id'];
 
     // Get recent expenses for context
     $stmt = $pdo->prepare("
@@ -110,6 +111,7 @@ Return only valid JSON array, no additional text.";
 }
 
 function analyzeReceipt(PDO $pdo, array $trip, array $file): array {
+    $userId = $_SESSION['user_id'];
     if (!$file || !isset($file['tmp_name'])) {
         return ['error' => 'No receipt file provided'];
     }
@@ -201,6 +203,7 @@ If you cannot clearly read the receipt, return: {\"error\": \"Unable to analyze 
 
 function budgetAdvisory(PDO $pdo, array $trip): array {
     $tripId = $trip['id'];
+    $userId = $_SESSION['user_id'];
 
     // Get current spending
     $stmt = $pdo->prepare("

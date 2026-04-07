@@ -314,10 +314,7 @@ class MultiAIService {
 
 // Helper function for backward compatibility
 function callMultiAI(string $prompt, string $type = 'general', PDO $pdo = null, int $userId = null): array {
-    static $aiService = null;
-    if ($aiService === null) {
-        $aiService = new MultiAIService($pdo, $userId);
-    }
+    $aiService = new MultiAIService($pdo, $userId);
     return $aiService->generateSuggestions($prompt, $type);
 }
 
