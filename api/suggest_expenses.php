@@ -222,8 +222,8 @@ function budgetAdvisory(PDO $pdo, array $trip): array {
     $daysRemaining = max(0, $daysTotal - $daysElapsed);
 
     $budget = $trip['budget'] ? floatval($trip['budget']) : null;
-    $dailyRate = $budget ? $budget / $daysTotal : null;
-    $recommendedDaily = $budget ? ($budget - $totalSpent) / $daysRemaining : null;
+    $dailyRate = ($budget && $daysTotal > 0) ? $budget / $daysTotal : null;
+    $recommendedDaily = ($budget && $daysRemaining > 0) ? ($budget - $totalSpent) / $daysRemaining : null;
 
     $prompt = "You are a travel budget advisor. Analyze this spending data and provide budget advice.
 
@@ -268,11 +268,11 @@ Return only valid JSON object.";
 
         return [
             'success' => true,
-            'advisory' => [
+            'advice' => [
                 'status' => $status,
                 'message' => 'Keep tracking your expenses to stay within budget!',
                 'daily_limit' => $recommendedDaily ? round($recommendedDaily, 2) : null,
-                'projected_total' => round($totalSpent + ($recommendedDaily * $daysRemaining), 2),
+                'projected_total' => $recommendedDaily ? round($totalSpent + ($recommendedDaily * $daysRemaining), 2) : round((float)$totalSpent, 2),
                 'suggestions' => [
                     'Consider cheaper alternatives for meals',
                     'Use public transportation when possible',
@@ -288,7 +288,7 @@ Return only valid JSON object.";
         return ['error' => 'Invalid advisory response'];
     }
 
-    return ['success' => true, 'advisory' => $advisory];
+    return ['success' => true, 'advice' => $advisory];
 }
 
 try {

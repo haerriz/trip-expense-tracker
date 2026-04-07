@@ -2196,7 +2196,7 @@ function displayAISuggestions(suggestions) {
                         </span>
                         <p class="suggestion-description">${suggestion.description || ''}</p>
                         <div class="suggestion-amount">
-                            <span class="amount-text">${suggestion.amount || 'TBD'}</span>
+                            <span class="amount-text">${suggestion.estimated_amount || suggestion.amount || 'TBD'}</span>
                             ${suggestion.currency ? `<span class="currency-text">${getCurrencySymbol(suggestion.currency)}</span>` : ''}
                         </div>
                         <div class="suggestion-meta">
@@ -2246,8 +2246,9 @@ function addSuggestionToExpense(suggestion) {
         $('#description').val(suggestion.description);
     }
 
-    if (suggestion.amount && !isNaN(suggestion.amount)) {
-        $('#amount').val(suggestion.amount);
+    const amt = suggestion.estimated_amount || suggestion.amount;
+    if (amt && !isNaN(amt)) {
+        $('#amount').val(amt);
     }
 
     // Scroll to expense form
@@ -2322,76 +2323,53 @@ function displayAIBudgetAdvice(advice) {
         return;
     }
 
+    // Determine status color
+    const statusColors = { on_track: 'green', caution: 'orange', over_budget: 'red', no_budget: 'blue' };
+    const statusLabels = { on_track: 'On Track', caution: 'Caution', over_budget: 'Over Budget', no_budget: 'No Budget Set' };
+    const statusIcons  = { on_track: 'check_circle', caution: 'warning', over_budget: 'error', no_budget: 'info' };
+
+    const status     = advice.status || 'no_budget';
+    const color      = statusColors[status] || 'blue';
+    const label      = statusLabels[status] || status;
+    const icon       = statusIcons[status]  || 'info';
+
     let html = '<div class="row">';
 
-    // Overall Assessment
-    if (advice.overall_assessment) {
-        html += `
-            <div class="col s12">
-                <div class="card">
-                    <div class="card-content">
-                        <span class="card-title">
-                            <i class="material-icons left">assessment</i>Overall Budget Assessment
-                        </span>
-                        <p>${advice.overall_assessment}</p>
-                    </div>
-                </div>
+    // Status banner
+    html += `
+        <div class="col s12">
+            <div class="card-panel ${color} lighten-4">
+                <i class="material-icons left">${icon}</i>
+                <span><strong>${label}</strong>${advice.message ? ' — ' + advice.message : ''}</span>
             </div>
-        `;
+        </div>
+    `;
+
+    // Daily limit & projected total
+    if (advice.daily_limit || advice.projected_total) {
+        html += `<div class="col s12 m6"><div class="card"><div class="card-content">
+            <span class="card-title"><i class="material-icons left">today</i>Daily Budget</span>`;
+        if (advice.daily_limit) html += `<p><strong>Recommended Daily Limit:</strong> $${parseFloat(advice.daily_limit).toFixed(2)}</p>`;
+        if (advice.projected_total) html += `<p><strong>Projected Trip Total:</strong> $${parseFloat(advice.projected_total).toFixed(2)}</p>`;
+        html += `</div></div></div>`;
     }
 
-    // Spending Analysis
-    if (advice.spending_analysis) {
+    // Suggestions/Recommendations
+    const recs = advice.suggestions || advice.recommendations;
+    if (recs && recs.length > 0) {
         html += `
             <div class="col s12 m6">
                 <div class="card">
                     <div class="card-content">
                         <span class="card-title">
-                            <i class="material-icons left">analytics</i>Spending Analysis
-                        </span>
-                        <p>${advice.spending_analysis}</p>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    // Recommendations
-    if (advice.recommendations && advice.recommendations.length > 0) {
-        html += `
-            <div class="col s12 m6">
-                <div class="card">
-                    <div class="card-content">
-                        <span class="card-title">
-                            <i class="material-icons left">recommend</i>Recommendations
+                            <i class="material-icons left">lightbulb</i>Tips
                         </span>
                         <ul class="collection">
         `;
-        advice.recommendations.forEach(function(rec) {
+        recs.forEach(function(rec) {
             html += `<li class="collection-item">${rec}</li>`;
         });
-        html += `
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    // Risk Level
-    if (advice.risk_level) {
-        let riskColor = 'green';
-        if (advice.risk_level.toLowerCase().includes('high')) riskColor = 'red';
-        else if (advice.risk_level.toLowerCase().includes('medium')) riskColor = 'orange';
-
-        html += `
-            <div class="col s12">
-                <div class="card-panel ${riskColor} lighten-4">
-                    <i class="material-icons left">warning</i>
-                    <span><strong>Risk Level:</strong> ${advice.risk_level}</span>
-                </div>
-            </div>
-        `;
+        html += `</ul></div></div></div>`;
     }
 
     html += '</div>';
@@ -2399,8 +2377,10 @@ function displayAIBudgetAdvice(advice) {
 }
 
 function analyzeReceipt(file) {
+    const tripId = $('#current-trip').val();
     const formData = new FormData();
     formData.append('action', 'analyze_receipt');
+    formData.append('trip_id', tripId);
     formData.append('receipt', file);
 
     $('#receipt-analysis-result').html(`
