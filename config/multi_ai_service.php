@@ -14,7 +14,7 @@ class MultiAIService {
             'enabled' => !empty(getenv('OPENAI_API_KEY')),
             'api_key' => getenv('OPENAI_API_KEY'),
             'endpoint' => 'https://api.openai.com/v1/chat/completions',
-            'model' => 'gpt-4',
+            'model' => 'gpt-3.5-turbo',
             'headers' => [
                 'Authorization: Bearer ' . getenv('OPENAI_API_KEY'),
                 'Content-Type: application/json'
@@ -38,8 +38,8 @@ class MultiAIService {
         $this->providers['gemini'] = [
             'enabled' => !empty(getenv('GOOGLE_AI_API_KEY')),
             'api_key' => getenv('GOOGLE_AI_API_KEY'),
-            'endpoint' => 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent',
-            'model' => 'gemini-pro',
+            'endpoint' => 'https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-001:generateContent',
+            'model' => 'gemini-2.0-flash-001',
             'headers' => [
                 'Content-Type: application/json'
             ]
@@ -167,7 +167,18 @@ class MultiAIService {
         curl_close($ch);
 
         if ($httpCode !== 200) {
-            return ['error' => "API request failed with code: $httpCode for $provider"];
+            $errorResult = json_decode($response, true);
+            $errorMessage = "API request failed with code: $httpCode for $provider";
+
+            if ($errorResult && isset($errorResult['error'])) {
+                if (isset($errorResult['error']['message'])) {
+                    $errorMessage = $errorResult['error']['message'];
+                } elseif (is_string($errorResult['error'])) {
+                    $errorMessage = $errorResult['error'];
+                }
+            }
+
+            return ['error' => $errorMessage];
         }
 
         $result = json_decode($response, true);
