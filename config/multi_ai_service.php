@@ -1,4 +1,5 @@
 <?php
+require_once 'env_loader.php';
 require_once 'rate_limiter.php';
 
 class MultiAIService {
