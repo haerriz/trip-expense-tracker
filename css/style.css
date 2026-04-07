@@ -3094,4 +3094,292 @@ body {
 .mobile-accordion .collapsible-header {
     position: relative;
     padding-right: 48px;
+}/* AI Features Styles */
+.suggestion-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.suggestion-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.suggestion-description {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.suggestion-amount {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 10px;
+}
+
+.amount-text {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #2196F3;
+}
+
+.currency-text {
+    font-size: 0.9rem;
+    color: #666;
+    margin-left: 4px;
+}
+
+.suggestion-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.ai-source {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.confidence-level {
+    font-size: 0.8rem;
+    color: #666;
+    font-style: italic;
+}
+
+.add-suggestion-btn {
+    padding: 0;
+}
+
+.add-suggestion-btn i {
+    font-size: 1.1rem;
+}
+
+/* AI Modal Enhancements */
+.modal.modal-fixed-footer .modal-content {
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+.ai-budget-card {
+    margin-bottom: 15px;
+}
+
+.ai-budget-card .card-title {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+
+.ai-budget-card .card-title i {
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+/* Receipt Analysis Styles */
+#receipt-preview {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.receipt-analysis-result {
+    margin-top: 15px;
+}
+
+.receipt-analysis-result p {
+    margin: 8px 0;
+}
+
+.receipt-analysis-result strong {
+    color: #2196F3;
+}
+
+/* Loading States */
+.expenses-loading {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+
+.expenses-loading i {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 10px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Mobile AI Button */
+@media only screen and (max-width: 600px) {
+    .mobile-ai-suggestions-btn {
+        width: 100%;
+        margin: 10px 0;
+    }
+}
+
+/* Dark mode for AI features */
+[data-theme="dark"] .suggestion-description {
+    color: #bbb;
+}
+
+[data-theme="dark"] .currency-text,
+[data-theme="dark"] .confidence-level {
+    color: #999;
+}
+
+[data-theme="dark"] .ai-source {
+    background-color: rgba(255,255,255,0.1);
+}
+/* AI Features Styles */
+.suggestion-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.suggestion-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.suggestion-description {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.suggestion-amount {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 10px;
+}
+
+.amount-text {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #2196F3;
+}
+
+.currency-text {
+    font-size: 0.9rem;
+    color: #666;
+    margin-left: 4px;
+}
+
+.suggestion-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.ai-source {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.confidence-level {
+    font-size: 0.8rem;
+    color: #666;
+    font-style: italic;
+}
+
+.add-suggestion-btn {
+    color: #2196F3 !important;
+    padding: 0;
+}
+
+.add-suggestion-btn i {
+    font-size: 1.1rem;
+}
+
+/* AI Modal Enhancements */
+.modal.modal-fixed-footer .modal-content {
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+.ai-budget-card {
+    margin-bottom: 15px;
+}
+
+.ai-budget-card .card-title {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+
+.ai-budget-card .card-title i {
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+/* Receipt Analysis Styles */
+#receipt-preview {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.receipt-analysis-result {
+    margin-top: 15px;
+}
+
+.receipt-analysis-result p {
+    margin: 8px 0;
+}
+
+.receipt-analysis-result strong {
+    color: #2196F3;
+}
+
+/* Loading States */
+.expenses-loading {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+
+.expenses-loading i {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 10px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Mobile AI Button */
+@media only screen and (max-width: 600px) {
+    .mobile-ai-suggestions-btn {
+        width: 100%;
+        margin: 10px 0;
+    }
+}
+
+/* Dark mode for AI features */
+[data-theme="dark"] .suggestion-description {
+    color: #bbb;
+}
+
+[data-theme="dark"] .currency-text,
+[data-theme="dark"] .confidence-level {
+    color: #999;
+}
+
+[data-theme="dark"] .ai-source {
+    background-color: rgba(255,255,255,0.1);
 }

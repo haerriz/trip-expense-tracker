@@ -96,7 +96,72 @@ $(document).ready(function() {
     $('#email-report').on('click', function() {
         emailReport();
     });
-    
+
+    // AI Features
+    $('#ai-suggestions-btn').on('click', function() {
+        const tripId = $('#current-trip').val();
+        if (!tripId) {
+            M.toast({html: 'Please select a trip first'});
+            return;
+        }
+        $('#ai-suggestions-modal').modal('open');
+        loadAISuggestions(tripId);
+    });
+
+    $('#ai-budget-btn').on('click', function() {
+        const tripId = $('#current-trip').val();
+        if (!tripId) {
+            M.toast({html: 'Please select a trip first'});
+            return;
+        }
+        $('#ai-budget-modal').modal('open');
+        loadAIBudgetAdvice(tripId);
+    });
+
+    $('#refresh-ai-suggestions').on('click', function() {
+        const tripId = $('#current-trip').val();
+        if (tripId) {
+            loadAISuggestions(tripId);
+        }
+    });
+
+    $('#refresh-ai-budget').on('click', function() {
+        const tripId = $('#current-trip').val();
+        if (tripId) {
+            loadAIBudgetAdvice(tripId);
+        }
+    });
+
+    // Receipt Analysis
+    $('#receipt-analysis-btn').on('click', function() {
+        $('#receipt-analysis-modal').modal('open');
+    });
+
+    // Receipt Analysis
+    $('#receipt-file').on('change', function() {
+        const file = this.files[0];
+        if (file) {
+            $('#analyze-receipt-btn').removeClass('disabled');
+            // Preview image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#receipt-preview').attr('src', e.target.result);
+                $('#receipt-analysis-content').show();
+            };
+            reader.readAsDataURL(file);
+        } else {
+            $('#analyze-receipt-btn').addClass('disabled');
+            $('#receipt-analysis-content').hide();
+        }
+    });
+
+    $('#analyze-receipt-btn').on('click', function() {
+        const file = $('#receipt-file')[0].files[0];
+        if (file) {
+            analyzeReceipt(file);
+        }
+    });
+
     $('#send-message').on('click', function() {
         sendChatMessage();
     });
@@ -2048,4 +2113,440 @@ function viewBudgetHistory() {
             modal.modal('open');
             modal.on('modal:close', function() { modal.remove(); });
         });
+
+// AI Features Functions
+function loadAISuggestions(tripId) {
+    $('#ai-suggestions-content').html(`
+        <div class="center-align">
+            <div class="preloader-wrapper big active">
+                <div class="spinner-layer spinner-blue-only">
+                    <div class="circle-clipper left">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="gap-patch">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="circle-clipper right">
+                        <div class="circle"></div>
+                    </div>
+                </div>
+            </div>
+            <p>AI is analyzing your trip data...</p>
+        </div>
+    `);
+
+    $.post('api/suggest_expenses.php', {
+        action: 'suggest',
+        trip_id: tripId
+    })
+    .done(function(response) {
+        if (response.success) {
+            displayAISuggestions(response.suggestions);
+        } else {
+            $('#ai-suggestions-content').html(`
+                <div class="card-panel red lighten-4">
+                    <i class="material-icons left">error</i>
+                    <span>${response.message || 'Failed to load AI suggestions'}</span>
+                </div>
+            `);
+        }
+    })
+    .fail(function(xhr, status, error) {
+        let errorMessage = 'Network error occurred';
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+            errorMessage = xhr.responseJSON.message;
+        }
+        $('#ai-suggestions-content').html(`
+            <div class="card-panel red lighten-4">
+                <i class="material-icons left">error</i>
+                <span>${errorMessage}</span>
+            </div>
+        `);
+    });
+}
+
+function displayAISuggestions(suggestions) {
+    if (!suggestions || suggestions.length === 0) {
+        $('#ai-suggestions-content').html(`
+            <div class="card-panel orange lighten-4">
+                <i class="material-icons left">info</i>
+                <span>No suggestions available at this time. Try again later.</span>
+            </div>
+        `);
+        return;
+    }
+
+    let html = '<div class="row">';
+    suggestions.forEach(function(suggestion, index) {
+        const aiSource = suggestion.ai_source || 'AI';
+        const confidence = suggestion.confidence || 'medium';
+
+        let confidenceColor = 'orange';
+        if (confidence === 'high') confidenceColor = 'green';
+        else if (confidence === 'low') confidenceColor = 'red';
+
+        html += `
+            <div class="col s12 m6 l4">
+                <div class="card suggestion-card hoverable">
+                    <div class="card-content">
+                        <span class="card-title">
+                            <i class="material-icons left ${confidenceColor}-text">lightbulb</i>
+                            ${suggestion.category || 'Expense'}
+                        </span>
+                        <p class="suggestion-description">${suggestion.description || ''}</p>
+                        <div class="suggestion-amount">
+                            <span class="amount-text">${suggestion.amount || 'TBD'}</span>
+                            ${suggestion.currency ? `<span class="currency-text">${getCurrencySymbol(suggestion.currency)}</span>` : ''}
+                        </div>
+                        <div class="suggestion-meta">
+                            <span class="ai-source badge ${confidenceColor} white-text">${aiSource}</span>
+                            <span class="confidence-level">${confidence} confidence</span>
+                        </div>
+                    </div>
+                    <div class="card-action">
+                        <a href="#" class="add-suggestion-btn" data-suggestion='${JSON.stringify(suggestion).replace(/'/g, "&apos;")}'>
+                            <i class="material-icons left">add</i>Add to Expenses
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    html += '</div>';
+
+    $('#ai-suggestions-content').html(html);
+
+    // Add click handlers for "Add to Expenses" buttons
+    $('.add-suggestion-btn').on('click', function(e) {
+        e.preventDefault();
+        const suggestion = JSON.parse($(this).data('suggestion'));
+        addSuggestionToExpense(suggestion);
+    });
+}
+
+function addSuggestionToExpense(suggestion) {
+    // Pre-fill the expense form with suggestion data
+    if (suggestion.category) {
+        $('#category').val(suggestion.category);
+        $('#category').formSelect();
+        // Trigger subcategory loading
+        setTimeout(() => {
+            loadSubcategories(suggestion.category);
+            if (suggestion.subcategory) {
+                setTimeout(() => {
+                    $('#subcategory').val(suggestion.subcategory);
+                    $('#subcategory').formSelect();
+                }, 100);
+            }
+        }, 100);
+    }
+
+    if (suggestion.description) {
+        $('#description').val(suggestion.description);
+    }
+
+    if (suggestion.amount && !isNaN(suggestion.amount)) {
+        $('#amount').val(suggestion.amount);
+    }
+
+    // Scroll to expense form
+    $('html, body').animate({
+        scrollTop: $('#expense-form').offset().top - 100
+    }, 500);
+
+    // Close modal
+    $('#ai-suggestions-modal').modal('close');
+
+    M.toast({html: 'Suggestion added to expense form. Please review and submit.'});
+}
+
+function loadAIBudgetAdvice(tripId) {
+    $('#ai-budget-content').html(`
+        <div class="center-align">
+            <div class="preloader-wrapper big active">
+                <div class="spinner-layer spinner-teal-only">
+                    <div class="circle-clipper left">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="gap-patch">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="circle-clipper right">
+                        <div class="circle"></div>
+                    </div>
+                </div>
+            </div>
+            <p>AI is analyzing your budget...</p>
+        </div>
+    `);
+
+    $.post('api/suggest_expenses.php', {
+        action: 'budget_advisory',
+        trip_id: tripId
+    })
+    .done(function(response) {
+        if (response.success) {
+            displayAIBudgetAdvice(response.advice);
+        } else {
+            $('#ai-budget-content').html(`
+                <div class="card-panel red lighten-4">
+                    <i class="material-icons left">error</i>
+                    <span>${response.message || 'Failed to load budget advice'}</span>
+                </div>
+            `);
+        }
+    })
+    .fail(function(xhr, status, error) {
+        let errorMessage = 'Network error occurred';
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+            errorMessage = xhr.responseJSON.message;
+        }
+        $('#ai-budget-content').html(`
+            <div class="card-panel red lighten-4">
+                <i class="material-icons left">error</i>
+                <span>${errorMessage}</span>
+            </div>
+        `);
+    });
+}
+
+function displayAIBudgetAdvice(advice) {
+    if (!advice) {
+        $('#ai-budget-content').html(`
+            <div class="card-panel orange lighten-4">
+                <i class="material-icons left">info</i>
+                <span>No budget advice available at this time.</span>
+            </div>
+        `);
+        return;
+    }
+
+    let html = '<div class="row">';
+
+    // Overall Assessment
+    if (advice.overall_assessment) {
+        html += `
+            <div class="col s12">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">
+                            <i class="material-icons left">assessment</i>Overall Budget Assessment
+                        </span>
+                        <p>${advice.overall_assessment}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Spending Analysis
+    if (advice.spending_analysis) {
+        html += `
+            <div class="col s12 m6">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">
+                            <i class="material-icons left">analytics</i>Spending Analysis
+                        </span>
+                        <p>${advice.spending_analysis}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Recommendations
+    if (advice.recommendations && advice.recommendations.length > 0) {
+        html += `
+            <div class="col s12 m6">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">
+                            <i class="material-icons left">recommend</i>Recommendations
+                        </span>
+                        <ul class="collection">
+        `;
+        advice.recommendations.forEach(function(rec) {
+            html += `<li class="collection-item">${rec}</li>`;
+        });
+        html += `
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Risk Level
+    if (advice.risk_level) {
+        let riskColor = 'green';
+        if (advice.risk_level.toLowerCase().includes('high')) riskColor = 'red';
+        else if (advice.risk_level.toLowerCase().includes('medium')) riskColor = 'orange';
+
+        html += `
+            <div class="col s12">
+                <div class="card-panel ${riskColor} lighten-4">
+                    <i class="material-icons left">warning</i>
+                    <span><strong>Risk Level:</strong> ${advice.risk_level}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    html += '</div>';
+    $('#ai-budget-content').html(html);
+}
+
+function analyzeReceipt(file) {
+    const formData = new FormData();
+    formData.append('action', 'analyze_receipt');
+    formData.append('receipt', file);
+
+    $('#receipt-analysis-result').html(`
+        <div class="center-align">
+            <div class="preloader-wrapper active">
+                <div class="spinner-layer spinner-orange-only">
+                    <div class="circle-clipper left">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="gap-patch">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="circle-clipper right">
+                        <div class="circle"></div>
+                    </div>
+                </div>
+            </div>
+            <p>Analyzing receipt...</p>
+        </div>
+    `);
+
+    $.ajax({
+        url: 'api/suggest_expenses.php',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            if (response.success) {
+                displayReceiptAnalysis(response.analysis);
+            } else {
+                $('#receipt-analysis-result').html(`
+                    <div class="card-panel red lighten-4">
+                        <i class="material-icons left">error</i>
+                        <span>${response.message || 'Failed to analyze receipt'}</span>
+                    </div>
+                `);
+            }
+        },
+        error: function(xhr, status, error) {
+            let errorMessage = 'Network error occurred';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage = xhr.responseJSON.message;
+            }
+            $('#receipt-analysis-result').html(`
+                <div class="card-panel red lighten-4">
+                    <i class="material-icons left">error</i>
+                    <span>${errorMessage}</span>
+                </div>
+            `);
+        }
+    });
+}
+
+function displayReceiptAnalysis(analysis) {
+    if (!analysis) {
+        $('#receipt-analysis-result').html(`
+            <div class="card-panel orange lighten-4">
+                <i class="material-icons left">info</i>
+                <span>Could not extract information from this receipt.</span>
+            </div>
+        `);
+        return;
+    }
+
+    let html = '';
+
+    if (analysis.merchant) {
+        html += `<p><strong>Merchant:</strong> ${analysis.merchant}</p>`;
+    }
+
+    if (analysis.total_amount) {
+        html += `<p><strong>Total Amount:</strong> ${analysis.total_amount}</p>`;
+    }
+
+    if (analysis.date) {
+        html += `<p><strong>Date:</strong> ${analysis.date}</p>`;
+    }
+
+    if (analysis.items && analysis.items.length > 0) {
+        html += `<p><strong>Items:</strong></p><ul>`;
+        analysis.items.forEach(function(item) {
+            html += `<li>${item.name || 'Item'}: ${item.price || 'N/A'}</li>`;
+        });
+        html += `</ul>`;
+    }
+
+    if (analysis.category_suggestion) {
+        html += `<p><strong>Suggested Category:</strong> ${analysis.category_suggestion}</p>`;
+    }
+
+    if (html) {
+        html = `<div class="card-panel green lighten-4">${html}</div>`;
+        html += `
+            <button class="btn waves-effect waves-light orange add-receipt-expense" data-analysis='${JSON.stringify(analysis).replace(/'/g, "&apos;")}'>
+                <i class="material-icons left">add</i>Add as Expense
+            </button>
+        `;
+    } else {
+        html = `
+            <div class="card-panel orange lighten-4">
+                <i class="material-icons left">info</i>
+                <span>Receipt analyzed but no clear information extracted.</span>
+            </div>
+        `;
+    }
+
+    $('#receipt-analysis-result').html(html);
+
+    // Add click handler for "Add as Expense" button
+    $('.add-receipt-expense').on('click', function() {
+        const analysis = JSON.parse($(this).data('analysis'));
+        addReceiptToExpense(analysis);
+    });
+}
+
+function addReceiptToExpense(analysis) {
+    // Pre-fill the expense form with receipt data
+    if (analysis.category_suggestion) {
+        $('#category').val(analysis.category_suggestion);
+        $('#category').formSelect();
+    }
+
+    if (analysis.merchant) {
+        $('#description').val(`Receipt from ${analysis.merchant}`);
+    }
+
+    if (analysis.total_amount) {
+        // Extract numeric value from amount string
+        const amount = analysis.total_amount.replace(/[^\d.]/g, '');
+        if (!isNaN(amount)) {
+            $('#amount').val(amount);
+        }
+    }
+
+    if (analysis.date) {
+        $('#date').val(analysis.date);
+    }
+
+    // Scroll to expense form
+    $('html, body').animate({
+        scrollTop: $('#expense-form').offset().top - 100
+    }, 500);
+
+    // Close modal
+    $('#receipt-analysis-modal').modal('close');
+
+    M.toast({html: 'Receipt data added to expense form. Please review and submit.'});
+}
 }

@@ -116,6 +116,7 @@ requireLogin();
             </button>
         </li>
         <li><a id="mobile-invitations-btn"><i class="material-icons">mail</i>Invitations <span id="mobile-invitation-count" class="new badge orange" data-badge-caption="">0</span></a></li>
+        <li><a id="mobile-ai-suggestions-btn"><i class="material-icons">lightbulb</i>AI Suggestions</a></li>
         <li><a id="mobile-notifications-btn"><i class="material-icons">notifications</i>Enable Notifications</a></li>
         <li>
             <ul class="collapsible mobile-accordion">
@@ -176,6 +177,9 @@ requireLogin();
                         <a id="invitations-btn" class="btn waves-effect waves-light orange">
                             <i class="material-icons left">mail</i>Invitations <span id="invitation-count" class="new badge" data-badge-caption="">0</span>
                         </a>
+                        <a id="ai-suggestions-btn" class="btn waves-effect waves-light purple">
+                            <i class="material-icons left">lightbulb</i>AI Suggestions
+                        </a>
                     </div>
                     <div class="export-actions">
                         <a id="export-pdf" class="btn-small waves-effect waves-light grey">
@@ -189,6 +193,12 @@ requireLogin();
                         </a>
                         <a id="email-report" class="btn-small waves-effect waves-light grey">
                             <i class="material-icons left">email</i>Email
+                        </a>
+                        <a id="ai-budget-btn" class="btn-small waves-effect waves-light teal">
+                            <i class="material-icons left">analytics</i>AI Budget
+                        </a>
+                        <a id="receipt-analysis-btn" class="btn-small waves-effect waves-light orange">
+                            <i class="material-icons left">receipt</i>Scan Receipt
                         </a>
                     </div>
                 </div>
@@ -605,6 +615,122 @@ requireLogin();
         </div>
     </div>
 
+    <!-- AI Suggestions Modal -->
+    <div id="ai-suggestions-modal" class="modal modal-fixed-footer">
+        <div class="modal-content">
+            <h4><i class="material-icons left">lightbulb</i>AI Expense Suggestions</h4>
+            <div class="row">
+                <div class="col s12">
+                    <div class="card-panel blue lighten-5">
+                        <i class="material-icons left">info</i>
+                        <span>AI analyzes your trip data and suggests likely upcoming expenses to help you budget better.</span>
+                    </div>
+                </div>
+            </div>
+            <div id="ai-suggestions-content">
+                <div class="center-align">
+                    <div class="preloader-wrapper big active">
+                        <div class="spinner-layer spinner-blue-only">
+                            <div class="circle-clipper left">
+                                <div class="circle"></div>
+                            </div>
+                            <div class="gap-patch">
+                                <div class="circle"></div>
+                            </div>
+                            <div class="circle-clipper right">
+                                <div class="circle"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <p>Loading AI suggestions...</p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+            <a id="refresh-ai-suggestions" class="btn waves-effect waves-light purple">
+                <i class="material-icons left">refresh</i>Refresh Suggestions
+            </a>
+        </div>
+    </div>
+
+    <!-- AI Budget Advisory Modal -->
+    <div id="ai-budget-modal" class="modal modal-fixed-footer">
+        <div class="modal-content">
+            <h4><i class="material-icons left">analytics</i>AI Budget Advisory</h4>
+            <div class="row">
+                <div class="col s12">
+                    <div class="card-panel teal lighten-5">
+                        <i class="material-icons left">trending_up</i>
+                        <span>Get personalized budget advice based on your spending patterns and trip progress.</span>
+                    </div>
+                </div>
+            </div>
+            <div id="ai-budget-content">
+                <div class="center-align">
+                    <div class="preloader-wrapper big active">
+                        <div class="spinner-layer spinner-teal-only">
+                            <div class="circle-clipper left">
+                                <div class="circle"></div>
+                            </div>
+                            <div class="gap-patch">
+                                <div class="circle"></div>
+                            </div>
+                            <div class="circle-clipper right">
+                                <div class="circle"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <p>Analyzing your budget...</p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+            <a id="refresh-ai-budget" class="btn waves-effect waves-light teal">
+                <i class="material-icons left">refresh</i>Refresh Analysis
+            </a>
+        </div>
+    </div>
+
+    <!-- Receipt Analysis Modal -->
+    <div id="receipt-analysis-modal" class="modal">
+        <div class="modal-content">
+            <h4><i class="material-icons left">receipt</i>Receipt Analysis</h4>
+            <div class="row">
+                <div class="col s12">
+                    <div class="file-field input-field">
+                        <div class="btn">
+                            <span><i class="material-icons left">cloud_upload</i>Upload Receipt</span>
+                            <input type="file" id="receipt-file" accept="image/*">
+                        </div>
+                        <div class="file-path-wrapper">
+                            <input class="file-path validate" type="text" placeholder="Select receipt image">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="receipt-analysis-content" style="display:none;">
+                <div class="row">
+                    <div class="col s12 m6">
+                        <h5>Uploaded Receipt</h5>
+                        <img id="receipt-preview" class="materialboxed responsive-img" style="max-height: 300px;">
+                    </div>
+                    <div class="col s12 m6">
+                        <h5>AI Analysis</h5>
+                        <div id="receipt-analysis-result"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+            <a id="analyze-receipt-btn" class="btn waves-effect waves-light orange disabled">
+                <i class="material-icons left">search</i>Analyze Receipt
+            </a>
+        </div>
+    </div>
+
     <!-- Materialize JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script>
@@ -656,6 +782,11 @@ requireLogin();
             // Sync mobile invitations button
             $('#mobile-invitations-btn').on('click', function() {
                 $('#invitations-btn').click();
+            });
+
+            // Sync mobile AI suggestions button
+            $('#mobile-ai-suggestions-btn').on('click', function() {
+                $('#ai-suggestions-btn').click();
             });
             
             // Sync mobile export buttons
