@@ -11,7 +11,7 @@ try {
         $startDate = $_POST['start_date'] ?? '';
         $endDate = $_POST['end_date'] ?? '';
         $noBudget = $_POST['no_budget'] ?? false;
-        $budget = ($noBudget === 'true' || $noBudget === true) ? null : floatval($_POST['budget'] ?? 0);
+        $rawBudget = trim($_POST['budget'] ?? '');
         $currency = $_POST['currency'] ?? 'USD';
         $userId = $_SESSION['user_id'];
         
@@ -21,9 +21,24 @@ try {
             exit;
         }
         
-        if ($budget !== null && $budget < 0) {
-            echo json_encode(['success' => false, 'message' => 'Budget cannot be negative']);
-            exit;
+        if ($noBudget === 'true' || $noBudget === true) {
+            $budget = null;
+        } else {
+            if ($rawBudget === '') {
+                echo json_encode(['success' => false, 'message' => 'Budget amount is required when Set Budget is selected']);
+                exit;
+            }
+
+            if (!is_numeric($rawBudget)) {
+                echo json_encode(['success' => false, 'message' => 'Budget amount must be a number']);
+                exit;
+            }
+
+            $budget = floatval($rawBudget);
+            if ($budget < 0) {
+                echo json_encode(['success' => false, 'message' => 'Budget cannot be negative']);
+                exit;
+            }
         }
         
         if (!empty($startDate) && !empty($endDate) && strtotime($startDate) > strtotime($endDate)) {

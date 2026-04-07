@@ -265,14 +265,14 @@ function updateBudget() {
     const budgetType = $('input[name="budget-type"]:checked').val();
     const budgetAmount = parseFloat($('#edit-budget-amount').val()) || 0;
     const reason = prompt('Reason for budget change (optional):') || 'Budget updated by user';
-    
+
     const formData = {
-        action: 'set',
+        action: budgetType === 'no-budget' ? 'remove' : 'set',
         trip_id: tripId,
-        budget: budgetType === 'no-budget' ? 0 : budgetAmount,
+        budget: budgetAmount,
         reason: reason
     };
-    
+
     $.post('api/immutable_budget.php', formData)
         .done(function(data) {
             if (data.success) {
@@ -377,6 +377,12 @@ function updateExpense() {
         return;
     }
     
+    const paidBy = $('#edit-paid-by').val();
+    if (!paidBy) {
+        M.toast({html: 'Please select who paid the expense'});
+        return;
+    }
+    
     const formData = {
         expense_id: $('#edit-expense-id').val(),
         category: category,
@@ -384,7 +390,7 @@ function updateExpense() {
         amount: amount,
         description: description,
         date: date,
-        paid_by: $('#edit-paid-by').val()
+        paid_by: paidBy
     };
     
     $.post('api/edit_expense.php', formData)
@@ -668,7 +674,16 @@ function createTrip() {
     };
     
     if (budgetType === 'with-budget') {
-        formData.budget = $('#budget').val();
+        const budgetValue = $('#budget').val().trim();
+        if (budgetValue === '') {
+            M.toast({html: 'Please enter an initial budget amount'});
+            return;
+        }
+        if (isNaN(budgetValue) || parseFloat(budgetValue) < 0) {
+            M.toast({html: 'Budget amount must be a non-negative number'});
+            return;
+        }
+        formData.budget = budgetValue;
     }
     
     $.post('api/create_trip.php', formData)
@@ -1364,8 +1379,43 @@ function addExpense() {
         return;
     }
     
-    const splitType = $('input[name="split"]:checked').val();
+    const category = $('#category').val();
+    const subcategory = $('#subcategory').val();
     const totalAmount = parseFloat($('#amount').val()) || 0;
+    const description = $('#description').val().trim();
+    const date = $('#date').val();
+    const paidBy = $('#paid-by').val();
+    const splitType = $('input[name="split"]:checked').val();
+
+    if (!category) {
+        M.toast({html: 'Please select a category'});
+        return;
+    }
+
+    if (!subcategory) {
+        M.toast({html: 'Please select a subcategory'});
+        return;
+    }
+
+    if (totalAmount <= 0) {
+        M.toast({html: 'Please enter a valid amount'});
+        return;
+    }
+
+    if (!description) {
+        M.toast({html: 'Please enter a description'});
+        return;
+    }
+
+    if (!date) {
+        M.toast({html: 'Please select a date'});
+        return;
+    }
+
+    if (!paidBy) {
+        M.toast({html: 'Please select who paid the expense'});
+        return;
+    }
     
     // Validate custom split
     if (splitType === 'custom') {
@@ -1373,19 +1423,12 @@ function addExpense() {
         const splitMode = $('input[name="split-mode"]:checked').val() || 'currency';
         const isPercentage = splitMode === 'percentage';
         let splitTotal = 0;
-        let customSplits = {};
         let hasCustomValues = false;
         
         members.forEach(function(member) {
             const inputValue = parseFloat($(`#split_${member.id}`).val()) || 0;
             if (inputValue > 0) {
-                if (isPercentage) {
-                    splitTotal += inputValue;
-                    customSplits[member.id] = (inputValue / 100) * totalAmount;
-                } else {
-                    splitTotal += inputValue;
-                    customSplits[member.id] = inputValue;
-                }
+                splitTotal += inputValue;
                 hasCustomValues = true;
             }
         });
@@ -1408,12 +1451,12 @@ function addExpense() {
     const formData = {
         action: 'add',
         trip_id: tripId,
-        category: $('#category').val(),
-        subcategory: $('#subcategory').val(),
+        category: category,
+        subcategory: subcategory,
         amount: $('#amount').val(),
-        description: $('#description').val(),
-        date: $('#date').val(),
-        paid_by: $('#paid-by').val(),
+        description: description,
+        date: date,
+        paid_by: paidBy,
         split_type: splitType
     };
     

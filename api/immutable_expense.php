@@ -4,209 +4,318 @@ requireLogin();
 
 header('Content-Type: application/json');
 
-try {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $action = $_POST['action'] ?? '';
-        
-        switch ($action) {
-            case 'add':
-                addExpense();
-                break;
-            case 'modify':
-                modifyExpense();
-                break;
-            case 'deactivate':
-                deactivateExpense();
-                break;
-            default:
-                echo json_encode(['success' => false, 'message' => 'Invalid action']);
+function jsonResponse(bool $success, array $payload = []) {
+    echo json_encode(array_merge(['success' => $success], $payload));
+    exit;
+}
+
+function jsonError(string $message) {
+    jsonResponse(false, ['message' => $message]);
+}
+
+function validateDate(string $date): bool {
+    if ($date === '') {
+        return false;
+    }
+
+    $timestamp = strtotime($date);
+    if ($timestamp === false) {
+        return false;
+    }
+
+    return $timestamp <= time();
+}
+
+function isTripMember(PDO $pdo, $tripId, $userId): bool {
+    try {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM trip_members WHERE trip_id = ? AND user_id = ? AND (status = 'accepted' OR status IS NULL)");
+        $stmt->execute([$tripId, $userId]);
+    } catch (Exception $e) {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM trip_members WHERE trip_id = ? AND user_id = ?");
+        $stmt->execute([$tripId, $userId]);
+    }
+
+    return $stmt->fetchColumn() > 0;
+}
+
+function getTripMemberIds(PDO $pdo, $tripId): array {
+    try {
+        $stmt = $pdo->prepare("SELECT user_id FROM trip_members WHERE trip_id = ? AND (status = 'accepted' OR status IS NULL)");
+        $stmt->execute([$tripId]);
+    } catch (Exception $e) {
+        $stmt = $pdo->prepare("SELECT user_id FROM trip_members WHERE trip_id = ?");
+        $stmt->execute([$tripId]);
+    }
+
+    return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+}
+
+function buildEqualSplits(array $memberIds, float $amount): array {
+    $count = count($memberIds);
+    if ($count === 0) {
+        return [];
+    }
+
+    $base = floor(($amount * 100) / $count) / 100;
+    $remainder = round($amount - ($base * $count), 2);
+    $splits = [];
+
+    foreach ($memberIds as $index => $memberId) {
+        $splitAmount = $base;
+        if ($index === 0) {
+            $splitAmount = round($splitAmount + $remainder, 2);
         }
+        $splits[$memberId] = $splitAmount;
+    }
+
+    return $splits;
+}
+
+function parseCustomSplits(array $memberIds, float $amount): array {
+    $validMemberIds = array_flip($memberIds);
+    $splits = [];
+    $total = 0.0;
+
+    foreach ($_POST as $key => $value) {
+        if (strpos($key, 'split_') !== 0) {
+            continue;
+        }
+
+        $memberId = intval(substr($key, 6));
+        if (!isset($validMemberIds[$memberId])) {
+            continue;
+        }
+
+        $splitAmount = round(floatval($value), 2);
+        if ($splitAmount <= 0) {
+            continue;
+        }
+
+        $splits[$memberId] = $splitAmount;
+        $total += $splitAmount;
+    }
+
+    if (empty($splits)) {
+        return [];
+    }
+
+    if (abs($total - $amount) > 0.01) {
+        return [];
+    }
+
+    return $splits;
+}
+
+function insertExpenseSplits(PDO $pdo, $expenseId, array $splits): void {
+    $stmt = $pdo->prepare("INSERT INTO expense_splits (expense_id, user_id, amount) VALUES (?, ?, ?)");
+
+    foreach ($splits as $memberId => $amount) {
+        $stmt->execute([$expenseId, $memberId, $amount]);
+    }
+}
+
+function handleExpenseSplits($expenseId, $tripId, float $amount, string $splitType, $paidBy): void {
+    global $pdo;
+
+    $memberIds = getTripMemberIds($pdo, $tripId);
+
+    if ($splitType === 'equal') {
+        if (empty($memberIds)) {
+            throw new Exception('No trip members available for equal split');
+        }
+
+        $splits = buildEqualSplits($memberIds, $amount);
+        insertExpenseSplits($pdo, $expenseId, $splits);
+    } elseif ($splitType === 'full') {
+        insertExpenseSplits($pdo, $expenseId, [$paidBy => round($amount, 2)]);
+    } elseif ($splitType === 'custom') {
+        $splits = parseCustomSplits($memberIds, $amount);
+        if (empty($splits)) {
+            throw new Exception('Custom split values are invalid or do not equal the total amount');
+        }
+
+        insertExpenseSplits($pdo, $expenseId, $splits);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+        throw new Exception('Invalid split type');
+    }
+}
+
+try {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        jsonError('Invalid request method');
+    }
+
+    $action = trim($_POST['action'] ?? '');
+    switch ($action) {
+        case 'add':
+            addExpense();
+            break;
+        case 'modify':
+            modifyExpense();
+            break;
+        case 'deactivate':
+            deactivateExpense();
+            break;
+        default:
+            jsonError('Invalid action');
     }
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+    jsonError('Error: ' . $e->getMessage());
 }
 
-function addExpense() {
+function addExpense(): void {
     global $pdo;
-    
-    $tripId = $_POST['trip_id'] ?? '';
-    $category = $_POST['category'] ?? '';
-    $subcategory = $_POST['subcategory'] ?? '';
-    $amount = $_POST['amount'] ?? 0;
-    $description = $_POST['description'] ?? '';
-    $date = $_POST['date'] ?? '';
-    $splitType = $_POST['split_type'] ?? 'equal';
+
+    $tripId = trim($_POST['trip_id'] ?? '');
+    $category = trim($_POST['category'] ?? '');
+    $subcategory = trim($_POST['subcategory'] ?? '');
+    $amount = round(floatval($_POST['amount'] ?? 0), 2);
+    $description = trim($_POST['description'] ?? '');
+    $date = trim($_POST['date'] ?? '');
+    $splitType = trim($_POST['split_type'] ?? 'equal');
+    $paidBy = trim($_POST['paid_by'] ?? $_SESSION['user_id']);
     $userId = $_SESSION['user_id'];
-    
-    if (empty($tripId) || empty($category) || empty($amount)) {
-        echo json_encode(['success' => false, 'message' => 'Required fields missing']);
-        return;
+
+    if ($tripId === '' || $category === '' || $subcategory === '' || $description === '' || $date === '') {
+        jsonError('Required fields are missing');
     }
-    
-    // Verify user is member of the trip
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM trip_members WHERE trip_id = ? AND user_id = ?");
-    $stmt->execute([$tripId, $userId]);
-    
-    if ($stmt->fetchColumn() == 0) {
-        echo json_encode(['success' => false, 'message' => 'You are not a member of this trip']);
-        return;
-    }
-    
+
     if ($amount <= 0) {
-        echo json_encode(['success' => false, 'message' => 'Amount must be greater than zero']);
-        return;
+        jsonError('Amount must be greater than zero');
     }
-    
+
+    if (!validateDate($date)) {
+        jsonError('Expense date is required and cannot be in the future');
+    }
+
+    if (!isTripMember($pdo, $tripId, $userId)) {
+        jsonError('You are not a member of this trip');
+    }
+
+    if (!isTripMember($pdo, $tripId, $paidBy)) {
+        jsonError('The selected payer is not a member of this trip');
+    }
+
+    if (!in_array($splitType, ['equal', 'full', 'custom'], true)) {
+        jsonError('Invalid split type');
+    }
+
     $pdo->beginTransaction();
     try {
-        // Insert expense
         $stmt = $pdo->prepare("INSERT INTO expenses (trip_id, category, subcategory, amount, description, date, paid_by, split_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        
-        if ($stmt->execute([$tripId, $category, $subcategory, $amount, $description, $date, $userId, $splitType])) {
-            $expenseId = $pdo->lastInsertId();
-            
-            // Handle splits
-            handleExpenseSplits($expenseId, $tripId, $amount, $splitType, $userId);
-            
-            $pdo->commit();
-            echo json_encode(['success' => true, 'expense_id' => $expenseId]);
-        } else {
-            $pdo->rollback();
-            echo json_encode(['success' => false, 'message' => 'Failed to add expense']);
-        }
+        $stmt->execute([$tripId, $category, $subcategory, $amount, $description, $date, $paidBy, $splitType]);
+        $expenseId = $pdo->lastInsertId();
+
+        handleExpenseSplits($expenseId, $tripId, $amount, $splitType, $paidBy);
+
+        $pdo->commit();
+        jsonResponse(true, ['expense_id' => $expenseId]);
     } catch (Exception $e) {
-        $pdo->rollback();
-        throw $e;
+        $pdo->rollBack();
+        jsonError('Failed to add expense: ' . $e->getMessage());
     }
 }
 
-function modifyExpense() {
+function modifyExpense(): void {
     global $pdo;
-    
-    $expenseId = $_POST['expense_id'] ?? '';
-    $category = $_POST['category'] ?? '';
-    $subcategory = $_POST['subcategory'] ?? '';
-    $amount = $_POST['amount'] ?? 0;
-    $description = $_POST['description'] ?? '';
-    $date = $_POST['date'] ?? '';
-    $reason = $_POST['reason'] ?? 'Modified by user';
+
+    $expenseId = trim($_POST['expense_id'] ?? '');
+    $category = trim($_POST['category'] ?? '');
+    $subcategory = trim($_POST['subcategory'] ?? '');
+    $amount = round(floatval($_POST['amount'] ?? 0), 2);
+    $description = trim($_POST['description'] ?? '');
+    $date = trim($_POST['date'] ?? '');
+    $paidBy = trim($_POST['paid_by'] ?? '');
     $userId = $_SESSION['user_id'];
-    
-    if (empty($expenseId) || empty($category) || empty($amount)) {
-        echo json_encode(['success' => false, 'message' => 'Required fields missing']);
-        return;
+    $isMasterAdmin = $_SESSION['user_email'] === 'haerriz@gmail.com';
+
+    if ($expenseId === '' || $category === '' || $subcategory === '' || $description === '' || $date === '' || $paidBy === '') {
+        jsonError('Required fields are missing');
     }
-    
-    // Get original expense
+
+    if ($amount <= 0) {
+        jsonError('Amount must be greater than zero');
+    }
+
+    if (!validateDate($date)) {
+        jsonError('Expense date is required and cannot be in the future');
+    }
+
     $stmt = $pdo->prepare("SELECT * FROM expenses WHERE id = ?");
     $stmt->execute([$expenseId]);
     $originalExpense = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if (!$originalExpense) {
-        echo json_encode(['success' => false, 'message' => 'Expense not found']);
-        return;
+        jsonError('Expense not found');
     }
-    
-    // Verify ownership
-    if ($originalExpense['paid_by'] != $userId && $_SESSION['user_email'] !== 'haerriz@gmail.com') {
-        echo json_encode(['success' => false, 'message' => 'Only expense owner can modify expenses']);
-        return;
+
+    if ($originalExpense['paid_by'] != $userId && !$isMasterAdmin) {
+        jsonError('Only expense owner or master admin can modify this expense');
     }
-    
+
+    if (!isTripMember($pdo, $originalExpense['trip_id'], $paidBy)) {
+        jsonError('The selected payer is not a member of this trip');
+    }
+
+    $splitType = trim($originalExpense['split_type'] ?? 'full');
+    if (!in_array($splitType, ['equal', 'full', 'custom'], true)) {
+        $splitType = 'full';
+    }
+
     $pdo->beginTransaction();
     try {
-        // Update expense directly
-        $stmt = $pdo->prepare("UPDATE expenses SET category = ?, subcategory = ?, amount = ?, description = ?, date = ? WHERE id = ?");
-        $stmt->execute([$category, $subcategory, $amount, $description, $date, $expenseId]);
-        
-        // Delete old splits
+        $stmt = $pdo->prepare("UPDATE expenses SET category = ?, subcategory = ?, amount = ?, description = ?, date = ?, paid_by = ? WHERE id = ?");
+        $stmt->execute([$category, $subcategory, $amount, $description, $date, $paidBy, $expenseId]);
+
         $stmt = $pdo->prepare("DELETE FROM expense_splits WHERE expense_id = ?");
         $stmt->execute([$expenseId]);
-        
-        // Handle new splits
-        handleExpenseSplits($expenseId, $originalExpense['trip_id'], $amount, $originalExpense['split_type'], $originalExpense['paid_by']);
-        
+
+        handleExpenseSplits($expenseId, $originalExpense['trip_id'], $amount, $splitType, $paidBy);
+
         $pdo->commit();
-        echo json_encode(['success' => true, 'message' => 'Expense updated successfully']);
+        jsonResponse(true, ['message' => 'Expense updated successfully']);
     } catch (Exception $e) {
-        $pdo->rollback();
-        throw $e;
+        $pdo->rollBack();
+        jsonError('Failed to modify expense: ' . $e->getMessage());
     }
 }
 
-function deactivateExpense() {
+function deactivateExpense(): void {
     global $pdo;
-    
-    $expenseId = $_POST['expense_id'] ?? '';
-    $reason = $_POST['reason'] ?? 'Deleted by user';
+
+    $expenseId = trim($_POST['expense_id'] ?? '');
     $userId = $_SESSION['user_id'];
-    
-    if (empty($expenseId)) {
-        echo json_encode(['success' => false, 'message' => 'Expense ID required']);
-        return;
+    $isMasterAdmin = $_SESSION['user_email'] === 'haerriz@gmail.com';
+
+    if ($expenseId === '') {
+        jsonError('Expense ID required');
     }
-    
-    // Get expense
+
     $stmt = $pdo->prepare("SELECT * FROM expenses WHERE id = ?");
     $stmt->execute([$expenseId]);
     $expense = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if (!$expense) {
-        echo json_encode(['success' => false, 'message' => 'Expense not found']);
-        return;
+        jsonError('Expense not found');
     }
-    
-    // Verify ownership
-    if ($expense['paid_by'] != $userId && $_SESSION['user_email'] !== 'haerriz@gmail.com') {
-        echo json_encode(['success' => false, 'message' => 'Only expense owner can delete expenses']);
-        return;
+
+    if ($expense['paid_by'] != $userId && !$isMasterAdmin) {
+        jsonError('Only expense owner or master admin can delete this expense');
     }
-    
+
     $pdo->beginTransaction();
     try {
-        // Delete expense
-        $stmt = $pdo->prepare("DELETE FROM expenses WHERE id = ?");
-        $stmt->execute([$expenseId]);
-        
-        // Remove splits
         $stmt = $pdo->prepare("DELETE FROM expense_splits WHERE expense_id = ?");
         $stmt->execute([$expenseId]);
-        
-        $pdo->commit();
-        echo json_encode(['success' => true, 'message' => 'Expense deleted successfully']);
-    } catch (Exception $e) {
-        $pdo->rollback();
-        throw $e;
-    }
-}
 
-function handleExpenseSplits($expenseId, $tripId, $amount, $splitType, $paidBy) {
-    global $pdo;
-    
-    if ($splitType === 'equal') {
-        $stmt = $pdo->prepare("SELECT user_id FROM trip_members WHERE trip_id = ?");
-        $stmt->execute([$tripId]);
-        $members = $stmt->fetchAll();
-        
-        $splitAmount = $amount / count($members);
-        
-        foreach ($members as $member) {
-            $stmt = $pdo->prepare("INSERT INTO expense_splits (expense_id, user_id, amount) VALUES (?, ?, ?)");
-            $stmt->execute([$expenseId, $member['user_id'], $splitAmount]);
-        }
-    } else if ($splitType === 'full') {
-        $stmt = $pdo->prepare("INSERT INTO expense_splits (expense_id, user_id, amount) VALUES (?, ?, ?)");
-        $stmt->execute([$expenseId, $paidBy, $amount]);
-    } else if ($splitType === 'custom') {
-        foreach ($_POST as $key => $value) {
-            if (strpos($key, 'split_') === 0 && $value > 0) {
-                $memberId = str_replace('split_', '', $key);
-                $stmt = $pdo->prepare("INSERT INTO expense_splits (expense_id, user_id, amount) VALUES (?, ?, ?)");
-                $stmt->execute([$expenseId, $memberId, $value]);
-            }
-        }
+        $stmt = $pdo->prepare("DELETE FROM expenses WHERE id = ?");
+        $stmt->execute([$expenseId]);
+
+        $pdo->commit();
+        jsonResponse(true, ['message' => 'Expense deleted successfully']);
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        jsonError('Failed to delete expense: ' . $e->getMessage());
     }
 }
 ?>
