@@ -105,7 +105,12 @@ $(document).ready(function() {
             return;
         }
         $('#ai-suggestions-modal').modal('open');
-        loadAISuggestions(tripId);
+        if (typeof loadAISuggestions === 'function') {
+            loadAISuggestions(tripId);
+        } else {
+            console.error('loadAISuggestions function not found');
+            $('#ai-suggestions-content').html('<div class="card-panel red lighten-4"><i class="material-icons left">error</i><span>AI Suggestions feature is currently unavailable. Please refresh the page.</span></div>');
+        }
     });
 
     $('#ai-budget-btn').on('click', function() {
@@ -115,20 +120,35 @@ $(document).ready(function() {
             return;
         }
         $('#ai-budget-modal').modal('open');
-        loadAIBudgetAdvice(tripId);
+        if (typeof loadAIBudgetAdvice === 'function') {
+            loadAIBudgetAdvice(tripId);
+        } else {
+            console.error('loadAIBudgetAdvice function not found');
+            $('#ai-budget-content').html('<div class="card-panel red lighten-4"><i class="material-icons left">error</i><span>AI Budget feature is currently unavailable. Please refresh the page.</span></div>');
+        }
     });
 
     $('#refresh-ai-suggestions').on('click', function() {
         const tripId = $('#current-trip').val();
         if (tripId) {
-            loadAISuggestions(tripId);
+            if (typeof loadAISuggestions === 'function') {
+                loadAISuggestions(tripId);
+            } else {
+                console.error('loadAISuggestions function not found');
+                M.toast({html: 'AI Suggestions feature is currently unavailable'});
+            }
         }
     });
 
     $('#refresh-ai-budget').on('click', function() {
         const tripId = $('#current-trip').val();
         if (tripId) {
-            loadAIBudgetAdvice(tripId);
+            if (typeof loadAIBudgetAdvice === 'function') {
+                loadAIBudgetAdvice(tripId);
+            } else {
+                console.error('loadAIBudgetAdvice function not found');
+                M.toast({html: 'AI Budget feature is currently unavailable'});
+            }
         }
     });
 
