@@ -764,7 +764,7 @@ requireLogin();
             M.updateTextFields();
         });
     </script>
-    <script src="js/trip-dashboard.js?v=<?php echo time(); ?>"></script>
+    <script src="js/trip-dashboard.js?v=<?php echo time() . rand(1000, 9999); ?>"></script>
     <script>
         // Sync mobile and desktop trip selectors
         $(document).ready(function() {
