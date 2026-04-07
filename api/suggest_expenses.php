@@ -13,30 +13,34 @@ function jsonError(string $message) {
     jsonResponse(false, ['message' => $message]);
 }
 
-function callClaudeAPI(string $prompt, string $type = 'general'): array {
-    $apiKey = getenv('ANTHROPIC_API_KEY') ?: 'YOUR_CLAUDE_API_KEY_HERE';
+function callChatGPTAPI(string $prompt, string $type = 'general'): array {
+    $apiKey = getenv('OPENAI_API_KEY') ?: 'YOUR_OPENAI_API_KEY_HERE';
 
-    if ($apiKey === 'YOUR_CLAUDE_API_KEY_HERE') {
-        return ['error' => 'Claude API key not configured'];
+    if ($apiKey === 'YOUR_OPENAI_API_KEY_HERE') {
+        return ['error' => 'OpenAI API key not configured'];
     }
 
     $payload = [
-        'model' => 'claude-3-5-sonnet-20241022',
-        'max_tokens' => 1024,
+        'model' => 'gpt-4',
         'messages' => [
+            [
+                'role' => 'system',
+                'content' => 'You are an expert financial advisor specializing in travel expense management. Provide practical, actionable suggestions for expense tracking and budget optimization.'
+            ],
             [
                 'role' => 'user',
                 'content' => $prompt
             ]
-        ]
+        ],
+        'max_tokens' => 1024,
+        'temperature' => 0.7
     ];
 
-    $ch = curl_init('https://api.anthropic.com/v1/messages');
+    $ch = curl_init('https://api.openai.com/v1/chat/completions');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'x-api-key: ' . $apiKey,
-        'anthropic-version: 2023-06-01',
-        'content-type: application/json'
+        'Authorization: Bearer ' . $apiKey,
+        'Content-Type: application/json'
     ]);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
@@ -51,8 +55,8 @@ function callClaudeAPI(string $prompt, string $type = 'general'): array {
 
     $result = json_decode($response, true);
 
-    if (isset($result['content'][0]['text'])) {
-        return ['success' => true, 'response' => $result['content'][0]['text']];
+    if (isset($result['choices'][0]['message']['content'])) {
+        return ['success' => true, 'response' => $result['choices'][0]['message']['content']];
     }
 
     return ['error' => 'Invalid API response'];
@@ -76,7 +80,7 @@ function suggestExpenses(PDO $pdo, array $trip): array {
     $stmt->execute([$tripId]);
     $memberCount = $stmt->fetchColumn();
 
-    // Build intelligent prompt for Claude
+    // Build intelligent prompt for ChatGPT
     $prompt = "You are an AI expense advisor for travelers. Based on this trip data, suggest 5-8 likely upcoming expenses that travelers typically encounter. Be specific and realistic.
 
 TRIP DETAILS:
@@ -104,17 +108,17 @@ INSTRUCTIONS:
 
 Return only valid JSON array, no additional text.";
 
-    $claudeResponse = callClaudeAPI($prompt, 'expense_suggestion');
+    $chatGPTResponse = callChatGPTAPI($prompt, 'expense_suggestion');
 
-    if (isset($claudeResponse['error'])) {
-        return ['error' => $claudeResponse['error']];
+    if (isset($chatGPTResponse['error'])) {
+        return ['error' => $chatGPTResponse['error']];
     }
 
-    // Parse Claude's JSON response
-    $suggestions = json_decode($claudeResponse['response'], true);
+    // Parse ChatGPT's JSON response
+    $suggestions = json_decode($chatGPTResponse['response'], true);
 
     if (!is_array($suggestions)) {
-        // Fallback suggestions if Claude returns invalid JSON
+        // Fallback suggestions if ChatGPT returns invalid JSON
         return [
             'success' => true,
             'suggestions' => [
@@ -177,7 +181,7 @@ Return only valid JSON object, no additional text or explanation.
 
 If you cannot clearly read the receipt, return: {\"error\": \"Unable to analyze receipt\"}";
 
-    // Note: Claude Vision API would be used here, but for now we'll simulate
+    // Note: GPT-4 Vision API would be used here, but for now we'll simulate
     // In production, you'd use the messages API with image content
 
     return [
@@ -237,9 +241,9 @@ Provide budget advice in JSON format with:
 
 Return only valid JSON object.";
 
-    $claudeResponse = callClaudeAPI($prompt, 'budget_advisory');
+    $chatGPTResponse = callChatGPTAPI($prompt, 'budget_advisory');
 
-    if (isset($claudeResponse['error'])) {
+    if (isset($chatGPTResponse['error'])) {
         // Fallback response
         $status = 'no_budget';
         if ($budget) {
@@ -267,7 +271,7 @@ Return only valid JSON object.";
         ];
     }
 
-    $advisory = json_decode($claudeResponse['response'], true);
+    $advisory = json_decode($chatGPTResponse['response'], true);
 
     if (!is_array($advisory)) {
         return ['error' => 'Invalid advisory response'];
