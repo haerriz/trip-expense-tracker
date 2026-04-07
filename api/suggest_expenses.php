@@ -60,9 +60,16 @@ INSTRUCTIONS:
 
 Return only valid JSON array, no additional text.";
 
-    $aiResponse = callMultiAI($prompt, 'expense_suggestion');
+    $aiResponse = callMultiAI($prompt, 'expense_suggestion', $pdo, $userId);
 
     if (isset($aiResponse['error'])) {
+        if (isset($aiResponse['limit_exceeded']) && $aiResponse['limit_exceeded']) {
+            return [
+                'error' => $aiResponse['error'],
+                'limit_exceeded' => true,
+                'limit_info' => $aiResponse['limit_info'] ?? null
+            ];
+        }
         return ['error' => $aiResponse['error']];
     }
 
@@ -139,9 +146,16 @@ If you cannot clearly read the receipt, return: {\"error\": \"Unable to analyze 
 
     $analysisPrompt = "Based on the receipt filename and metadata: $filenameAnalysis, provide a realistic expense analysis for a travel receipt. Return JSON with total_amount, vendor_name, date, category, subcategory, currency, confidence.";
 
-    $aiResponse = callMultiAI($analysisPrompt, 'receipt_analysis');
+    $aiResponse = callMultiAI($analysisPrompt, 'receipt_analysis', $pdo, $userId);
 
     if (isset($aiResponse['error'])) {
+        if (isset($aiResponse['limit_exceeded']) && $aiResponse['limit_exceeded']) {
+            return [
+                'error' => $aiResponse['error'],
+                'limit_exceeded' => true,
+                'limit_info' => $aiResponse['limit_info'] ?? null
+            ];
+        }
         // Fallback to simulated analysis
         return [
             'success' => true,
@@ -228,9 +242,16 @@ Provide budget advice in JSON format with:
 
 Return only valid JSON object.";
 
-    $aiResponse = callMultiAI($prompt, 'budget_advisory');
+    $aiResponse = callMultiAI($prompt, 'budget_advisory', $pdo, $userId);
 
     if (isset($aiResponse['error'])) {
+        if (isset($aiResponse['limit_exceeded']) && $aiResponse['limit_exceeded']) {
+            return [
+                'error' => $aiResponse['error'],
+                'limit_exceeded' => true,
+                'limit_info' => $aiResponse['limit_info'] ?? null
+            ];
+        }
         // Fallback response
         $status = 'no_budget';
         if ($budget) {
@@ -324,8 +345,13 @@ try {
             jsonResponse(true, ['providers' => $status]);
             break;
 
+        case 'usage_stats':
+            $stats = getUserApiStats($pdo, $userId);
+            jsonResponse(true, ['usage' => $stats]);
+            break;
+
         default:
-            jsonError('Invalid action. Use: suggest, analyze_receipt, budget_advisory, or ai_status');
+            jsonError('Invalid action. Use: suggest, analyze_receipt, budget_advisory, ai_status, or usage_stats');
     }
 
 } catch (Exception $e) {

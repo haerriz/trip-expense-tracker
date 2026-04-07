@@ -94,7 +94,18 @@ try {
             user_id INT,
             amount DECIMAL(10,2)
         )");
-        
+
+        // AI API usage tracking table
+        $pdo->exec("CREATE TABLE IF NOT EXISTS ai_api_usage (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            api_provider VARCHAR(50) NOT NULL,
+            request_count INT DEFAULT 1,
+            date DATE NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY unique_user_provider_date (user_id, api_provider, date)
+        )");
+
         // Auto-migrate trip_members table
         try {
             $stmt = $pdo->query("SHOW COLUMNS FROM trip_members LIKE 'status'");

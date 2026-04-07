@@ -1,10 +1,15 @@
 <?php
+require_once 'rate_limiter.php';
 
 class MultiAIService {
     private $providers = [];
     private $fallbackOrder = ['chatgpt', 'claude', 'gemini'];
+    private $pdo;
+    private $userId;
 
-    public function __construct() {
+    public function __construct(PDO $pdo = null, int $userId = null) {
+        $this->pdo = $pdo;
+        $this->userId = $userId;
         $this->initializeProviders();
     }
 
@@ -47,8 +52,21 @@ class MultiAIService {
     }
 
     public function generateSuggestions(string $prompt, string $type = 'general'): array {
+        // Check rate limits if user tracking is enabled
+        if ($this->pdo && $this->userId) {
+            $rateCheck = checkRateLimit($this->pdo, $this->userId);
+            if (!$rateCheck['allowed']) {
+                return [
+                    'error' => $rateCheck['reason'],
+                    'limit_exceeded' => true,
+                    'limit_info' => $rateCheck
+                ];
+            }
+        }
+
         $responses = [];
         $errors = [];
+        $usedProvider = null;
 
         // Try all enabled providers
         foreach ($this->fallbackOrder as $provider) {
@@ -56,6 +74,13 @@ class MultiAIService {
                 $result = $this->callProvider($provider, $prompt, $type);
                 if (isset($result['success']) && $result['success']) {
                     $responses[$provider] = $result['response'];
+                    $usedProvider = $provider;
+
+                    // Record successful API usage
+                    if ($this->pdo && $this->userId) {
+                        recordApiUsage($this->pdo, $this->userId, $provider);
+                    }
+                    break; // Use first successful provider
                 } else {
                     $errors[$provider] = $result['error'] ?? 'Unknown error';
                 }
@@ -69,12 +94,12 @@ class MultiAIService {
 
         // If we have at least one successful response, return it
         if (!empty($responses)) {
-            $provider = array_key_first($responses);
             return [
                 'success' => true,
-                'response' => $responses[$provider],
-                'provider' => $provider,
-                'fallback_used' => count($errors) > 0
+                'response' => $responses[$usedProvider],
+                'provider' => $usedProvider,
+                'fallback_used' => count($errors) > 0,
+                'total_providers_tried' => count($errors) + 1
             ];
         }
 
@@ -287,10 +312,10 @@ class MultiAIService {
 }
 
 // Helper function for backward compatibility
-function callMultiAI(string $prompt, string $type = 'general'): array {
+function callMultiAI(string $prompt, string $type = 'general', PDO $pdo = null, int $userId = null): array {
     static $aiService = null;
     if ($aiService === null) {
-        $aiService = new MultiAIService();
+        $aiService = new MultiAIService($pdo, $userId);
     }
     return $aiService->generateSuggestions($prompt, $type);
 }
