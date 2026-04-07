@@ -123,8 +123,10 @@ $(document).ready(function() {
         if (typeof loadAIBudgetAdvice === 'function') {
             loadAIBudgetAdvice(tripId);
         } else {
-            console.error('loadAIBudgetAdvice function not found');
+            console.error('loadAIBudgetAdvice function not found - forcing reload');
             $('#ai-budget-content').html('<div class="card-panel red lighten-4"><i class="material-icons left">error</i><span>AI Budget feature is currently unavailable. Please refresh the page.</span></div>');
+            // Force page reload after a short delay
+            setTimeout(() => window.location.reload(), 2000);
         }
     });
 
