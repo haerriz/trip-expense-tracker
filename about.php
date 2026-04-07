@@ -6,24 +6,16 @@ require_once 'includes/auth.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us - Smart Trip Expense Tracking | Haerriz Trip Finance</title>
-    <meta name="description" content="Learn about Haerriz Trip Finance - the smart expense tracking solution for backpackers and group travelers. Multi-currency support, real-time collaboration, and professional reporting.">
-    <meta name="keywords" content="about haerriz, trip expense tracker, travel finance, expense splitting, group travel, backpacker expenses">
-    <meta name="author" content="Haerriz">
-    <meta name="theme-color" content="#2196F3">
-    <link rel="canonical" href="https://expenses.haerriz.com/about.php">
-    
-    <!-- Open Graph -->
-    <meta property="og:title" content="About Haerriz Trip Finance - Smart Expense Tracking">
-    <meta property="og:description" content="Smart expense tracking solution for backpackers and group travelers with multi-currency support and real-time collaboration.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://expenses.haerriz.com/about.php">
-    <meta property="og:site_name" content="Haerriz Trip Finance">
-    
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="About Haerriz Trip Finance">
-    <meta name="twitter:description" content="Smart expense tracking for travelers">
+    <?php
+    require_once 'config/seo-meta.php';
+    outputMetaTags('about');
+    ?>
+
+    <!-- Structured Data -->
+    <?php
+    require_once 'config/schema-markup.php';
+    outputSchemaMarkup(['website' => getWebSiteSchema(), 'organization' => getOrganizationSchema()]);
+    ?>
     
     <!-- Structured Data -->
     <script type="application/ld+json">

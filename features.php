@@ -6,19 +6,16 @@ require_once 'includes/auth.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Features - Complete Trip Expense Management | Haerriz Trip Finance</title>
-    <meta name="description" content="Discover all features of Haerriz Trip Finance: multi-currency tracking, group expense splitting, real-time chat, professional reports, budget management, and mobile-first design.">
-    <meta name="keywords" content="trip expense features, multi-currency, expense splitting, travel budget, group expenses, expense reports, mobile expense tracker">
-    <meta name="author" content="Haerriz">
-    <meta name="theme-color" content="#2196F3">
-    <link rel="canonical" href="https://expenses.haerriz.com/features.php">
-    
-    <!-- Open Graph -->
-    <meta property="og:title" content="Features - Haerriz Trip Finance">
-    <meta property="og:description" content="Complete trip expense management with multi-currency support, group splitting, and professional reporting.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://expenses.haerriz.com/features.php">
-    <meta property="og:site_name" content="Haerriz Trip Finance">
+    <?php
+    require_once 'config/seo-meta.php';
+    outputMetaTags('features');
+    ?>
+
+    <!-- Structured Data -->
+    <?php
+    require_once 'config/schema-markup.php';
+    outputSchemaMarkup(['website' => getWebSiteSchema(), 'organization' => getOrganizationSchema()]);
+    ?>
     
     <!-- Structured Data -->
     <script type="application/ld+json">

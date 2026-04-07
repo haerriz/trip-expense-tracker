@@ -52,64 +52,11 @@ if (isset($_SESSION['user_id'])) {
     <meta name="bingbot" content="index, follow">
     
     <!-- Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Haerriz Trip Finance",
-      "alternateName": "Haerriz Expense Tracker",
-      "description": "Free trip expense tracker for backpackers and group travelers with multi-currency support and expense splitting.",
-      "url": "https://expenses.haerriz.com",
-      "applicationCategory": "FinanceApplication",
-      "operatingSystem": "Web",
-      "browserRequirements": "Requires JavaScript. Requires HTML5.",
-      "softwareVersion": "2.0",
-      "releaseNotes": "Enhanced UI with Material Design, improved mobile experience, professional PDF/Excel exports",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD",
-        "availability": "https://schema.org/InStock"
-      },
-      "author": {
-        "@type": "Person",
-        "name": "Haerriz",
-        "url": "https://expenses.haerriz.com",
-        "sameAs": [
-          "https://github.com/haerriz",
-          "https://twitter.com/haerriz"
-        ]
-      },
-      "creator": {
-        "@type": "Person",
-        "name": "Haerriz"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "ratingCount": "150",
-        "bestRating": "5",
-        "worstRating": "1"
-      },
-      "featureList": [
-        "Multi-currency expense tracking",
-        "Group expense splitting",
-        "Real-time chat collaboration",
-        "Professional PDF/Excel reports",
-        "Mobile-responsive design",
-        "Google OAuth integration",
-        "Budget tracking and analytics",
-        "Expense categorization"
-      ],
-      "screenshot": "https://expenses.haerriz.com/assets/screenshot.jpg",
-      "applicationSubCategory": "Travel Finance",
-      "downloadUrl": "https://expenses.haerriz.com",
-      "installUrl": "https://expenses.haerriz.com",
-      "memoryRequirements": "512MB",
-      "storageRequirements": "10MB",
-      "permissions": "camera, location"
-    }
-    </script>
+    <!-- Structured Data -->
+    <?php
+    require_once 'config/schema-markup.php';
+    outputSchemaMarkup();
+    ?>
     
     <script type="application/ld+json">
     {

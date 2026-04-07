@@ -7,44 +7,51 @@
     <!-- Main Landing Page -->
     <url>
         <loc>https://expenses.haerriz.com/</loc>
-        <lastmod>2024-12-19</lastmod>
+        <lastmod>2026-04-07</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
-    
+
     <!-- Primary Public Pages -->
     <url>
         <loc>https://expenses.haerriz.com/about.php</loc>
-        <lastmod>2024-12-19</lastmod>
+        <lastmod>2026-04-07</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
-    
+
     <url>
         <loc>https://expenses.haerriz.com/features.php</loc>
-        <lastmod>2024-12-19</lastmod>
+        <lastmod>2026-04-07</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
-    
+
+    <url>
+        <loc>https://expenses.haerriz.com/blog.php</loc>
+        <lastmod>2026-04-07</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+
     <url>
         <loc>https://expenses.haerriz.com/privacy.php</loc>
-        <lastmod>2024-12-19</lastmod>
+        <lastmod>2026-04-07</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
     </url>
-    
+
     <!-- Authentication Pages -->
     <url>
         <loc>https://expenses.haerriz.com/manual-signup.php</loc>
-        <lastmod>2024-12-19</lastmod>
+        <lastmod>2026-04-07</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
-    
+
     <url>
         <loc>https://expenses.haerriz.com/manual-login.php</loc>
-        <lastmod>2024-12-19</lastmod>
+        <lastmod>2026-04-07</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>

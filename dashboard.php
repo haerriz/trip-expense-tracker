@@ -15,17 +15,16 @@ requireLogin();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trip Dashboard - Manage Expenses & Budget | Haerriz Trip Finance</title>
-    <meta name="description" content="Manage your trip expenses, create budgets, split costs with friends, and track spending with real-time analytics. Add expenses, invite members, and monitor your travel budget.">
-    <meta name="robots" content="noindex, nofollow">
-    <meta name="theme-color" content="#2196F3">
-    <link rel="canonical" href="https://expenses.haerriz.com/dashboard.php">
-    
-    <!-- Open Graph -->
-    <meta property="og:title" content="Trip Dashboard - Haerriz Trip Finance">
-    <meta property="og:description" content="Manage your trip expenses and budgets with real-time analytics and group collaboration.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://expenses.haerriz.com/dashboard.php">
+    <?php
+    require_once 'config/seo-meta.php';
+    outputMetaTags('dashboard');
+    ?>
+
+    <!-- Structured Data -->
+    <?php
+    require_once 'config/schema-markup.php';
+    outputSchemaMarkup(['website' => getWebSiteSchema(), 'organization' => getOrganizationSchema()]);
+    ?>
     
     <!-- Structured Data -->
     <script type="application/ld+json">
