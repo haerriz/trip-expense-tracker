@@ -2113,6 +2113,7 @@ function viewBudgetHistory() {
             modal.modal('open');
             modal.on('modal:close', function() { modal.remove(); });
         });
+}
 
 // AI Features Functions
 function loadAISuggestions(tripId) {
@@ -2548,5 +2549,4 @@ function addReceiptToExpense(analysis) {
     $('#receipt-analysis-modal').modal('close');
 
     M.toast({html: 'Receipt data added to expense form. Please review and submit.'});
-}
 }
