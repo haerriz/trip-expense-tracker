@@ -1,3 +1,4 @@
+console.log('trip-dashboard.js loaded successfully');
 $(document).ready(function() {
     // Initialize Materialize components
     M.AutoInit();
@@ -2283,6 +2284,7 @@ function addSuggestionToExpense(suggestion) {
 }
 
 function loadAIBudgetAdvice(tripId) {
+    console.log('loadAIBudgetAdvice called with tripId:', tripId);
     $('#ai-budget-content').html(`
         <div class="center-align">
             <div class="preloader-wrapper big active">
