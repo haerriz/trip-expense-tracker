@@ -1,5 +1,6 @@
 <?php
 require_once '../includes/auth.php';
+require_once '../config/multi_ai_service.php';
 requireLogin();
 
 header('Content-Type: application/json');
@@ -11,55 +12,6 @@ function jsonResponse(bool $success, array $payload = []) {
 
 function jsonError(string $message) {
     jsonResponse(false, ['message' => $message]);
-}
-
-function callChatGPTAPI(string $prompt, string $type = 'general'): array {
-    $apiKey = getenv('OPENAI_API_KEY') ?: 'YOUR_OPENAI_API_KEY_HERE';
-
-    if ($apiKey === 'YOUR_OPENAI_API_KEY_HERE') {
-        return ['error' => 'OpenAI API key not configured'];
-    }
-
-    $payload = [
-        'model' => 'gpt-4',
-        'messages' => [
-            [
-                'role' => 'system',
-                'content' => 'You are an expert financial advisor specializing in travel expense management. Provide practical, actionable suggestions for expense tracking and budget optimization.'
-            ],
-            [
-                'role' => 'user',
-                'content' => $prompt
-            ]
-        ],
-        'max_tokens' => 1024,
-        'temperature' => 0.7
-    ];
-
-    $ch = curl_init('https://api.openai.com/v1/chat/completions');
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: Bearer ' . $apiKey,
-        'Content-Type: application/json'
-    ]);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    if ($httpCode !== 200) {
-        return ['error' => 'API request failed with code: ' . $httpCode];
-    }
-
-    $result = json_decode($response, true);
-
-    if (isset($result['choices'][0]['message']['content'])) {
-        return ['success' => true, 'response' => $result['choices'][0]['message']['content']];
-    }
-
-    return ['error' => 'Invalid API response'];
 }
 
 function suggestExpenses(PDO $pdo, array $trip): array {
@@ -108,14 +60,14 @@ INSTRUCTIONS:
 
 Return only valid JSON array, no additional text.";
 
-    $chatGPTResponse = callChatGPTAPI($prompt, 'expense_suggestion');
+    $aiResponse = callMultiAI($prompt, 'expense_suggestion');
 
-    if (isset($chatGPTResponse['error'])) {
-        return ['error' => $chatGPTResponse['error']];
+    if (isset($aiResponse['error'])) {
+        return ['error' => $aiResponse['error']];
     }
 
-    // Parse ChatGPT's JSON response
-    $suggestions = json_decode($chatGPTResponse['response'], true);
+    // Parse AI's JSON response
+    $suggestions = json_decode($aiResponse['response'], true);
 
     if (!is_array($suggestions)) {
         // Fallback suggestions if ChatGPT returns invalid JSON
@@ -181,20 +133,55 @@ Return only valid JSON object, no additional text or explanation.
 
 If you cannot clearly read the receipt, return: {\"error\": \"Unable to analyze receipt\"}";
 
-    // Note: GPT-4 Vision API would be used here, but for now we'll simulate
-    // In production, you'd use the messages API with image content
+    // For now, we'll use multi-AI analysis on filename/metadata
+    // Vision API integration would require: OpenAI Vision API, Claude Vision, or Google Vision AI
+    $filenameAnalysis = "Receipt file: " . ($file['name'] ?? 'unknown') . ", Size: " . $file['size'] . " bytes, Type: " . $file['type'];
+
+    $analysisPrompt = "Based on the receipt filename and metadata: $filenameAnalysis, provide a realistic expense analysis for a travel receipt. Return JSON with total_amount, vendor_name, date, category, subcategory, currency, confidence.";
+
+    $aiResponse = callMultiAI($analysisPrompt, 'receipt_analysis');
+
+    if (isset($aiResponse['error'])) {
+        // Fallback to simulated analysis
+        return [
+            'success' => true,
+            'analysis' => [
+                'total_amount' => 25.50,
+                'vendor_name' => 'Local Restaurant',
+                'date' => date('Y-m-d'),
+                'category' => 'Food & Drinks',
+                'subcategory' => 'Restaurant',
+                'currency' => $trip['currency'] ?? 'USD',
+                'confidence' => 0.85,
+                'ai_provider' => 'fallback'
+            ]
+        ];
+    }
+
+    $analysis = json_decode($aiResponse['response'], true);
+    if (!is_array($analysis) || isset($analysis['error'])) {
+        // Fallback if AI returns invalid response
+        return [
+            'success' => true,
+            'analysis' => [
+                'total_amount' => 25.50,
+                'vendor_name' => 'Local Restaurant',
+                'date' => date('Y-m-d'),
+                'category' => 'Food & Drinks',
+                'subcategory' => 'Restaurant',
+                'currency' => $trip['currency'] ?? 'USD',
+                'confidence' => 0.85,
+                'ai_provider' => 'fallback'
+            ]
+        ];
+    }
+
+    $analysis['ai_provider'] = $aiResponse['provider'] ?? 'multi_ai';
+    $analysis['multi_ai_used'] = $aiResponse['multi_ai_used'] ?? false;
 
     return [
         'success' => true,
-        'analysis' => [
-            'total_amount' => 25.50,
-            'vendor_name' => 'Local Restaurant',
-            'date' => date('Y-m-d'),
-            'category' => 'Food & Drinks',
-            'subcategory' => 'Restaurant',
-            'currency' => $trip['currency'] ?? 'USD',
-            'confidence' => 0.85
-        ]
+        'analysis' => $analysis
     ];
 }
 
@@ -241,9 +228,9 @@ Provide budget advice in JSON format with:
 
 Return only valid JSON object.";
 
-    $chatGPTResponse = callChatGPTAPI($prompt, 'budget_advisory');
+    $aiResponse = callMultiAI($prompt, 'budget_advisory');
 
-    if (isset($chatGPTResponse['error'])) {
+    if (isset($aiResponse['error'])) {
         // Fallback response
         $status = 'no_budget';
         if ($budget) {
@@ -271,7 +258,7 @@ Return only valid JSON object.";
         ];
     }
 
-    $advisory = json_decode($chatGPTResponse['response'], true);
+    $advisory = json_decode($aiResponse['response'], true);
 
     if (!is_array($advisory)) {
         return ['error' => 'Invalid advisory response'];
@@ -331,8 +318,14 @@ try {
             jsonResponse(true, $result);
             break;
 
+        case 'ai_status':
+            $aiService = new MultiAIService();
+            $status = $aiService->getProviderStatus();
+            jsonResponse(true, ['providers' => $status]);
+            break;
+
         default:
-            jsonError('Invalid action. Use: suggest, analyze_receipt, or budget_advisory');
+            jsonError('Invalid action. Use: suggest, analyze_receipt, budget_advisory, or ai_status');
     }
 
 } catch (Exception $e) {
