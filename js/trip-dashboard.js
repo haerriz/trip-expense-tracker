@@ -1,4 +1,3 @@
-console.log('trip-dashboard.js loaded successfully');
 $(document).ready(function() {
     // Initialize Materialize components
     M.AutoInit();
@@ -106,12 +105,7 @@ $(document).ready(function() {
             return;
         }
         $('#ai-suggestions-modal').modal('open');
-        if (typeof loadAISuggestions === 'function') {
-            loadAISuggestions(tripId);
-        } else {
-            console.error('loadAISuggestions function not found');
-            $('#ai-suggestions-content').html('<div class="card-panel red lighten-4"><i class="material-icons left">error</i><span>AI Suggestions feature is currently unavailable. Please refresh the page.</span></div>');
-        }
+        loadAISuggestions(tripId);
     });
 
     $('#ai-budget-btn').on('click', function() {
@@ -121,37 +115,20 @@ $(document).ready(function() {
             return;
         }
         $('#ai-budget-modal').modal('open');
-        if (typeof loadAIBudgetAdvice === 'function') {
-            loadAIBudgetAdvice(tripId);
-        } else {
-            console.error('loadAIBudgetAdvice function not found - forcing reload');
-            $('#ai-budget-content').html('<div class="card-panel red lighten-4"><i class="material-icons left">error</i><span>AI Budget feature is currently unavailable. Please refresh the page.</span></div>');
-            // Force page reload after a short delay
-            setTimeout(() => window.location.reload(), 2000);
-        }
+        loadAIBudgetAdvice(tripId);
     });
 
     $('#refresh-ai-suggestions').on('click', function() {
         const tripId = $('#current-trip').val();
         if (tripId) {
-            if (typeof loadAISuggestions === 'function') {
-                loadAISuggestions(tripId);
-            } else {
-                console.error('loadAISuggestions function not found');
-                M.toast({html: 'AI Suggestions feature is currently unavailable'});
-            }
+            loadAISuggestions(tripId);
         }
     });
 
     $('#refresh-ai-budget').on('click', function() {
         const tripId = $('#current-trip').val();
         if (tripId) {
-            if (typeof loadAIBudgetAdvice === 'function') {
-                loadAIBudgetAdvice(tripId);
-            } else {
-                console.error('loadAIBudgetAdvice function not found');
-                M.toast({html: 'AI Budget feature is currently unavailable'});
-            }
+            loadAIBudgetAdvice(tripId);
         }
     });
 
@@ -2284,7 +2261,6 @@ function addSuggestionToExpense(suggestion) {
 }
 
 function loadAIBudgetAdvice(tripId) {
-    console.log('loadAIBudgetAdvice called with tripId:', tripId);
     $('#ai-budget-content').html(`
         <div class="center-align">
             <div class="preloader-wrapper big active">
