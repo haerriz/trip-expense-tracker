@@ -71,43 +71,42 @@ Return only valid JSON array, no additional text.";
                 'limit_info' => $aiResponse['limit_info'] ?? null
             ];
         }
-        return ['error' => $aiResponse['error']];
+        // AI unavailable — return smart fallback suggestions based on trip data
+        return getFallbackSuggestions($trip, $recentExpenses);
     }
 
     // Parse AI's JSON response
     $suggestions = json_decode($aiResponse['response'], true);
 
     if (!is_array($suggestions)) {
-        // Fallback suggestions if ChatGPT returns invalid JSON
-        return [
-            'success' => true,
-            'suggestions' => [
-                [
-                    'category' => 'Food & Drinks',
-                    'subcategory' => 'Restaurant',
-                    'estimated_amount' => 45.00,
-                    'description' => 'Group dinner at local restaurant',
-                    'priority' => 'high'
-                ],
-                [
-                    'category' => 'Transportation',
-                    'subcategory' => 'Taxi',
-                    'estimated_amount' => 15.00,
-                    'description' => 'Airport transfer',
-                    'priority' => 'medium'
-                ],
-                [
-                    'category' => 'Activities',
-                    'subcategory' => 'Tours',
-                    'estimated_amount' => 25.00,
-                    'description' => 'City walking tour',
-                    'priority' => 'medium'
-                ]
-            ]
-        ];
+        return getFallbackSuggestions($trip, $recentExpenses);
     }
 
     return ['success' => true, 'suggestions' => $suggestions];
+}
+
+function getFallbackSuggestions(array $trip, array $recentExpenses): array {
+    $currency = $trip['currency'] ?? 'USD';
+    $recentCategories = array_column($recentExpenses, 'category');
+    $suggestions = [];
+
+    // Always suggest these universal travel expenses if not recently added
+    $defaults = [
+        ['category' => 'Food & Drinks',  'subcategory' => 'Restaurant',  'estimated_amount' => 35.00, 'description' => 'Group meal at local restaurant',      'priority' => 'high'],
+        ['category' => 'Transportation', 'subcategory' => 'Taxi',         'estimated_amount' => 20.00, 'description' => 'Local taxi or rideshare',              'priority' => 'high'],
+        ['category' => 'Accommodation',  'subcategory' => 'Hotel',        'estimated_amount' => 80.00, 'description' => 'Nightly accommodation',               'priority' => 'high'],
+        ['category' => 'Activities',     'subcategory' => 'Tours',        'estimated_amount' => 30.00, 'description' => 'Local sightseeing or day tour',        'priority' => 'medium'],
+        ['category' => 'Food & Drinks',  'subcategory' => 'Cafe',         'estimated_amount' => 12.00, 'description' => 'Coffee and snacks',                   'priority' => 'medium'],
+        ['category' => 'Shopping',       'subcategory' => 'Souvenirs',    'estimated_amount' => 25.00, 'description' => 'Souvenirs and gifts',                 'priority' => 'low'],
+        ['category' => 'Emergency',      'subcategory' => 'Medical',      'estimated_amount' => 50.00, 'description' => 'Emergency medical or pharmacy costs', 'priority' => 'low'],
+    ];
+
+    foreach ($defaults as $item) {
+        $item['ai_source'] = 'smart-fallback';
+        $suggestions[] = $item;
+    }
+
+    return ['success' => true, 'suggestions' => $suggestions, 'fallback' => true];
 }
 
 function analyzeReceipt(PDO $pdo, array $trip, array $file): array {
