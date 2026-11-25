@@ -1,15 +1,18 @@
 name: Deploy to Hostinger
-
 on:
-  push:
-    branches: [ main ]
-
+  workflow_dispatch:
+permissions: {}
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    
     steps:
-    - name: Trigger Hostinger Deployment
-      run: |
-        curl -X POST https://webhooks.hostinger.com/deploy/690aca6bb4927669891374cbba8493fc
-        echo "Deployment triggered to expenses.haerriz.com"
+      - name: Trigger Hostinger deployment
+        env:
+          HOSTINGER_DEPLOY_WEBHOOK: ${{ secrets.HOSTINGER_DEPLOY_WEBHOOK }}
+        run: |
+          if [[ -z "$HOSTINGER_DEPLOY_WEBHOOK" ]]; then
+            echo "Deployment webhook is not configured."
+            exit 1
+          fi
+          curl --fail --silent --output /dev/null --max-time 30 --request POST "$HOSTINGER_DEPLOY_WEBHOOK"
