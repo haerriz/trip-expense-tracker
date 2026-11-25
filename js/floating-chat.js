@@ -231,7 +231,8 @@ class FloatingChatManager {
         
         $.post('api/send_chat.php', {
             trip_id: this.currentTripId,
-            message: message
+            message: message,
+            csrf: document.querySelector('meta[name="chat-csrf"]')?.content || ''
         })
         .done((response) => {
             if (response.success) {

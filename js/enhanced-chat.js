@@ -119,7 +119,8 @@ class EnhancedChat {
         
         $.post('api/send_chat.php', {
             trip_id: this.currentTripId,
-            message: messageText
+            message: messageText,
+            csrf: document.querySelector('meta[name="chat-csrf"]')?.content || ''
         })
         .done((response) => {
             if (response.success) {
@@ -218,8 +219,8 @@ class EnhancedChat {
                 <div class="chat-message__bubble">
                     ${!isOwn ? `
                         <div class="chat-message__header">
-                            <img src="${avatar}" alt="${message.sender_name}" class="chat-message__avatar">
-                            <span class="chat-message__sender">${message.sender_name}</span>
+                            <img src="${escapeTripText(avatar)}" alt="${escapeTripText(message.sender_name)}" class="chat-message__avatar">
+                            <span class="chat-message__sender">${escapeTripText(message.sender_name)}</span>
                             <span class="chat-message__time">${time}</span>
                         </div>
                     ` : `
@@ -239,55 +240,26 @@ class EnhancedChat {
     }
     
     formatMessage(text, message = null) {
-        // Handle file attachments
-        if (message && message.file_url) {
-            const fileExt = message.file_name.split('.').pop().toLowerCase();
-            const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExt);
-            
-            if (isImage) {
-                return `
-                    ${text}
-                    <div class="chat-attachment">
-                        <img src="${message.file_url}" alt="${message.file_name}" 
-                             style="max-width: 200px; max-height: 200px; border-radius: 8px; margin-top: 8px; cursor: pointer;"
-                             onclick="window.open('${message.file_url}', '_blank')">
-                    </div>
-                `;
-            } else {
-                return `
-                    ${text}
-                    <div class="chat-attachment" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.1); border-radius: 8px;">
-                        <a href="${message.file_url}" target="_blank" style="color: inherit; text-decoration: none;">
-                            <i class="material-icons" style="vertical-align: middle; margin-right: 4px;">attach_file</i>
-                            ${message.file_name}
-                        </a>
-                    </div>
-                `;
-            }
+        const attachment = message?.file_url;
+        if (typeof attachment === 'string' && /^\/uploads\/chat\/(?:[a-f0-9]{32}|[a-f0-9]+_[0-9]+)\.(jpg|jpeg|png|gif|pdf|doc|docx)$/i.test(attachment)) {
+            const caption = escapeTripText(text);
+            const label = escapeTripText(message.file_name || 'Attachment');
+            const image = /\.(jpg|jpeg|png|gif)$/i.test(attachment);
+            return `
+                ${caption}
+                <div class="chat-attachment">
+                    <a href="${attachment}" target="_blank" rel="noopener noreferrer">
+                        ${image ? `<img src="${attachment}" alt="${label}" style="max-width: 100%; max-height: 200px; border-radius: 8px;">` : label}
+                    </a>
+                </div>
+            `;
         }
-        
-        // Convert URLs to links
-        const urlRegex = /(https?:\/\/[^\s]+)/g;
-        text = text.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener">$1</a>');
-        
-        // Convert emojis (basic implementation)
-        const emojiMap = {
-            ':)': '😊',
-            ':D': '😃',
-            ':(': '😢',
-            ':P': '😛',
-            '<3': '❤️',
-            ':thumbsup:': '👍',
-            ':thumbsdown:': '👎'
-        };
-        
-        Object.keys(emojiMap).forEach(key => {
-            text = text.replace(new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), emojiMap[key]);
-        });
-        
-        return text;
+        return String(text ?? '').split(/(https?:\/\/[^\s<>"']+)/g).map((part, index) => {
+            const safe = escapeTripText(part);
+            return index % 2 ? `<a href="${safe}" target="_blank" rel="noopener noreferrer">${safe}</a>` : safe;
+        }).join('');
     }
-    
+
     getUserAvatar(message) {
         if (message.sender_avatar && message.sender_avatar !== '') {
             return message.sender_avatar;
@@ -454,6 +426,7 @@ class EnhancedChat {
         
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('csrf', document.querySelector('meta[name="chat-csrf"]')?.content || '');
         formData.append('trip_id', this.currentTripId);
         
         // Show upload progress

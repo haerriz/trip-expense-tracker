@@ -41,19 +41,6 @@
         <priority>0.6</priority>
     </url>
 
-    <!-- Authentication Pages -->
-    <url>
-        <loc>https://expenses.haerriz.com/manual-signup.php</loc>
-        <lastmod>2026-04-07</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-    </url>
 
-    <url>
-        <loc>https://expenses.haerriz.com/manual-login.php</loc>
-        <lastmod>2026-04-07</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-    </url>
     
 </urlset>

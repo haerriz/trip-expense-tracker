@@ -9,11 +9,14 @@ if (!isset($_SESSION['user_id'])) {
 
 require_once 'includes/auth.php';
 requireLogin();
+$_SESSION['chat_csrf'] ??= bin2hex(random_bytes(32));
+header('Cache-Control: private, no-store');
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="chat-csrf" content="<?= htmlspecialchars($_SESSION['chat_csrf'], ENT_QUOTES, 'UTF-8') ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php
     require_once 'config/seo-meta.php';
@@ -182,6 +185,7 @@ requireLogin();
                         </a>
                     </div>
                     <div class="export-actions">
+                        <button type="button" id="trip-tools-open" class="btn-small waves-effect waves-light teal">Reports, receipts &amp; chat search</button>
                         <a id="export-pdf" class="btn-small waves-effect waves-light grey">
                             <i class="material-icons left">picture_as_pdf</i>PDF
                         </a>
@@ -871,5 +875,15 @@ requireLogin();
     </div>
     
     <script src="js/floating-chat.js?v=<?php echo time(); ?>"></script>
+<script>
+    document.getElementById('trip-tools-open').addEventListener('click', function () {
+        const trip = document.getElementById('current-trip')?.value || document.getElementById('current-trip-mobile')?.value;
+        if (!trip || !/^\d+$/.test(trip)) {
+            M.toast({html: 'Choose a trip first.'});
+            return;
+        }
+        window.location.assign('/trip-tools.php?trip_id=' + encodeURIComponent(trip));
+    });
+    </script>
 </body>
 </html>

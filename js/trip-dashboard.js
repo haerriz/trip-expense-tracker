@@ -475,14 +475,10 @@ function updateExpense() {
 }
 
 function deleteExpense(expenseId) {
-    const reason = prompt('Reason for deactivating this expense:');
-    if (reason === null) return; // User cancelled
-    
-    if (confirm('This will deactivate the expense (not permanently delete). The record will be kept for audit purposes. Continue?')) {
+    if (confirm('Permanently delete this expense and its splits?')) {
         $.post('api/immutable_expense.php', { 
             action: 'deactivate',
-            expense_id: expenseId,
-            reason: reason || 'Deactivated by user'
+            expense_id: expenseId
         })
             .done(function(data) {
                 if (data.success) {
@@ -490,11 +486,11 @@ function deleteExpense(expenseId) {
                     loadTripDashboard(tripId);
                     M.toast({html: data.message});
                 } else {
-                    M.toast({html: data.message || 'Error deactivating expense'});
+                    M.toast({html: data.message || 'Error deleting expense'});
                 }
             })
             .fail(function() {
-                M.toast({html: 'Network error deactivating expense'});
+                M.toast({html: 'Network error deleting expense'});
             });
     }
 }
@@ -832,7 +828,7 @@ function loadTripSummary(tripId) {
                 }
                 
                 $('#total-spent').text(currency + parseFloat(data.total_expenses || 0).toFixed(2));
-                $('#my-share').text(currency + parseFloat(data.per_person_share || 0).toFixed(2));
+                $('#my-share').text(currency + parseFloat(data.my_share ?? data.per_person_share ?? 0).toFixed(2));
             }
         })
         .fail(function() {
@@ -993,11 +989,11 @@ function loadExpenses(tripId, sortBy = 'date_desc', filterBy = 'all') {
             const currencySymbol = getCurrencySymbol(tripCurrency);
 
             let budgetHtml = '';
-            if (budget) {
+            if (budget !== null && budget !== undefined) {
                 const percent = budget > 0 ? Math.round((totalSpent / budget) * 100) : 0;
                 const remaining = budget - totalSpent;
                 const isOverBudget = remaining < 0;
-                const progressPercent = Math.min((totalSpent / budget) * 100, 100);
+                const progressPercent = Math.min(percent, 100);
                 
                 budgetHtml = `
                     <div class="budget-tracking enhanced">
@@ -1076,16 +1072,16 @@ function loadExpenses(tripId, sortBy = 'date_desc', filterBy = 'all') {
                 
                 budgetTxHtml += `
                     <div class="expense-item budget-tx">
-                        <img src="${avatar}" alt="${tx.user_name}" class="expense-item__avatar">
+                        <img src="${escapeTripText(avatar)}" alt="${escapeTripText(tx.user_name)}" class="expense-item__avatar">
                         <div class="expense-item__info">
                             <div class="expense-item__category ${color}">
                                 <i class="material-icons tiny">${icon}</i>
                                 ${label}
                             </div>
-                            <div class="expense-item__description">${tx.reason || ''}</div>
+                            <div class="expense-item__description">${$('<div>').text(tx.reason || '').html()}</div>
                             <div class="expense-item__meta">
                                 <span>${new Date(tx.created_at).toLocaleDateString()}</span>
-                                <span>by ${tx.user_name}</span>
+                                <span>by ${escapeTripText(tx.user_name)}</span>
                             </div>
                         </div>
                         <div class="expense-item__amount ${color}">
@@ -1108,20 +1104,20 @@ function loadExpenses(tripId, sortBy = 'date_desc', filterBy = 'all') {
                 const statusClass = expense.replaced_by ? 'expense-item--replaced' : '';
                 html += `
                     <div class="expense-item ${statusClass}">
-                        <img src="${avatar}" alt="${expense.paid_by_name}" class="expense-item__avatar">
+                        <img src="${escapeTripText(avatar)}" alt="${escapeTripText(expense.paid_by_name)}" class="expense-item__avatar">
                         <div class="expense-item__info">
-                            <div class="expense-item__category">${expense.category}${isReplaced}</div>
-                            <div class="expense-item__description">${expense.description}</div>
+                            <div class="expense-item__category">${escapeTripText(expense.category)}${isReplaced}</div>
+                            <div class="expense-item__description">${escapeTripText(expense.description)}</div>
                             <div class="expense-item__meta">
                                 <span>${expenseDate}</span>
-                                <span>by ${expense.paid_by_name}</span>
+                                <span>by ${escapeTripText(expense.paid_by_name)}</span>
                             </div>
                         </div>
                         <div class="expense-item__amount">${currencySymbol}${parseFloat(expense.amount).toFixed(2)}</div>
                         <div class="expense-item__actions">
-                            ${canModify ? `<button class="btn-small blue" onclick="editExpense(${expense.id})" title="Modify expense (creates new record)"><i class="material-icons">edit</i></button>` : ''}
+                            ${canModify ? `<button class="btn-small blue" onclick="editExpense(${expense.id})" title="Edit expense" aria-label="Edit expense"><i class="material-icons">edit</i></button>` : ''}
                             ${canModify ? `<button class="btn-small orange" onclick="viewExpenseHistory(${expense.id})" title="View expense history"><i class="material-icons">history</i></button>` : ''}
-                            ${canModify ? `<button class="btn-small red" onclick="deleteExpense(${expense.id})" title="Deactivate expense"><i class="material-icons">visibility_off</i></button>` : ''}
+                            ${canModify ? `<button class="btn-small red" onclick="deleteExpense(${expense.id})" title="Delete expense" aria-label="Delete expense"><i class="material-icons">visibility_off</i></button>` : ''}
                         </div>
                     </div>
                 `;
@@ -1213,16 +1209,16 @@ function generateBudgetTransactionHtml(tx, currencySymbol) {
     
     return `
         <div class="expense-item budget-tx">
-            <img src="${avatar}" alt="${tx.user_name}" class="expense-item__avatar">
+            <img src="${escapeTripText(avatar)}" alt="${escapeTripText(tx.user_name)}" class="expense-item__avatar">
             <div class="expense-item__info">
                 <div class="expense-item__category ${color}">
                     <i class="material-icons tiny">${icon}</i>
                     ${label}
                 </div>
-                <div class="expense-item__description">${tx.reason || ''}</div>
+                <div class="expense-item__description">${$('<div>').text(tx.reason || '').html()}</div>
                 <div class="expense-item__meta">
                     <span>${new Date(tx.created_at).toLocaleDateString()}</span>
-                    <span>by ${tx.user_name}</span>
+                    <span>by ${escapeTripText(tx.user_name)}</span>
                 </div>
             </div>
             <div class="expense-item__amount ${color}">
@@ -1235,6 +1231,11 @@ function generateBudgetTransactionHtml(tx, currencySymbol) {
     `;
 }
 
+function escapeTripText(value) {
+    const entities = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'};
+    return String(value ?? '').replace(/[&<>"']/g, character => entities[character]);
+}
+
 function generateExpenseHtml(expense, currencySymbol) {
     const isMasterAdmin = window.userEmail === 'haerriz@gmail.com';
     const canModify = expense.paid_by == window.currentUserId || isMasterAdmin;
@@ -1245,20 +1246,20 @@ function generateExpenseHtml(expense, currencySymbol) {
     
     return `
         <div class="expense-item ${statusClass}">
-            <img src="${avatar}" alt="${expense.paid_by_name}" class="expense-item__avatar">
+            <img src="${escapeTripText(avatar)}" alt="${escapeTripText(expense.paid_by_name)}" class="expense-item__avatar">
             <div class="expense-item__info">
-                <div class="expense-item__category">${expense.category}${isReplaced}</div>
-                <div class="expense-item__description">${expense.description}</div>
+                <div class="expense-item__category">${escapeTripText(expense.category)}${isReplaced}</div>
+                <div class="expense-item__description">${escapeTripText(expense.description)}</div>
                 <div class="expense-item__meta">
                     <span>${expenseDate}</span>
-                    <span>by ${expense.paid_by_name}</span>
+                    <span>by ${escapeTripText(expense.paid_by_name)}</span>
                 </div>
             </div>
             <div class="expense-item__amount">${currencySymbol}${parseFloat(expense.amount).toFixed(2)}</div>
             <div class="expense-item__actions">
-                ${canModify ? `<button class="btn-small blue" onclick="editExpense(${expense.id})" title="Modify expense (creates new record)"><i class="material-icons">edit</i></button>` : ''}
+                ${canModify ? `<button class="btn-small blue" onclick="editExpense(${expense.id})" title="Edit expense" aria-label="Edit expense"><i class="material-icons">edit</i></button>` : ''}
                 ${canModify ? `<button class="btn-small orange" onclick="viewExpenseHistory(${expense.id})" title="View expense history"><i class="material-icons">history</i></button>` : ''}
-                ${canModify ? `<button class="btn-small red" onclick="deleteExpense(${expense.id})" title="Deactivate expense"><i class="material-icons">visibility_off</i></button>` : ''}
+                ${canModify ? `<button class="btn-small red" onclick="deleteExpense(${expense.id})" title="Delete expense" aria-label="Delete expense"><i class="material-icons">visibility_off</i></button>` : ''}
             </div>
         </div>
     `;
@@ -1596,9 +1597,9 @@ function loadTripChat(tripId) {
                 const time = new Date(msg.created_at).toLocaleTimeString();
                 html += `
                     <div class="chat-message">
-                        <span class="chat-message__sender">${msg.sender_name}:</span>
+                        <span class="chat-message__sender">${escapeTripText(msg.sender_name)}:</span>
                         <span class="chat-message__time">${time}</span>
-                        <div class="chat-message__text">${msg.message}</div>
+                        <div class="chat-message__text">${escapeTripText(msg.message)}</div>
                     </div>
                 `;
             });
@@ -1623,7 +1624,7 @@ function sendChatMessage() {
     // Stop typing indicator
     $.post('api/typing_status.php', { trip_id: tripId, is_typing: false });
     
-    $.post('api/send_chat.php', { trip_id: tripId, message: message })
+    $.post('api/send_chat.php', { trip_id: tripId, message: message, csrf: document.querySelector('meta[name="chat-csrf"]')?.content || '' })
         .done(function(response) {
             if (response.success) {
                 $('#chat-message').val('');
@@ -1911,12 +1912,13 @@ function adjustBudget(action) {
         return;
     }
     
-    const reason = prompt('Reason for budget adjustment (optional):') || `Budget ${action}d by user`;
+    const reason = prompt('Reason for budget adjustment (optional):') || '';
     
     $.post('api/adjust_budget.php', {
         trip_id: tripId,
         action: action,
-        amount: parseFloat(amount)
+        amount: amount.trim(),
+        reason: reason
     })
     .done(function(data) {
         console.log('Budget adjustment response:', data);
@@ -2086,10 +2088,10 @@ function viewBudgetHistory() {
                             </div>
                             <div class="budget-history-details">
                                 <div class="budget-history-user">
-                                    <img src="${avatar}" alt="${tx.user_name}" class="circle" style="width: 24px; height: 24px; margin-right: 8px;">
-                                    <span class="grey-text text-darken-2">${tx.user_name}</span>
+                                    <img src="${escapeTripText(avatar)}" alt="${escapeTripText(tx.user_name)}" class="circle" style="width: 24px; height: 24px; margin-right: 8px;">
+                                    <span class="grey-text text-darken-2">${escapeTripText(tx.user_name)}</span>
                                 </div>
-                                ${tx.reason ? `<p class="grey-text" style="margin: 8px 0 0 0; font-style: italic;">${tx.reason}</p>` : ''}
+                                ${tx.reason ? `<p class="grey-text" style="margin: 8px 0 0 0; font-style: italic;">${$('<div>').text(tx.reason).html()}</p>` : ''}
                             </div>
                         </div>
                     `;
