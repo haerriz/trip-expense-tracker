@@ -3383,3 +3383,48 @@ body {
 [data-theme="dark"] .ai-source {
     background-color: rgba(255,255,255,0.1);
 }
+
+/* Keep dashboard actions readable when the action row wraps. */
+.expenses-dashboard .trip-actions-container,
+.expenses-dashboard .primary-actions,
+.expenses-dashboard .export-actions {
+    flex-wrap: wrap;
+}
+.expenses-dashboard .trip-actions-container .btn,
+.expenses-dashboard .trip-actions-container .btn-small,
+.expenses-dashboard .theme-toggle--labelled,
+.expenses-dashboard .mobile-accordion .collection-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: .45rem;
+    width: auto;
+    min-height: 40px;
+    height: auto;
+    line-height: 1.3;
+    white-space: normal;
+}
+.expenses-dashboard .trip-actions-container .btn,
+.expenses-dashboard .trip-actions-container .btn-small {
+    padding: .5rem .7rem;
+    color: #fff;
+    background-color: #24558a !important;
+}
+.expenses-dashboard .trip-actions-container .btn:hover,
+.expenses-dashboard .trip-actions-container .btn-small:hover {
+    background-color: #184375 !important;
+}
+.expenses-dashboard .trip-actions-container .material-icons,
+.expenses-dashboard .mobile-accordion .material-icons {
+    float: none;
+    flex: 0 0 auto;
+    margin: 0;
+    line-height: 1;
+}
+.expenses-dashboard .mobile-accordion .collection-item {
+    display: flex;
+    width: 100%;
+}
+.expenses-dashboard .theme-toggle--labelled svg {
+    flex: 0 0 20px;
+}

@@ -102,8 +102,8 @@ class DarkModeToggle {
         
         toggleBtns.forEach(btn => {
             const isSidenav = btn.closest('.sidenav');
-            if (isSidenav) {
-                // Mobile sidenav version with text
+            if (isSidenav || btn.classList.contains('theme-toggle--labelled')) {
+                // Show the current theme on labelled controls
                 btn.innerHTML = icon + `<span>${text}</span>`;
             } else {
                 // Desktop version icon only

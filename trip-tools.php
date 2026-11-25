@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/includes/auth.php';
 requireLogin();
+require_once __DIR__ . '/includes/trip-preferences.php';
 
 header('Cache-Control: private, no-store');
 header('Referrer-Policy: no-referrer');
@@ -49,6 +50,29 @@ $post = $_SERVER['REQUEST_METHOD'] === 'POST';
 if ($post && (!is_string($_POST['csrf'] ?? null) || !hash_equals($csrf, $_POST['csrf']))) {
     abortRequest(403, 'Refresh the page before submitting again.');
 }
+$link = '/trip-tools.php?trip_id=' . $tripId;
+if (($_GET['clear'] ?? null) === '1' && (int) ($_SESSION['trip_tools_filter']['trip'] ?? 0) === $tripId) {
+    unset($_SESSION['trip_tools_filter']);
+    session_write_close();
+    header('Location: ' . $link, true, 303);
+    exit;
+}
+if ($post && ($_POST['action'] ?? '') === 'filter') {
+    $newFrom = isoDate($_POST['from'] ?? null);
+    $newTo = isoDate($_POST['to'] ?? null);
+    if ($newFrom !== '' && $newTo !== '' && $newFrom > $newTo) {
+        abortRequest(400, 'The start date must come before the end date.');
+    }
+    $newTerm = $_POST['expense_search'] ?? '';
+    if (!is_string($newTerm) || !mb_check_encoding($newTerm, 'UTF-8') || mb_strlen($newTerm) > 100) {
+        abortRequest(400, 'Use at most 100 characters for expense search.');
+    }
+    $_SESSION['trip_tools_filter'] = ['trip' => $tripId, 'term' => trim($newTerm)];
+    session_write_close();
+    header('Location: ' . $link . '&' . http_build_query(['from' => $newFrom, 'to' => $newTo]), true, 303);
+    exit;
+}
+$term = (int) ($_SESSION['trip_tools_filter']['trip'] ?? 0) === $tripId ? (string) $_SESSION['trip_tools_filter']['term'] : '';
 $notice = $_SESSION['trip_tools_notice'] ?? '';
 unset($_SESSION['trip_tools_notice']);
 session_write_close();
@@ -60,8 +84,64 @@ if (!$trip) {
     abortRequest(404, 'Trip unavailable.');
 }
 $owner = (int) $trip['created_by'] === $userId;
+$memberQuery = $pdo->prepare("SELECT DISTINCT u.id,u.name FROM users u WHERE u.id = ? OR EXISTS (SELECT 1 FROM trip_members tm WHERE tm.trip_id = ? AND tm.user_id = u.id AND (tm.status = 'accepted' OR tm.status IS NULL)) ORDER BY u.name, u.id");
+$memberQuery->execute([(int) $trip['created_by'], $tripId]);
+$members = $memberQuery->fetchAll(PDO::FETCH_ASSOC);
+$memberIds = array_map('intval', array_column($members, 'id'));
+$defaultPath = tripPreferencePath($tripId, 'split-default');
+$weights = readTripPreference($defaultPath);
+if ($post && ($_POST['action'] ?? '') === 'defaults') {
+    if (!$owner) abortRequest(403, 'Only the trip owner can save defaults.');
+    $entered = $_POST['weight'] ?? null;
+    if (!is_array($entered) || count($entered) > count($members)) abortRequest(422, 'Invalid split weights.');
+    $saved = [];
+    foreach ($entered as $id => $weight) {
+        if (!in_array((int) $id, $memberIds, true) || !is_string($weight) ||
+            ($weight !== '' && (!ctype_digit($weight) || (int) $weight > 10000))) {
+            abortRequest(422, 'Use a whole-number weight from 0 to 10,000 for each trip member.');
+        }
+        if ((int) $weight > 0) $saved[(int) $id] = (int) $weight;
+    }
+    if (!saveTripPreference($defaultPath, $saved)) abortRequest(503, 'Could not save the trip default.');
+    header('Location: ' . $link . '#split-defaults', true, 303);
+    exit;
+}
 $storage = dirname(__DIR__) . '/private-receipts/' . $tripId;
-$link = '/trip-tools.php?trip_id=' . $tripId;
+$itemsId = $_GET['items'] ?? null;
+$receiptItems = [];
+$itemExpense = null;
+if ($itemsId !== null) {
+    if (!is_string($itemsId) || !ctype_digit($itemsId) || (int) $itemsId <= 0 || (int) $itemsId > 2147483647) abortRequest(400, 'Invalid expense.');
+    $itemQuery = $pdo->prepare("SELECT paid_by, amount, description FROM expenses WHERE id = ? AND trip_id = ? AND category <> 'Budget'");
+    $itemQuery->execute([(int) $itemsId, $tripId]);
+    $itemExpense = $itemQuery->fetch(PDO::FETCH_ASSOC);
+    if (!$itemExpense) abortRequest(404, 'Expense unavailable.');
+    $canEditItems = $owner || (int) $itemExpense['paid_by'] === $userId;
+    $itemPath = tripPreferencePath($tripId, 'expense-' . (int) $itemsId . '-items');
+    $receiptItems = readTripPreference($itemPath);
+    if ($post && ($_POST['action'] ?? '') === 'items') {
+        if (!$canEditItems) abortRequest(403, 'Only the payer or trip owner can edit items.');
+        $posted = $_POST['item'] ?? null;
+        if (!is_array($posted) || count($posted) > 20) abortRequest(422, 'Add up to 20 line items.');
+        $valid = [];
+        foreach ($posted as $row) {
+            if (!is_array($row)) abortRequest(422, 'Invalid receipt line.');
+            $label = is_string($row['label'] ?? null) ? trim($row['label']) : '';
+            $amount = $row['amount'] ?? '';
+            $member = $row['member'] ?? '';
+            if ($label === '' && $amount === '' && $member === '') continue;
+            if ($label === '' || !mb_check_encoding($label, 'UTF-8') || mb_strlen($label) > 120
+                || !is_string($amount) || !preg_match('/^[0-9]{1,8}(?:[.][0-9]{1,2})?$/D', $amount)
+                || !is_string($member) || ($member !== '' && (!ctype_digit($member) || !in_array((int) $member, $memberIds, true)))) {
+                abortRequest(422, 'Each line needs a description, a valid amount and, optionally, a trip member.');
+            }
+            $valid[] = ['label' => $label, 'cents' => (int) round((float) $amount * 100), 'member' => (int) $member];
+        }
+        if (!saveTripPreference($itemPath, $valid)) abortRequest(503, 'Could not save receipt items.');
+        header('Location: ' . $link . '&items=' . (int) $itemsId . '#itemization', true, 303);
+        exit;
+    }
+}
 $view = isset($_GET['receipt']);
 $upload = $post && ($_POST['action'] ?? '') === 'receipt';
 
@@ -185,6 +265,15 @@ if ($to !== '') {
     $where .= ' AND e.date <= ?';
     $params[] = $to;
 }
+if ($term !== '') {
+    $like = '%' . strtr($term, ['!' => '!!', '%' => '!%', '_' => '!_']) . '%';
+    $where .= " AND (e.description LIKE ? ESCAPE '!' OR e.category LIKE ? ESCAPE '!' OR e.subcategory LIKE ? ESCAPE '!')";
+    array_push($params, $like, $like, $like);
+}
+$pageInput = $_GET['page'] ?? '1';
+if (!is_string($pageInput) || !ctype_digit($pageInput) || (int) $pageInput < 1 || (int) $pageInput > 10000) {
+    abortRequest(400, 'Invalid results page.');
+}
 $rows = static function (string $sql, array $values) use ($pdo): array {
     $statement = $pdo->prepare($sql);
     $statement->execute($values);
@@ -193,7 +282,14 @@ $rows = static function (string $sql, array $values) use ($pdo): array {
 $categories = $rows("SELECT e.category AS label, SUM(e.amount) AS total, COUNT(*) AS items FROM expenses e WHERE $where GROUP BY e.category ORDER BY total DESC", $params);
 $months = $rows("SELECT DATE_FORMAT(e.date, '%Y-%m') AS label, SUM(e.amount) AS total FROM expenses e WHERE $where GROUP BY label ORDER BY label DESC LIMIT 12", $params);
 $total = $rows("SELECT SUM(e.amount) AS total, COUNT(*) AS items FROM expenses e WHERE $where", $params)[0];
-$expenses = $rows("SELECT e.id, e.date, e.category, e.amount, e.description, e.paid_by, u.name AS payer FROM expenses e LEFT JOIN users u ON e.paid_by = u.id WHERE $where ORDER BY e.date DESC, e.id DESC LIMIT 100", $params);
+$pageSize = 25;
+$totalPages = max(1, (int) ceil((int) $total['items'] / $pageSize));
+$page = min((int) $pageInput, $totalPages);
+$offset = ($page - 1) * $pageSize;
+$pageLink = static function (int $number) use ($link, $from, $to): string {
+    return $link . '&' . http_build_query(['from' => $from, 'to' => $to, 'page' => $number]) . '#expenses';
+};
+$expenses = $rows("SELECT e.id, e.date, e.category, e.amount, e.description, e.paid_by, u.name AS payer FROM expenses e LEFT JOIN users u ON e.paid_by = u.id WHERE $where ORDER BY e.date DESC, e.id DESC LIMIT $pageSize OFFSET $offset", $params);
 $search = '';
 $messages = [];
 if ($post && ($_POST['action'] ?? '') === 'chat') {
@@ -231,11 +327,13 @@ td form{min-width:13rem}article{border-top:1px solid GrayText;padding:.65rem 0;o
 <?php if ($notice): ?><p role="status"><?= h($notice) ?></p><?php endif; ?>
 <section class="panel">
 <h2>Spending report</h2>
-<form method="get" class="flex">
-<input type="hidden" name="trip_id" value="<?= $tripId ?>">
+<form method="post" class="flex">
+<input type="hidden" name="csrf" value="<?= h($csrf) ?>">
+<input type="hidden" name="action" value="filter">
 <label>From<input type="date" name="from" value="<?= h($from) ?>"></label>
 <label>To<input type="date" name="to" value="<?= h($to) ?>"></label>
-<button>Apply dates</button><a href="<?= h($link) ?>">Clear dates</a>
+<label>Search expenses<input type="search" name="expense_search" value="<?= h($term) ?>" maxlength="100" placeholder="Description or category"></label>
+<button>Apply filters</button><a href="<?= h($link . '&clear=1') ?>">Clear filters</a>
 </form>
 <p><strong><?= $money($total['total']) ?></strong> across <?= (int) $total['items'] ?> expenses. Budget adjustments are excluded.</p>
 <div class="grid">
@@ -247,11 +345,42 @@ td form{min-width:13rem}article{border-top:1px solid GrayText;padding:.65rem 0;o
 </tbody></table></div>
 </div>
 </section>
+<section class="panel" id="split-defaults">
+<h2>Saved split default</h2>
+<p>Weights are relative shares. For example, 2 and 1 split the expense two-thirds and one-third. A zero excludes that person. Choose “Use saved split” when adding an expense.</p>
+<?php if ($owner): ?>
+<form method="post" action="<?= h($link) ?>" class="grid">
+<input type="hidden" name="csrf" value="<?= h($csrf) ?>"><input type="hidden" name="action" value="defaults">
+<?php foreach ($members as $member): $id = (int) $member['id']; ?>
+<label><?= h($member['name']) ?><input type="number" name="weight[<?= $id ?>]" value="<?= (int) ($weights[$id] ?? 0) ?>" min="0" max="10000" step="1"></label>
+<?php endforeach; ?>
+<button>Save split default</button>
+</form>
+<?php else: ?><p>The trip owner manages the saved split.</p><?php endif; ?>
+</section>
+<?php if ($itemExpense): ?>
+<section class="panel" id="itemization">
+<h2>Receipt items</h2><p><?= h($itemExpense['description']) ?></p>
+<p>Item total <?= $money(array_sum(array_column($receiptItems, 'cents')) / 100) ?> · Expense total <?= $money($itemExpense['amount']) ?>. Item edits leave balances unchanged.</p>
+<form method="post" action="<?= h($link . '&items=' . (int) $itemsId) ?>">
+<input type="hidden" name="csrf" value="<?= h($csrf) ?>"><input type="hidden" name="action" value="items">
+<div class="scroll"><table><thead><tr><th>Item description</th><th>Line amount</th><th>Traveller (optional)</th></tr></thead><tbody>
+<?php for ($i = 0, $limit = $canEditItems ? min(20, max(5, count($receiptItems) + 3)) : count($receiptItems); $i < $limit; $i++): $item = $receiptItems[$i] ?? []; ?>
+<tr><td><input aria-label="Item <?= $i + 1 ?> description" name="item[<?= $i ?>][label]" maxlength="120" value="<?= h($item['label'] ?? '') ?>" <?= $canEditItems ? '' : 'readonly' ?>></td>
+<td><input aria-label="Item <?= $i + 1 ?> amount" name="item[<?= $i ?>][amount]" type="number" min="0" max="99999999.99" step=".01" value="<?= isset($item['cents']) ? h(number_format($item['cents'] / 100, 2, '.', '')) : '' ?>" <?= $canEditItems ? '' : 'readonly' ?>></td>
+<td><select aria-label="Item <?= $i + 1 ?> traveller" name="item[<?= $i ?>][member]" <?= $canEditItems ? '' : 'disabled' ?>><option value="">Unassigned</option>
+<?php foreach ($members as $member): ?><option value="<?= (int) $member['id'] ?>" <?= (int) ($item['member'] ?? 0) === (int) $member['id'] ? 'selected' : '' ?>><?= h($member['name']) ?></option><?php endforeach; ?>
+</select></td></tr><?php endfor; ?>
+</tbody></table></div>
+<?php if ($canEditItems): ?><p>To remove a line, clear its description, amount, and traveller.</p><button>Save receipt items</button><?php endif; ?>
+</form></section>
+<?php endif; ?>
 <section class="panel" id="expenses">
-<h2>Expense receipts</h2><p>Showing up to 100 expenses for these dates. Add one JPEG or PNG per expense, up to 5 MB and 10 megapixels.</p>
+<h2>Expense receipts</h2><p>Showing <?= count($expenses) ?> of <?= (int) $total['items'] ?> matching expenses. Add one JPEG or PNG per expense, up to 5 MB and 10 megapixels.</p>
 <div class="scroll"><table><thead><tr><th>Date</th><th>Expense</th><th>Paid by</th><th>Amount</th><th>Receipt</th></tr></thead><tbody>
 <?php foreach ($expenses as $row): $id = (int) $row['id']; $path = $storage . '/' . $id . '.jpg'; ?>
 <tr><td><?= h($row['date']) ?></td><td><?= h($row['description'] ?: $row['category']) ?></td><td><?= h($row['payer'] ?? '') ?></td><td><?= $money($row['amount']) ?></td><td>
+<a href="<?= h($link . '&items=' . $id . '#itemization') ?>">Receipt items</a><br>
 <?php if (!is_link($path) && is_file($path)): ?>
 <a href="<?= h($link . '&receipt=' . $id) ?>">Download receipt</a>
 <?php elseif ($owner || (int) $row['paid_by'] === $userId): ?>
@@ -264,6 +393,13 @@ td form{min-width:13rem}article{border-top:1px solid GrayText;padding:.65rem 0;o
 <?php endforeach; ?>
 <?php if (!$expenses): ?><tr><td colspan="5">No expenses in this range.</td></tr><?php endif; ?>
 </tbody></table></div>
+<?php if ($totalPages > 1): ?>
+<nav class="flex" aria-label="Expense result pages">
+<?php if ($page > 1): ?><a href="<?= h($pageLink($page - 1)) ?>">Previous</a><?php endif; ?>
+<span>Page <?= $page ?> of <?= $totalPages ?></span>
+<?php if ($page < $totalPages): ?><a href="<?= h($pageLink($page + 1)) ?>">Next</a><?php endif; ?>
+</nav>
+<?php endif; ?>
 </section>
 <section class="panel" id="chat">
 <h2>Search trip chat</h2>

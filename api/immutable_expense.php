@@ -40,7 +40,7 @@ function isTripMember(PDO $pdo, $tripId, $userId): bool {
 
 function getTripMemberIds(PDO $pdo, $tripId): array {
     try {
-        $stmt = $pdo->prepare("SELECT user_id FROM trip_members WHERE trip_id = ? AND (status = 'accepted' OR status IS NULL)");
+        $stmt = $pdo->prepare("SELECT DISTINCT user_id FROM trip_members WHERE trip_id = ? AND (status = 'accepted' OR status IS NULL) ORDER BY user_id");
         $stmt->execute([$tripId]);
     } catch (Exception $e) {
         $stmt = $pdo->prepare("SELECT user_id FROM trip_members WHERE trip_id = ?");
@@ -56,16 +56,13 @@ function buildEqualSplits(array $memberIds, float $amount): array {
         return [];
     }
 
-    $base = floor(($amount * 100) / $count) / 100;
-    $remainder = round($amount - ($base * $count), 2);
+    $cents = (int) round($amount * 100);
+    $base = intdiv($cents, $count);
+    $remainder = $cents % $count;
     $splits = [];
 
     foreach ($memberIds as $index => $memberId) {
-        $splitAmount = $base;
-        if ($index === 0) {
-            $splitAmount = round($splitAmount + $remainder, 2);
-        }
-        $splits[$memberId] = $splitAmount;
+        $splits[$memberId] = ($base + ($index < $remainder ? 1 : 0)) / 100;
     }
 
     return $splits;
@@ -74,16 +71,19 @@ function buildEqualSplits(array $memberIds, float $amount): array {
 function parseCustomSplits(array $memberIds, float $amount): array {
     $validMemberIds = array_flip($memberIds);
     $splits = [];
-    $total = 0.0;
+    $totalCents = 0;
 
     foreach ($_POST as $key => $value) {
         if (strpos($key, 'split_') !== 0) {
             continue;
         }
 
-        $memberId = intval(substr($key, 6));
-        if (!isset($validMemberIds[$memberId])) {
+        $memberId = substr($key, 6);
+        if ($memberId === 'type') {
             continue;
+        }
+        if (!isset($validMemberIds[$memberId]) || !is_numeric($value) || !is_finite((float) $value) || (float) $value < 0) {
+            return [];
         }
 
         $splitAmount = round(floatval($value), 2);
@@ -92,14 +92,14 @@ function parseCustomSplits(array $memberIds, float $amount): array {
         }
 
         $splits[$memberId] = $splitAmount;
-        $total += $splitAmount;
+        $totalCents += (int) round($splitAmount * 100);
     }
 
     if (empty($splits)) {
         return [];
     }
 
-    if (abs($total - $amount) > 0.01) {
+    if ($totalCents !== (int) round($amount * 100)) {
         return [];
     }
 
@@ -165,6 +165,7 @@ try {
 
 function addExpense(): void {
     global $pdo;
+    require_once __DIR__ . '/../includes/trip-preferences.php';
 
     $tripId = trim($_POST['trip_id'] ?? '');
     $category = trim($_POST['category'] ?? '');
@@ -180,7 +181,11 @@ function addExpense(): void {
         jsonError('Required fields are missing');
     }
 
-    if ($amount <= 0) {
+    if (strcasecmp($category, 'Budget') === 0) {
+        jsonError('Use the budget controls for budget changes');
+    }
+
+    if (!is_finite($amount) || $amount <= 0) {
         jsonError('Amount must be greater than zero');
     }
 
@@ -196,6 +201,16 @@ function addExpense(): void {
         jsonError('The selected payer is not a member of this trip');
     }
 
+    $savedSplits = null;
+    if ($splitType === 'saved') {
+        $token = $_POST['csrf'] ?? null;
+        $expected = $_SESSION['chat_csrf'] ?? null;
+        if (!is_string($token) || !is_string($expected) || !hash_equals($expected, $token)) jsonError('Refresh the dashboard before trying again.');
+        requireTripAccess($tripId);
+        $savedSplits = allocateSavedShares(readTripPreference(tripPreferencePath((int) $tripId, 'split-default')), getTripMemberIds($pdo, $tripId), (int) round($amount * 100));
+        if (!$savedSplits) jsonError('No valid saved split for this trip. Ask the trip owner to update it.');
+        $splitType = 'custom';
+    }
     if (!in_array($splitType, ['equal', 'full', 'custom'], true)) {
         jsonError('Invalid split type');
     }
@@ -203,10 +218,14 @@ function addExpense(): void {
     $pdo->beginTransaction();
     try {
         $stmt = $pdo->prepare("INSERT INTO expenses (trip_id, category, subcategory, amount, description, date, paid_by, split_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$tripId, $category, $subcategory, $amount, $description, $date, $paidBy, $splitType]);
+        $stmt->execute([$tripId, $category, $subcategory, $amount, $description, $date, $paidBy, $splitType === 'full' ? 'custom' : $splitType]);
         $expenseId = $pdo->lastInsertId();
 
-        handleExpenseSplits($expenseId, $tripId, $amount, $splitType, $paidBy);
+        if ($savedSplits !== null) {
+            insertExpenseSplits($pdo, $expenseId, $savedSplits);
+        } else {
+            handleExpenseSplits($expenseId, $tripId, $amount, $splitType, $paidBy);
+        }
 
         $pdo->commit();
         jsonResponse(true, ['expense_id' => $expenseId]);
@@ -233,7 +252,11 @@ function modifyExpense(): void {
         jsonError('Required fields are missing');
     }
 
-    if ($amount <= 0) {
+    if (strcasecmp($category, 'Budget') === 0) {
+        jsonError('Use the budget controls for budget changes');
+    }
+
+    if (!is_finite($amount) || $amount <= 0) {
         jsonError('Amount must be greater than zero');
     }
 
@@ -247,6 +270,11 @@ function modifyExpense(): void {
 
     if (!$originalExpense) {
         jsonError('Expense not found');
+    }
+
+    requireTripAccess($originalExpense['trip_id']);
+    if (strcasecmp($originalExpense['category'] ?? '', 'Budget') === 0) {
+        jsonError('Use the budget controls for budget changes');
     }
 
     if ($originalExpense['paid_by'] != $userId && !$isMasterAdmin) {
@@ -297,6 +325,11 @@ function deactivateExpense(): void {
 
     if (!$expense) {
         jsonError('Expense not found');
+    }
+
+    requireTripAccess($expense['trip_id']);
+    if (strcasecmp($expense['category'] ?? '', 'Budget') === 0) {
+        jsonError('Use the budget controls for budget changes');
     }
 
     if ($expense['paid_by'] != $userId && !$isMasterAdmin) {

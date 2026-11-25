@@ -74,10 +74,10 @@ header('Cache-Control: private, no-store');
     
     <script>
         window.currentUserId = <?php echo $_SESSION['user_id']; ?>;
-        window.userEmail = '<?php echo $_SESSION['user_email']; ?>';
+        window.userEmail = <?= json_encode($_SESSION['user_email'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
     </script>
 </head>
-<body class="grey lighten-4">
+<body class="grey lighten-4 expenses-dashboard">
     <nav class="blue darken-1">
         <div class="nav-wrapper">
             <a href="#" class="brand-logo left">
@@ -88,10 +88,10 @@ header('Cache-Control: private, no-store');
                 <li style="display: flex; align-items: center; gap: 8px; padding: 0 15px;">
                     <img src="<?php echo $_SESSION['user_picture'] ?: 'https://ui-avatars.com/api/?name=' . urlencode($_SESSION['user_name']) . '&size=32&background=1976D2&color=fff'; ?>" 
                          alt="Profile" class="circle" style="width: 32px; height: 32px;">
-                    <span class="white-text"><?php echo $_SESSION['user_name']; ?></span>
+                    <span class="white-text"><?= htmlspecialchars((string) $_SESSION['user_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
                 </li>
                 <li>
-                    <button class="theme-toggle" title="Toggle dark mode">
+                    <button class="theme-toggle theme-toggle--labelled" title="Toggle dark mode">
                         <svg viewBox="0 0 24 24"><path d="M12.34 2.02C6.59 1.82 2 6.42 2 12c0 5.52 4.48 10 10 10 3.71 0 6.93-2.02 8.66-5.02-7.51-.25-13.64-6.42-13.64-13.96 0-.34.02-.67.05-1z"/></svg>
                     </button>
                 </li>
@@ -109,8 +109,8 @@ header('Cache-Control: private, no-store');
         <li><div class="user-view">
             <div class="background blue darken-1"></div>
             <a href="#user"><img class="circle" src="<?php echo $_SESSION['user_picture'] ?: 'https://ui-avatars.com/api/?name=' . urlencode($_SESSION['user_name']) . '&size=64&background=1976D2&color=fff'; ?>" alt="Profile"></a>
-            <a href="#name"><span class="white-text name"><?php echo $_SESSION['user_name']; ?></span></a>
-            <a href="#email"><span class="white-text email"><?php echo $_SESSION['user_email']; ?></span></a>
+            <a href="#name"><span class="white-text name"><?= htmlspecialchars((string) $_SESSION['user_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span></a>
+            <a href="#email"><span class="white-text email"><?= htmlspecialchars((string) $_SESSION['user_email'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span></a>
         </div></li>
         <li>
             <button class="theme-toggle">
@@ -127,6 +127,7 @@ header('Cache-Control: private, no-store');
                     <div class="collapsible-header"><i class="material-icons">assessment</i>Reports</div>
                     <div class="collapsible-body">
                         <div class="collection">
+                            <a id="mobile-trip-tools-open" class="collection-item" href="#!"><i class="material-icons left" aria-hidden="true">search</i><span>Search expenses and receipts</span></a>
                             <a id="mobile-export-pdf" class="collection-item"><i class="material-icons left">picture_as_pdf</i>Export PDF</a>
                             <a id="mobile-export-xlsx" class="collection-item"><i class="material-icons left">description</i>Export XLSX</a>
                             <a id="mobile-export-csv" class="collection-item"><i class="material-icons left">table_chart</i>Export CSV</a>
@@ -181,28 +182,28 @@ header('Cache-Control: private, no-store');
                             <i class="material-icons left">mail</i>Invitations <span id="invitation-count" class="new badge" data-badge-caption="">0</span>
                         </a>
                         <a id="ai-suggestions-btn" class="btn waves-effect waves-light purple">
-                            <i class="material-icons left">lightbulb</i>AI Suggestions
+                            <i class="material-icons" aria-hidden="true">lightbulb</i><span>AI Suggestions</span>
                         </a>
                     </div>
                     <div class="export-actions">
-                        <button type="button" id="trip-tools-open" class="btn-small waves-effect waves-light teal">Reports, receipts &amp; chat search</button>
+                        <button type="button" id="trip-tools-open" class="btn-small waves-effect waves-light teal"><i class="material-icons" aria-hidden="true">search</i><span>Trip tools</span></button>
                         <a id="export-pdf" class="btn-small waves-effect waves-light grey">
-                            <i class="material-icons left">picture_as_pdf</i>PDF
+                            <i class="material-icons" aria-hidden="true">picture_as_pdf</i><span>PDF</span>
                         </a>
                         <a id="export-excel" class="btn-small waves-effect waves-light grey">
-                            <i class="material-icons left">table_chart</i>CSV
+                            <i class="material-icons" aria-hidden="true">table_chart</i><span>CSV</span>
                         </a>
                         <a id="export-xlsx" class="btn-small waves-effect waves-light grey">
-                            <i class="material-icons left">description</i>XLSX
+                            <i class="material-icons" aria-hidden="true">description</i><span>XLSX</span>
                         </a>
                         <a id="email-report" class="btn-small waves-effect waves-light grey">
-                            <i class="material-icons left">email</i>Email
+                            <i class="material-icons" aria-hidden="true">email</i><span>Email</span>
                         </a>
                         <a id="ai-budget-btn" class="btn-small waves-effect waves-light teal">
-                            <i class="material-icons left">analytics</i>AI Budget
+                            <i class="material-icons" aria-hidden="true">analytics</i><span>AI Budget</span>
                         </a>
                         <a id="receipt-analysis-btn" class="btn-small waves-effect waves-light orange">
-                            <i class="material-icons left">receipt</i>Scan Receipt
+                            <i class="material-icons" aria-hidden="true">receipt</i><span>Scan Receipt</span>
                         </a>
                     </div>
                 </div>
@@ -345,6 +346,10 @@ header('Cache-Control: private, no-store');
                                             <span>Custom Split</span>
                                         </label>
                                     </p>
+                                    <p><label class="split-option-btn" for="split-saved">
+                                        <input id="split-saved" name="split" type="radio" value="saved" />
+                                        <span>Use saved split</span>
+                                    </label></p>
                                 </div>
                                 <div id="custom-split-section" style="display:none;">
                                     <div class="split-mode-toggle">
@@ -876,14 +881,15 @@ header('Cache-Control: private, no-store');
     
     <script src="js/floating-chat.js?v=<?php echo time(); ?>"></script>
 <script>
-    document.getElementById('trip-tools-open').addEventListener('click', function () {
+    document.querySelectorAll('#trip-tools-open, #mobile-trip-tools-open').forEach(control => control.addEventListener('click', function (event) {
+        event.preventDefault();
         const trip = document.getElementById('current-trip')?.value || document.getElementById('current-trip-mobile')?.value;
         if (!trip || !/^\d+$/.test(trip)) {
             M.toast({html: 'Choose a trip first.'});
             return;
         }
         window.location.assign('/trip-tools.php?trip_id=' + encodeURIComponent(trip));
-    });
+    }));
     </script>
 </body>
 </html>

@@ -1523,7 +1523,8 @@ function addExpense() {
         description: description,
         date: date,
         paid_by: paidBy,
-        split_type: splitType
+        split_type: splitType,
+        csrf: document.querySelector('meta[name="chat-csrf"]')?.content || ''
     };
     
     // Add custom splits if applicable
